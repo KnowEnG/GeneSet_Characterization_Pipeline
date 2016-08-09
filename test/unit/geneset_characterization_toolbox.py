@@ -4,7 +4,6 @@ Created on Tue Jun 28 14:39:35 2016
 """
 
 import numpy as np
-import numpy.linalg as LA
 import pandas as pd
 from scipy import stats
 from sklearn.preprocessing import normalize
@@ -60,6 +59,8 @@ def perform_fisher_exact_test(
 
     result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
     return result_df
+
+
 
 def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters):
     """ calculate random walk with global network and user set gene sets  and write output.
