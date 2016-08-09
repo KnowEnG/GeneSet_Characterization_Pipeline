@@ -4,7 +4,6 @@ Created on Tue Jun 28 14:39:35 2016
 """
 
 import numpy as np
-import numpy.linalg as LA
 import pandas as pd
 from scipy import stats
 from sklearn.preprocessing import normalize
@@ -29,17 +28,17 @@ def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
 
 def perform_fisher_exact_test(
         prop_gene_network_sparse, reverse_prop_gene_network_n1_names_dict,
-        spreadsheet_df, universe_count, results_dir):
+        spreadsheet_df, results_dir):
     """ central loop: compute components for fisher exact test.
     Args:
         prop_gene_network_sparse: sparse matrix of network gene set.
         reverse_prop_gene_network_n1_names_dict: look up table of sparse matrix.
         spreadsheet_df: the dataframe of user gene set.
-        universe_count: count of the common_gene_names.
         results_dir: directory name to write results.
     """
     df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
     gene_count = prop_gene_network_sparse.sum(axis=0)
+    universe_count = spreadsheet_df.shape[0]
     df_val = []
 
     col_list = spreadsheet_df.columns.values
@@ -142,7 +141,7 @@ def run_fisher(run_parameters):
         prop_gene_network_df, universe_count, len(prop_gene_network_n1_names))
     perform_fisher_exact_test(
         prop_gene_network_sparse, reverse_prop_gene_network_n1_names_dict,
-        spreadsheet_df, universe_count, run_parameters['results_directory'])
+        spreadsheet_df, run_parameters['results_directory'])
 
     return
 def run_DRaWR(run_parameters):
