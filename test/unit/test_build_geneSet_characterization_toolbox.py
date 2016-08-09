@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 from scipy.sparse import csr_matrix
 import pandas as pd
+
 from sklearn.preprocessing import normalize
 from geneset_characterization_toolbox import build_fisher_contigency_table
 from geneset_characterization_toolbox import perform_fisher_exact_test
@@ -65,12 +66,18 @@ class testBuild_geneSet_characterization_toolbox(TestCase):
                         ([1,2,0,2,0,1,6,5,5,6,5,6,1,2,3,0,2,4],
                          [0,0,1,1,2,2,0,1,2,2,3,4,5,5,5,6,6,6])),shape=(7,7))
         spreadsheet_df = pd.DataFrame({'GS1':[1,0,0,0,0,0,0]})
+        spreadsheet_df.index = ['G1','G2','G3','G4','G5','P6','P7']
         len_gene_names = 5
         run_parameters = {'number_of_iteriations_in_rwr': 500,'it_max': 10000,
                           'restart_tolerance': 0.0001,'restart_probability': 0.5}
         ret = perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters)
+        ret.index = [0,1]
+        res = pd.DataFrame({'GS1':['P7','P6'],'base':['P7','P6']})
+        comp = ret.equals(res)
+        print(ret)
+        print(res)
+        self.assertEqual(True,comp)
 
 
-        
 if __name__ == '__main__':
     unittest.main()

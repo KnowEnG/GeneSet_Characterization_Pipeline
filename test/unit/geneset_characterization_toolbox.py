@@ -6,6 +6,7 @@ Created on Tue Jun 28 14:39:35 2016
 import numpy as np
 import pandas as pd
 from scipy import stats
+import numpy.linalg as LA
 from sklearn.preprocessing import normalize
 
 def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
