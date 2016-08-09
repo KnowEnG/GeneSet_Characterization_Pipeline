@@ -4,7 +4,6 @@ Created on Tue Jun 28 14:39:35 2016
 """
 
 import numpy as np
-import numpy.linalg as LA
 import pandas as pd
 from scipy import stats
 from sklearn.preprocessing import normalize
@@ -97,6 +96,7 @@ def smooth_matrix_with_rwr(restart, network_sparse, run_parameters):
         smooth_0 = smooth_1
 
     return smooth_1, step
+
 
 def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters):
     """ calculate random walk with global network and user set gene sets  and write output.
