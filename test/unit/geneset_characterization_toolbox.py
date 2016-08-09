@@ -61,6 +61,43 @@ def perform_fisher_exact_test(
     result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
     return result_df
 
+def append_column_to_spreadsheet(spreadsheet_df, len_gene):
+    """ append baseline vector of the user spreadsheet matrix.
+    Args:
+        spreadsheet_df: user spreadsheet dataframe.
+        len_gene: length of genes in the user spreadsheet.
+    Returns:
+        spreadsheet_df: new dataframe with baseline vector appended in the last column.
+    """
+    property_size = spreadsheet_df.shape[0] - len_gene
+    spreadsheet_df["base"] = np.append(np.ones(len_gene, dtype=np.int), np.zeros(property_size, dtype=np.int))
+
+    return spreadsheet_df
+
+def smooth_matrix_with_rwr(restart, network_sparse, run_parameters):
+    """ simulate a random walk with restart. iterate: (R_n+1 = a*N*R_n + (1-a)*R_n).
+    Args:
+        restart: restart array of any column size.
+        network_sparse: network stored in sparse format.
+        run_parameters: parameters dictionary with "restart_probability",
+        "restart_tolerance", "number_of_iteriations_in_rwr".
+    Returns:
+        smooth_1: smoothed restart data.
+        step: number of iterations (converged to tolerence or quit).
+    """
+    tol = np.float_(run_parameters["restart_tolerance"])
+    alpha = np.float_(run_parameters["restart_probability"])
+    smooth_0 = restart
+    smooth_r = (1. - alpha) * restart
+    for step in range(0, int(run_parameters["number_of_iteriations_in_rwr"])):
+        smooth_1 = alpha * network_sparse.dot(smooth_0) + smooth_r
+        deltav = LA.norm(smooth_1 - smooth_0, 'fro')
+        if deltav < tol:
+            break
+        smooth_0 = smooth_1
+
+    return smooth_1, step
+
 def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters):
     """ calculate random walk with global network and user set gene sets  and write output.
     Args:
@@ -86,8 +123,7 @@ def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters
 
     final_spreadsheet_df['base'] = \
         final_spreadsheet_df.sort_values('base', ascending=0).index.values
-
-    return
+    return final_spreadsheet_df
 
 def run_fisher(run_parameters):
     ''' wrapper: call sequence to perform fisher gene-set characterization
