@@ -78,6 +78,5 @@ class testBuild_geneSet_characterization_toolbox(TestCase):
         print(res)
         self.assertEqual(True,comp)
 
-
 if __name__ == '__main__':
     unittest.main()
