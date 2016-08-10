@@ -26,37 +26,32 @@ def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
 
     return table
 
-def perform_fisher_exact_test(
-        prop_gene_network_sparse, reverse_prop_gene_network_n1_names_dict,
+def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
         spreadsheet_df, results_dir):
     """ central loop: compute components for fisher exact test.
     Args:
         prop_gene_network_sparse: sparse matrix of network gene set.
-        reverse_prop_gene_network_n1_names_dict: look up table of sparse matrix.
+        sparse_dict: look up table of sparse matrix.
         spreadsheet_df: the dataframe of user gene set.
         results_dir: directory name to write results.
     """
-    df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
-    gene_count = prop_gene_network_sparse.sum(axis=0)
     universe_count = spreadsheet_df.shape[0]
+    overlap_count = prop_gene_network_sparse.T.dot(spreadsheet_df.values)
+    user_count = np.sum(spreadsheet_df.values, axis=0)
+    gene_count = prop_gene_network_sparse.sum(axis=0)
+    set_list = spreadsheet_df.columns.values
     df_val = []
 
-    col_list = spreadsheet_df.columns.values
-    for col in col_list:
-        new_user_set = spreadsheet_df.loc[:, col]
-        user_count = np.sum(new_user_set.values)
-        overlap_count = prop_gene_network_sparse.T.dot(new_user_set.values)
-
-        for i in range(0, len(reverse_prop_gene_network_n1_names_dict)):
-            table = build_fisher_contigency_table(
-                overlap_count[i], user_count, gene_count[0, i], universe_count)
-            oddsratio, pvalue = stats.fisher_exact(table, alternative="greater")
-
-            if overlap_count[i] != 0:
-                row_item = [col, reverse_prop_gene_network_n1_names_dict[i], int(universe_count),
-                            int(user_count), int(gene_count[0, i]), int(overlap_count[i]), pvalue]
+    for i in range(overlap_count.shape[0]):
+        for j in range(overlap_count.shape[1]):
+            table = build_fisher_contigency_table(overlap_count[i, j], user_count[j],
+                                                  gene_count[0, i], universe_count)
+            pvalue = stats.fisher_exact(table, alternative="greater")[1]
+            if overlap_count[i, j] != 0:
+                row_item = [set_list[j], sparse_dict[i], int(universe_count), int(user_count[j]),
+                            int(gene_count[0, i]), int(overlap_count[i, j]), pvalue]
                 df_val.append(row_item)
-
+    df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
     result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
     save_df(result_df, results_dir, "fisher_result.txt")
 
@@ -189,4 +184,4 @@ def run_DRaWR(run_parameters):
 
     perform_DRaWR(network_sparse, spreadsheet_df, len(unique_gene_names), run_parameters)
 
-    return 
+    return
