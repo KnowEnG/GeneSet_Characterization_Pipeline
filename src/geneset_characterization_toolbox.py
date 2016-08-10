@@ -53,7 +53,8 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
                 df_val.append(row_item)
     df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
     result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
-    save_df(result_df, results_dir, "fisher_result.txt")
+    file_name = create_timestamped_filename("fisher_result", stamp_units=1e6)
+    save_df(result_df, results_dir, file_name)
 
     return
 
@@ -82,7 +83,9 @@ def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters
 
     final_spreadsheet_df['base'] = \
         final_spreadsheet_df.sort_values('base', ascending=0).index.values
-    save_df(final_spreadsheet_df, run_parameters['results_directory'], "rw_result.txt")
+
+    file_name = create_timestamped_filename("DRaWR_result", stamp_units=1e6)
+    save_df(final_spreadsheet_df, run_parameters['results_directory'], file_name)
 
     return
 
