@@ -73,9 +73,9 @@ def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters
     base_col = np.append(np.ones(len_gene_names, dtype=np.int),
                          np.zeros(property_size, dtype=np.int))
 
-    new_spreadsheet_df = append_column_to_spreadsheet(spreadsheet_df, base_col, 'base')
+    new_spreadsheet_df = kn.append_column_to_spreadsheet(spreadsheet_df, base_col, 'base')
 
-    final_spreadsheet_matrix, step = smooth_matrix_with_rwr(
+    final_spreadsheet_matrix, step = kn.smooth_matrix_with_rwr(
         normalize(new_spreadsheet_df, norm='l1', axis=0), hetero_network, run_parameters)
 
     final_spreadsheet_df = pd.DataFrame(
@@ -90,8 +90,8 @@ def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters
     final_spreadsheet_df['base'] = \
         final_spreadsheet_df.sort_values('base', ascending=0).index.values
 
-    file_name = create_timestamped_filename("DRaWR_result", stamp_units=1e6)
-    save_df(final_spreadsheet_df, run_parameters['results_directory'], file_name)
+    file_name = kn.create_timestamped_filename("DRaWR_result", stamp_units=1e6)
+    # kn.save_df(final_spreadsheet_df, run_parameters['results_directory'], file_name)
 
     return final_spreadsheet_df
 
