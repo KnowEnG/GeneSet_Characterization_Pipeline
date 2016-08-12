@@ -56,7 +56,7 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
     file_name = create_timestamped_filename("fisher_result", stamp_units=1e6)
     save_df(result_df, results_dir, file_name)
 
-    return
+    return result_df
 
 def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters):
     """ calculate random walk with global network and user set gene sets  and write output.
@@ -91,7 +91,7 @@ def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters
     file_name = create_timestamped_filename("DRaWR_result", stamp_units=1e6)
     save_df(final_spreadsheet_df, run_parameters['results_directory'], file_name)
 
-    return
+    return final_spreadsheet_df
 
 def run_fisher(run_parameters):
     ''' wrapper: call sequence to perform fisher gene-set characterization
@@ -124,6 +124,8 @@ def run_fisher(run_parameters):
     # ----------------------------------------------------------------------------
     # - restrict spreadsheet and network to common genes and drop everthing else -
     # ----------------------------------------------------------------------------
+    droplist = find_dropped_node_names(spreadsheet_df, common_gene_names)
+    save_df(droplist, run_parameters['tmp_directory'], 'fisher_droplist.txt')
     spreadsheet_df = update_spreadsheet_df(spreadsheet_df, common_gene_names)
     prop_gene_network_df = update_network_df(prop_gene_network_df, common_gene_names, "node_2")
 
@@ -170,6 +172,8 @@ def run_DRaWR(run_parameters):
         pg_network_n1_names, len(unique_gene_names))
 
     # restrict spreadsheet to unique genes and drop everthing else
+    droplist = find_dropped_node_names(spreadsheet_df, unique_gene_names)
+    save_df(droplist, run_parameters['tmp_directory'], 'DRaWR_droplist.txt')
     spreadsheet_df = update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
     # map every gene name to a sequential integer index
     gg_network_df = map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
