@@ -67,7 +67,11 @@ def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters
         run_parameters: parameters dictionary.
     """
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
-    new_spreadsheet_df = append_column_to_spreadsheet(spreadsheet_df, len_gene_names)
+    property_size = spreadsheet_df.shape[0] - len_gene_names
+    base_col = np.append(np.ones(len_gene_names, dtype=np.int),
+                         np.zeros(property_size, dtype=np.int))
+
+    new_spreadsheet_df = append_column_to_spreadsheet(spreadsheet_df, base_col, 'base')
 
     final_spreadsheet_matrix, step = smooth_matrix_with_rwr(
         normalize(new_spreadsheet_df, norm='l1', axis=0), hetero_network, run_parameters)
