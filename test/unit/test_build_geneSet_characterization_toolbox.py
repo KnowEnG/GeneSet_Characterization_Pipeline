@@ -8,9 +8,6 @@ import knpackage.toolbox as kn
 import os
 
 class testBuild_geneSet_characterization_toolbox(TestCase):
-    def test_build_fisher_contingency_table(self):
-        ret = kn.build_fisher_contigency_table(1,2,3,4)
-        self.assertEqual(ret.all(),np.matrix([[1,1],[2,0]]).all())
 
     def test_perform_fisher_exact_test(self):
         param1 = csr_matrix([[1,1],[0,1],[0,1]])
