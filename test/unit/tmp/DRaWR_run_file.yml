@@ -1,0 +1,11 @@
+pg_network_file_name: tmp/rw_pro.txt
+samples_file_name: tmp/rw_spreadsheet.txt
+gg_network_file_name: tmp/rw_net.txt
+results_directory: tmp
+method: DRaWR
+number_of_iteriations_in_rwr: "500"
+verbose: "1"
+use_now_name: "1"
+it_max: "10000"
+restart_tolerance: "0.0001"
+restart_probability: "0.5"

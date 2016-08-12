@@ -1,0 +1,6 @@
+pg_network_file_name: tmp/fisher_pro.txt
+samples_file_name: tmp/spreadsheet.txt
+results_directory: tmp
+method: fisher
+verbose: "1"
+use_now_name: "1"

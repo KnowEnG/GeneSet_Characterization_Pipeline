@@ -18,6 +18,7 @@ from sklearn.cluster import KMeans
 
 import yaml
 
+
 def get_run_directory_and_file(args):
     """ Read system input arguments (argv) to get the run directory name.
 
@@ -35,6 +36,7 @@ def get_run_directory_and_file(args):
     run_file = args.run_file
 
     return run_directory, run_file
+
 
 def get_run_parameters(run_directory, run_file):
     """ Read system input arguments run directory name and run_file into a dictionary.
@@ -71,6 +73,7 @@ def get_spreadsheet_df(run_parameters):
 
     return spreadsheet_df
 
+
 def get_network_df(network_name):
     """ Read in the cleaned subnet from KnowEnG network.
 
@@ -93,6 +96,7 @@ def get_network_df(network_name):
 
     return network_df
 
+
 def extract_network_node_names(network_df):
     """ extract node names lists from network.
 
@@ -103,18 +107,19 @@ def extract_network_node_names(network_df):
         node_1_names: all names in column 1.
         node_list_2: all names in column 2.
     """
-    if network_df is None:
-        print('no input')
-        return
+    if network_df.empty:
+        print('empty network_df')
+        return False
 
-    if len(network_df.columns)!=2:
-        print('wrong format, need two columns')
-        return
-        
+    if network_df.shape[1] != 3:
+        print('needs three columns')
+        return False
+
     node_list_1 = list(set(network_df.values[:, 0]))
     node_list_2 = list(set(network_df.values[:, 1]))
 
     return node_list_1, node_list_2
+
 
 def find_unique_node_names(node_list_1, node_list_2):
     """ get the list (set union) of genes in either of the input lists.
@@ -130,6 +135,7 @@ def find_unique_node_names(node_list_1, node_list_2):
 
     return unique_node_names
 
+
 def find_common_node_names(node_list_1, node_list_2):
     """ get the list (set intersection) of genes in both of the input lists.
 
@@ -144,6 +150,7 @@ def find_common_node_names(node_list_1, node_list_2):
 
     return common_node_names
 
+
 def extract_spreadsheet_gene_names(spreadsheet_df):
     """ get the uinque list (df.index.values) of genes in the spreadsheet dataframe.
 
@@ -156,6 +163,7 @@ def extract_spreadsheet_gene_names(spreadsheet_df):
     spreadsheet_gene_names = list(set(spreadsheet_df.index.values))
 
     return spreadsheet_gene_names
+
 
 def find_dropped_node_names(spreadsheet_df, unique_gene_names):
     """ write list of genes dropped from the input spreadsheed to
@@ -171,6 +179,7 @@ def find_dropped_node_names(spreadsheet_df, unique_gene_names):
     droplist = droplist.index.values
     return droplist
 
+
 def update_spreadsheet_df(spreadsheet_df, gene_names):
     """ resize and reorder spreadsheet dataframe to only the gene_names list.
 
@@ -179,11 +188,11 @@ def update_spreadsheet_df(spreadsheet_df, gene_names):
         unique_gene_names: list of all genes in network.
 
     Returns:
-        spreadsheet_df: pandas dataframe of spreadsheet with only network genes.
+        pandas dataframe of spreadsheet with only network genes.
     """
-    updated_spreadsheet_df = spreadsheet_df.loc[gene_names].fillna(0)
 
-    return updated_spreadsheet_df
+    return spreadsheet_df.loc[gene_names].fillna(0)
+
 
 def update_network_df(network, nodes_list, node_id):
     """ remove nodes not found as nodes_list in network node_id.
@@ -193,11 +202,14 @@ def update_network_df(network, nodes_list, node_id):
         intersection: user provided dataframe.
 
     Returns:
-        updated_network: network that contains (rows) nodes_list found in node_id.
+        network that contains (rows) nodes_list found in node_id.
     """
-    updated_network = network[network[node_id].isin(nodes_list)]
+    if node_id not in network:
+        print('invalid node_id')
+        return False
 
-    return updated_network
+    return network[network[node_id].isin(nodes_list)]
+
 
 def create_node_names_dict(node_names, start_value=0):
     """ create a python dictionary to look up gene locations from gene names
@@ -213,6 +225,7 @@ def create_node_names_dict(node_names, start_value=0):
 
     return node_names_dictionary
 
+
 def create_reverse_node_names_dict(dictionary):
     """ create reverse dictionary (keys > values, values > keys).
 
@@ -222,7 +235,11 @@ def create_reverse_node_names_dict(dictionary):
     Returns:
         reverse dictionary: dictionary.
     """
+    if not dictionary:
+        print('empty dictionary')
+        return False
     return {value: key for key, value in dictionary.items()}
+
 
 def symmetrize_df(network):
     """ symmetrize network in sparse (3 cloumn) form.
@@ -238,7 +255,7 @@ def symmetrize_df(network):
         print('no input')
         return
 
-    if list(network.columns.values)!=['node_1', 'node_2', 'wt']:
+    if list(network.columns.values) != ['node_1', 'node_2', 'wt']:
         print('wrong format, need to change column names')
         return
 
@@ -250,6 +267,7 @@ def symmetrize_df(network):
 
     return symm_network
 
+
 def map_node_names_to_index(network_df, genes_map, node_id):
     """ replace the node names with numbers for formation of numeric sparse matrix.
 
@@ -260,13 +278,14 @@ def map_node_names_to_index(network_df, genes_map, node_id):
     Returns:
         network_df: the same dataframe with integer indices in columns 0, 1.
     """
-    if node_id not in set(network_df.columns.values) :
-        print("Wrong node_id")
-        return
+    if node_id not in network_df:
+        print("invalid node_id")
+        return False
 
     network_df[node_id] = [genes_map[i] for i in network_df[node_id]]
 
     return network_df
+
 
 def create_df_with_sample_labels(sample_names, labels):
     """ create dataframe from spreadsheet column names with cluster number assignments.
@@ -282,6 +301,7 @@ def create_df_with_sample_labels(sample_names, labels):
 
     return clusters_dataframe
 
+
 def convert_network_df_to_sparse(pg_network_df, row_size, col_size):
     """ convert global network to sparse matrix.
 
@@ -293,7 +313,7 @@ def convert_network_df_to_sparse(pg_network_df, row_size, col_size):
     Returns:
         pg_network_sparse: sparse matrix of network gene set.
     """
-    if type(row_size)!=int or type(col_size)!=int:
+    if type(row_size) != int or type(col_size) != int:
         print('Wrong sparse matrix size data type')
         return
     if pg_network_df.empty:
@@ -303,7 +323,7 @@ def convert_network_df_to_sparse(pg_network_df, row_size, col_size):
     row_iden = pg_network_df.values[:, 1]
     col_iden = pg_network_df.values[:, 0]
 
-    if row_size-1<max(list(row_iden)) or col_size-1<max(list(col_iden)):
+    if row_size - 1 < max(list(row_iden)) or col_size - 1 < max(list(col_iden)):
         print('Size does not match')
         return
 
@@ -313,6 +333,7 @@ def convert_network_df_to_sparse(pg_network_df, row_size, col_size):
 
     return pg_network_sparse
 
+
 def save_df(result_df, tmp_dir, file_name):
     """ save the result of DRaWR in tmp directory, file_name.
 
@@ -321,10 +342,13 @@ def save_df(result_df, tmp_dir, file_name):
         tmp_dir: directory to save the result file.
         file_name: file name to save to.
     """
+    if not os.path.isdir(tmp_dir):
+        print('invalid tmp_dir')
+        return False
+
     file_path = os.path.join(tmp_dir, file_name)
     result_df.to_csv(file_path, header=True, index=False, sep='\t')
 
-    return
 
 def append_column_to_spreadsheet(spreadsheet_df, column, col_name):
     """ append baseline vector of the user spreadsheet matrix.
@@ -336,9 +360,16 @@ def append_column_to_spreadsheet(spreadsheet_df, column, col_name):
     Returns:w
         spreadsheet_df: new dataframe with baseline vector appended in the last column.
     """
+    # if col_name not in spreadsheet_df:
+    #     print('invalid col_name')
+    #     return False
+    # if not column:
+    #     print('empty column input')
+    #     return False
     spreadsheet_df[col_name] = column
 
     return spreadsheet_df
+
 
 def normalize_network_df_by_sum(network_df, node_id):
     """ normalize the network column with numbers for input.
@@ -351,9 +382,13 @@ def normalize_network_df_by_sum(network_df, node_id):
     Returns:
         network_df: the same dataframe with weight normalized.
     """
+    if node_id not in network_df:
+        print('invalid node_id')
+        return False
     network_df[node_id] /= network_df[node_id].sum()
 
     return network_df
+
 
 def form_hybrid_network_df(list_of_networks):
     """ concatenate a list of networks.
@@ -365,7 +400,11 @@ def form_hybrid_network_df(list_of_networks):
     Returns:
         a combined hybrid network
     """
+    if not list_of_networks:
+        print('empty input')
+        return False
     return pd.concat(list_of_networks, ignore_index=True)
+
 
 def normalize_sparse_mat_by_diagonal(network_mat):
     """ square root of inverse of diagonal D (D * network_mat * D) normaization.
@@ -385,6 +424,7 @@ def normalize_sparse_mat_by_diagonal(network_mat):
     network_mat = network_mat.dot(diag_mat)
 
     return network_mat
+
 
 def form_network_laplacian_matrix(network_mat):
     """ Laplacian matrix components for use in network based stratification.
@@ -408,6 +448,7 @@ def form_network_laplacian_matrix(network_mat):
 
     return diagonal_laplacian, laplacian
 
+
 def sample_a_matrix(spreadsheet_mat, percent_sample):
     """ percent_sample x percent_sample random sample, from spreadsheet_mat.
 
@@ -419,7 +460,7 @@ def sample_a_matrix(spreadsheet_mat, percent_sample):
         sample_random: A specified precentage sample of the spread sheet.
         sample_permutation: the array that correponds to columns sample.
     """
-    features_size = int(np.round(spreadsheet_mat.shape[0] * (1-percent_sample)))
+    features_size = int(np.round(spreadsheet_mat.shape[0] * (1 - percent_sample)))
     features_permutation = np.random.permutation(spreadsheet_mat.shape[0])
     features_permutation = features_permutation[0:features_size].T
 
@@ -435,6 +476,7 @@ def sample_a_matrix(spreadsheet_mat, percent_sample):
     sample_permutation = sample_permutation[positive_col_set]
 
     return sample_random, sample_permutation
+
 
 def smooth_matrix_with_rwr(restart, network_sparse, run_parameters):
     """ simulate a random walk with restart. iterate: (R_n+1 = a*N*R_n + (1-a)*R_n).
@@ -462,6 +504,7 @@ def smooth_matrix_with_rwr(restart, network_sparse, run_parameters):
 
     return smooth_1, step
 
+
 def get_quantile_norm_matrix(sample):
     """ normalizes an array using quantile normalization (ranking).
 
@@ -479,6 +522,7 @@ def get_quantile_norm_matrix(sample):
         sample_quantile_norm[index[:, j], j] = mean_per_row[:]
 
     return sample_quantile_norm
+
 
 def update_h_coordinate_matrix(w_matrix, x_matrix):
     """ nonnegative right factor matrix for perform_net_nmf function s.t. X ~ W.H.
@@ -508,7 +552,7 @@ def update_h_coordinate_matrix(w_matrix, x_matrix):
             mcode_uniq_col_ix = np.arange(0, n_cols)
             h_ette = np.zeros((m_rows, n_cols))
             h_pos_ette = h_pos[:, col_list]
-            mcoding = np.dot(2**(np.arange(0, m_rows)), np.int_(h_pos_ette))
+            mcoding = np.dot(2 ** (np.arange(0, m_rows)), np.int_(h_pos_ette))
             mcode_uniq = np.unique(mcoding)
             for u_n in mcode_uniq:
                 ixidx = mcoding == u_n
@@ -530,6 +574,7 @@ def update_h_coordinate_matrix(w_matrix, x_matrix):
             break
 
     return h_matrix
+
 
 def perform_net_nmf(x_matrix, lap_val, lap_dag, run_parameters):
     """ perform network based nonnegative matrix factorization, minimize:
@@ -572,6 +617,7 @@ def perform_net_nmf(x_matrix, lap_val, lap_dag, run_parameters):
 
     return h_matrix
 
+
 def perform_nmf(x_matrix, run_parameters):
     """ nonnegative matrix factorization, minimize the diffence between X and W dot H
         with positive factor matrices W, and H.
@@ -611,6 +657,7 @@ def perform_nmf(x_matrix, run_parameters):
 
     return h_matrix
 
+
 def update_linkage_matrix(encode_mat, sample_perm, linkage_matrix):
     ''' update the connectivity matrix by summing the un-permuted linkages.
     encode_mat: (permuted) nonnegative right factor matrix (H) - encoded linkage.
@@ -636,6 +683,7 @@ def update_linkage_matrix(encode_mat, sample_perm, linkage_matrix):
 
     return linkage_matrix
 
+
 def update_indicator_matrix(sample_perm, indicator_matrix):
     ''' update the indicator matrix by summing the un-permutation.
 
@@ -649,6 +697,7 @@ def update_indicator_matrix(sample_perm, indicator_matrix):
     indicator_matrix[sample_perm[:, None], sample_perm] += 1
 
     return indicator_matrix
+
 
 def perform_kmeans(consensus_matrix, k=3):
     """ determine cluster assignments for consensus matrix using K-means.
@@ -665,6 +714,7 @@ def perform_kmeans(consensus_matrix, k=3):
 
     return labels
 
+
 def get_timestamp(stamp_units=1e6):
     """ get a time stamp string - current time as integer string.
 
@@ -677,6 +727,7 @@ def get_timestamp(stamp_units=1e6):
     timestamp_string = np.str_(int(time.time() * np.maximum(stamp_units, 1)))
 
     return timestamp_string
+
 
 def create_timestamped_filename(name_base='t', stamp_units=1e6):
     """ append a filename with a timestamp string.
@@ -692,6 +743,7 @@ def create_timestamped_filename(name_base='t', stamp_units=1e6):
 
     return time_stamped_file_name
 
+
 def append_run_parameters_dict(run_parameters, key_name, value_str):
     """ add a key-value pair to the run parameters dictionary.
 
@@ -703,9 +755,16 @@ def append_run_parameters_dict(run_parameters, key_name, value_str):
     Returns:
         run_parameters: dictionary with new (or overwritten) key value pair.
     """
+    if not value_str:
+        print('empty value_str')
+        return False
+    if not key_name:
+        print('empty key_name')
+        return False
     run_parameters[key_name] = value_str
 
     return run_parameters
+
 
 def create_dir(dir_path, dir_name, timestamp=None):
     """ create a "dir_name" with time stamp directory
@@ -723,6 +782,7 @@ def create_dir(dir_path, dir_name, timestamp=None):
     os.mkdir(new_dir_name)
 
     return new_dir_name
+
 
 def remove_dir(dir_name):
     """ remove directory and all the files it contains.

@@ -56,7 +56,7 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
     df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
     result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
     file_name = kn.create_timestamped_filename("fisher_result", stamp_units=1e6)
-    # kn.save_df(result_df, results_dir, file_name)
+    kn.save_df(result_df, results_dir, file_name)
 
     return result_df
 
@@ -90,8 +90,9 @@ def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters
     final_spreadsheet_df['base'] = \
         final_spreadsheet_df.sort_values('base', ascending=0).index.values
 
+    final_spreadsheet_df.index = range(final_spreadsheet_df.shape[0])
     file_name = kn.create_timestamped_filename("DRaWR_result", stamp_units=1e6)
-    # kn.save_df(final_spreadsheet_df, run_parameters['results_directory'], file_name)
+    kn.save_df(final_spreadsheet_df, run_parameters['results_directory'], file_name)
 
     return final_spreadsheet_df
 
@@ -103,98 +104,98 @@ def run_fisher(run_parameters):
     # -----------------------------------
     # - Data read and extraction Section -
     # -----------------------------------
-    spreadsheet_df = get_spreadsheet_df(run_parameters)
-    prop_gene_network_df = get_network_df(run_parameters['pg_network_file_name'])
+    spreadsheet_df = kn.get_spreadsheet_df(run_parameters)
+    prop_gene_network_df = kn.get_network_df(run_parameters['pg_network_file_name'])
 
-    spreadsheet_gene_names = extract_spreadsheet_gene_names(spreadsheet_df)
+    spreadsheet_gene_names = kn.extract_spreadsheet_gene_names(spreadsheet_df)
 
     prop_gene_network_n1_names,\
-    prop_gene_network_n2_names = extract_network_node_names(prop_gene_network_df)
+    prop_gene_network_n2_names = kn.extract_network_node_names(prop_gene_network_df)
 
     # -----------------------------------------------------------------------
     # - limit the gene set to the intersection of network and user gene set -
     # -----------------------------------------------------------------------
-    common_gene_names = find_common_node_names(prop_gene_network_n2_names, spreadsheet_gene_names)
+    common_gene_names = kn.find_common_node_names(prop_gene_network_n2_names, spreadsheet_gene_names)
 
-    common_gene_names_dict = create_node_names_dict(common_gene_names)
+    common_gene_names_dict = kn.create_node_names_dict(common_gene_names)
 
-    prop_gene_network_n1_names_dict = create_node_names_dict(prop_gene_network_n1_names)
+    prop_gene_network_n1_names_dict = kn.create_node_names_dict(prop_gene_network_n1_names)
 
-    reverse_prop_gene_network_n1_names_dict = create_reverse_node_names_dict(
+    reverse_prop_gene_network_n1_names_dict = kn.create_reverse_node_names_dict(
         prop_gene_network_n1_names_dict)
 
     # ----------------------------------------------------------------------------
     # - restrict spreadsheet and network to common genes and drop everthing else -
     # ----------------------------------------------------------------------------
-    droplist = find_dropped_node_names(spreadsheet_df, common_gene_names)
-    save_df(droplist, run_parameters['tmp_directory'], 'fisher_droplist.txt')
-    spreadsheet_df = update_spreadsheet_df(spreadsheet_df, common_gene_names)
-    prop_gene_network_df = update_network_df(prop_gene_network_df, common_gene_names, "node_2")
+    droplist = kn.find_dropped_node_names(spreadsheet_df, common_gene_names)
+    kn.save_df(pd.DataFrame(droplist), run_parameters['results_directory'], 'fisher_droplist.txt')
+    spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, common_gene_names)
+    prop_gene_network_df =kn. update_network_df(prop_gene_network_df, common_gene_names, "node_2")
 
     # ----------------------------------------------------------------------------
     # - map every gene name to an integer index in sequential order startng at 0 -
     # ----------------------------------------------------------------------------
-    prop_gene_network_df = map_node_names_to_index(
+    prop_gene_network_df = kn.map_node_names_to_index(
         prop_gene_network_df, prop_gene_network_n1_names_dict, "node_1")
-    prop_gene_network_df = map_node_names_to_index(
+    prop_gene_network_df = kn.map_node_names_to_index(
         prop_gene_network_df, common_gene_names_dict, "node_2")
 
     # --------------------------------------------
     # - store the network in a csr sparse format -
     # --------------------------------------------
     universe_count = len(common_gene_names)
-    prop_gene_network_sparse = convert_network_df_to_sparse(
+    prop_gene_network_sparse = kn.convert_network_df_to_sparse(
         prop_gene_network_df, universe_count, len(prop_gene_network_n1_names))
-    perform_fisher_exact_test(
+    ret = perform_fisher_exact_test(
         prop_gene_network_sparse, reverse_prop_gene_network_n1_names_dict,
         spreadsheet_df, run_parameters['results_directory'])
 
-    return
+    return ret
 def run_DRaWR(run_parameters):
     ''' wrapper: call sequence to perform random walk with restart
     Args:
         run_parameters: dictionary of run parameters
     '''
-    spreadsheet_df = get_spreadsheet_df(run_parameters)
-    pg_network_df = get_network_df(run_parameters['pg_network_file_name'])
-    gg_network_df = get_network_df(run_parameters['gg_network_file_name'])
+    spreadsheet_df = kn.get_spreadsheet_df(run_parameters)
+    pg_network_df = kn.get_network_df(run_parameters['pg_network_file_name'])
+    gg_network_df = kn.get_network_df(run_parameters['gg_network_file_name'])
 
     pg_network_n1_names,\
-    pg_network_n2_names = extract_network_node_names(pg_network_df)
+    pg_network_n2_names = kn.extract_network_node_names(pg_network_df)
 
     gg_network_n1_names,\
-    gg_network_n2_names = extract_network_node_names(gg_network_df)
+    gg_network_n2_names = kn.extract_network_node_names(gg_network_df)
 
     # limit the gene set to the intersection of networks (gene_gene and prop_gene) and user gene set
-    unique_gene_names = find_unique_node_names(gg_network_n1_names, gg_network_n2_names)
-    unique_gene_names = find_unique_node_names(unique_gene_names, pg_network_n2_names)
+    unique_gene_names = kn.find_unique_node_names(gg_network_n1_names, gg_network_n2_names)
+    unique_gene_names = kn.find_unique_node_names(unique_gene_names, pg_network_n2_names)
     unique_all_node_names = unique_gene_names + pg_network_n1_names
-    unique_gene_names_dict = create_node_names_dict(unique_gene_names)
-    pg_network_n1_names_dict = create_node_names_dict(
+    unique_gene_names_dict = kn.create_node_names_dict(unique_gene_names)
+    pg_network_n1_names_dict = kn.create_node_names_dict(
         pg_network_n1_names, len(unique_gene_names))
 
     # restrict spreadsheet to unique genes and drop everthing else
-    droplist = find_dropped_node_names(spreadsheet_df, unique_gene_names)
-    save_df(droplist, run_parameters['tmp_directory'], 'DRaWR_droplist.txt')
-    spreadsheet_df = update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
+    droplist = kn.find_dropped_node_names(spreadsheet_df, unique_gene_names)
+    kn.save_df(pd.DataFrame(droplist), run_parameters['results_directory'], 'DRaWR_droplist.txt')
+    spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
     # map every gene name to a sequential integer index
-    gg_network_df = map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
-    gg_network_df = map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
-    pg_network_df = map_node_names_to_index(pg_network_df, pg_network_n1_names_dict, "node_1")
-    pg_network_df = map_node_names_to_index(pg_network_df, unique_gene_names_dict, "node_2")
+    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
+    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
+    pg_network_df = kn.map_node_names_to_index(pg_network_df, pg_network_n1_names_dict, "node_1")
+    pg_network_df = kn.map_node_names_to_index(pg_network_df, unique_gene_names_dict, "node_2")
 
-    gg_network_df = symmetrize_df(gg_network_df)
-    pg_network_df = symmetrize_df(pg_network_df)
+    gg_network_df = kn.symmetrize_df(gg_network_df)
+    pg_network_df = kn.symmetrize_df(pg_network_df)
 
-    gg_network_df = normalize_df(gg_network_df, 'wt')
-    pg_network_df = normalize_df(pg_network_df, 'wt')
+    gg_network_df = kn.normalize_network_df_by_sum(gg_network_df, 'wt')
+    pg_network_df = kn.normalize_network_df_by_sum(pg_network_df, 'wt')
 
-    hybrid_network_df = form_hybrid_network_df([gg_network_df, pg_network_df])
+    hybrid_network_df = kn.form_hybrid_network_df([gg_network_df, pg_network_df])
 
     # store the network in a csr sparse format
-    network_sparse = convert_network_df_to_sparse(
+    network_sparse = kn.convert_network_df_to_sparse(
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
 
-    perform_DRaWR(network_sparse, spreadsheet_df, len(unique_gene_names), run_parameters)
+    ret = perform_DRaWR(network_sparse, spreadsheet_df, len(unique_gene_names), run_parameters)
 
-    return
+    return ret
