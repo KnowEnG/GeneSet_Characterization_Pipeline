@@ -83,9 +83,8 @@ def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters
         columns=new_spreadsheet_df.columns.values)
 
     final_spreadsheet_df = final_spreadsheet_df.iloc[len_gene_names:]
-    for col in final_spreadsheet_df.columns.values[:-1]:
-        final_spreadsheet_df[col] = final_spreadsheet_df[col] - final_spreadsheet_df['base']
-        final_spreadsheet_df[col] = final_spreadsheet_df.sort_values(col, ascending=0).index.values
+    final_spreadsheet_df.iloc[:, :-1] = final_spreadsheet_df.iloc[:, :-1].apply(
+        lambda x: (x - final_spreadsheet_df['base']).sort_values(ascending=0).index.values)
 
     final_spreadsheet_df['base'] = \
         final_spreadsheet_df.sort_values('base', ascending=0).index.values
