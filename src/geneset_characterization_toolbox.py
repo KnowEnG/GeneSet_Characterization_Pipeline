@@ -60,34 +60,27 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
 
     return result_df
 
-def perform_DRaWR(network_sparse, spreadsheet_df, len_gene_names, run_parameters):
+def perform_DRaWR(network_sparse, new_spreadsheet_df, len_gene_names, run_parameters):
     """ calculate random walk with global network and user set gene sets  and write output.
     Args:
         network_sparse: sparse matrix of global network.
-        spreadsheet_df: dataframe of user gene sets.
+        new_spreadsheet_df: dataframe of user gene sets.
         len_gene_names: length of genes in the in the user spreadsheet.
         run_parameters: parameters dictionary.
     """
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
-    property_size = spreadsheet_df.shape[0] - len_gene_names
-    base_col = np.append(np.ones(len_gene_names, dtype=np.int),
-                         np.zeros(property_size, dtype=np.int))
-
-    new_spreadsheet_df = kn.append_column_to_spreadsheet(spreadsheet_df, base_col, 'base')
-
     final_spreadsheet_matrix, step = kn.smooth_matrix_with_rwr(
         normalize(new_spreadsheet_df, norm='l1', axis=0), hetero_network, run_parameters)
 
-    final_spreadsheet_df = pd.DataFrame(
-        final_spreadsheet_matrix, index=new_spreadsheet_df.index.values,
-        columns=new_spreadsheet_df.columns.values)
+    final_spreadsheet_df = pd.DataFrame(final_spreadsheet_matrix[len_gene_names:])
+    final_spreadsheet_df.index = new_spreadsheet_df.index.values[len_gene_names:]
+    final_spreadsheet_df.columns = new_spreadsheet_df.columns.values
 
-    final_spreadsheet_df = final_spreadsheet_df.iloc[len_gene_names:]
     final_spreadsheet_df.iloc[:, :-1] = final_spreadsheet_df.iloc[:, :-1].apply(
         lambda x: (x - final_spreadsheet_df['base']).sort_values(ascending=0).index.values)
 
     final_spreadsheet_df['base'] = \
-        final_spreadsheet_df.sort_values('base', ascending=0).index.values
+        final_spreadsheet_df['base'].sort_values(ascending=0).index.values
 
     final_spreadsheet_df.index = range(final_spreadsheet_df.shape[0])
     file_name = kn.create_timestamped_filename("DRaWR_result", stamp_units=1e6)
@@ -195,6 +188,12 @@ def run_DRaWR(run_parameters):
     network_sparse = kn.convert_network_df_to_sparse(
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
 
-    ret = perform_DRaWR(network_sparse, spreadsheet_df, len(unique_gene_names), run_parameters)
+    property_size = spreadsheet_df.shape[0] - len(unique_gene_names)
+    base_col = np.append(np.ones(len(unique_gene_names), dtype=np.int),
+                         np.zeros(property_size, dtype=np.int))
+
+    new_spreadsheet_df = kn.append_column_to_spreadsheet(spreadsheet_df, base_col, 'base')
+
+    ret = perform_DRaWR(network_sparse, new_spreadsheet_df, len(unique_gene_names), run_parameters)
 
     return ret

@@ -18,7 +18,9 @@ class TestPerform_DRaWR(TestCase):
               0.083333333333333301],
              ([1, 2, 0, 2, 0, 1, 6, 5, 5, 6, 5, 6, 1, 2, 3, 0, 2, 4],
               [0, 0, 1, 1, 2, 2, 0, 1, 2, 2, 3, 4, 5, 5, 5, 6, 6, 6])), shape=(7, 7))
-        self.spreadsheet_df = pd.DataFrame({'GS1': [1, 0, 0, 0, 0, 0, 0]})
+        self.spreadsheet_df = pd.DataFrame([[1, 1], [0, 1], [0, 1], [0, 1],
+                                            [0, 1], [0, 0], [0, 0]], columns=['GS1', 'base'])
+
         self.spreadsheet_df.index = ['G1', 'G2', 'G3', 'G4', 'G5', 'P6', 'P7']
         self.len_gene_names = 5
         self.run_parameters = {'number_of_iteriations_in_rwr': 500, 'it_max': 10000,
