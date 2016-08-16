@@ -1,5 +1,5 @@
 pg_network_file_name: tmp/fisher_pro.txt
-samples_file_name: tmp/spreadsheet.txt
+samples_file_name: tmp/fisher_spreadsheet.txt
 results_directory: tmp
 method: fisher
 verbose: "1"

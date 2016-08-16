@@ -1,5 +1,5 @@
-pg_network_file_name: input_data/kegg_pathway_property_gene
-samples_file_name: input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gXc
+pg_network_file_name: /workspace/input_data/kegg_pathway_property_gene
+samples_file_name: /workspace/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gXc
 results_directory: results
 method: fisher
 verbose: "1"

@@ -11,7 +11,6 @@ def fisher(run_parameters):
     t0 = time.time()
     tl.run_fisher(run_parameters)
     print('run_fisher total time: {}'.format(time.time() - t0))
-    print('\nWith parameter set:\n')
     return
 
 def DRaWR(run_parameters):
@@ -21,7 +20,6 @@ def DRaWR(run_parameters):
     t0 = time.time()
     tl.run_DRaWR(run_parameters)
     print('run_DRaWR total time: {}'.format(time.time() - t0))
-    print('\nWith parameter set:\n')
     return
 
 def net_one(run_parameters):

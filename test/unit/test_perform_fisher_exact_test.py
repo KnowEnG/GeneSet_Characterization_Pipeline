@@ -4,7 +4,7 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
-import src.geneset_characterization_toolbox as tl
+import geneset_characterization_toolbox as tl
 
 class TestPerform_fisher_exact_test(TestCase):
     def setUp(self):
