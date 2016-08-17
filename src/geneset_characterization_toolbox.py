@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn.preprocessing import normalize
-import toolbox as kn
-
+# import toolbox as kn
+import knpackage.toolbox as kn
 
 def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
     """ build contigency table for fisher exact test.
