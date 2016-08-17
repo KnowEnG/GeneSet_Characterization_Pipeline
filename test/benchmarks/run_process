@@ -1,0 +1,14 @@
+# save networks and spreadsheet in input_data directory
+mkdir input_data
+# create new directory
+mkdir run_dir
+# create a results folder under run_dir to save the outputs
+cd run_dir, mkdir results
+# copy run files to run_dir folder
+cp GeneSet_Characterization_Pipeline/test/benchmarks/fisher_run_file.yml run_dir
+# edit input data path in the fisher_run_file.yml 
+change "pg_network_file_name"
+change "samples_file_name"
+change "gg_network_file_name" (for DRaWR)
+# command lines, run in run_dir
+PYTHONPATH='../GeneSet_Characterization_Pipeline/src/' python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory /workspace/run_dir/ -run_file fisher_run_file.yml
