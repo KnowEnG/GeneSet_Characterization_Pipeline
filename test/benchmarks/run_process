@@ -7,8 +7,9 @@ cd run_dir, mkdir results
 # copy run files to run_dir folder
 cp GeneSet_Characterization_Pipeline/test/benchmarks/fisher_run_file.yml run_dir
 # edit input data path in the fisher_run_file.yml 
-change "pg_network_file_name"
+change the directory of "pg_network_file_name"
 change "samples_file_name"
-change "gg_network_file_name" (for DRaWR)
+change "gg_network_file_name" (only for DRaWR)
 # command lines, run in run_dir
 PYTHONPATH='../GeneSet_Characterization_Pipeline/src/' python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory /workspace/run_dir/ -run_file fisher_run_file.yml
+PYTHONPATH='../GeneSet_Characterization_Pipeline/src/' python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory /workspace/run_dir/ -run_file DRaWR_run_file.yml
