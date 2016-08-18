@@ -122,7 +122,7 @@ def run_fisher(run_parameters):
     droplist = kn.find_dropped_node_names(spreadsheet_df, common_gene_names)
     kn.save_df(pd.DataFrame(droplist), run_parameters['results_directory'], 'fisher_droplist.txt')
     spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, common_gene_names)
-    prop_gene_network_df =kn. update_network_df(prop_gene_network_df, common_gene_names, "node_2")
+    prop_gene_network_df = kn.update_network_df(prop_gene_network_df, common_gene_names, "node_2")
 
     # ----------------------------------------------------------------------------
     # - map every gene name to an integer index in sequential order startng at 0 -
