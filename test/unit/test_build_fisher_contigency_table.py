@@ -1,6 +1,6 @@
 import unittest
 from unittest import TestCase
-import knpackage.toolbox as kn
+import geneset_characterization_toolbox as tl
 import numpy as np
 
 class TestBuild_fisher_contigency_table(TestCase):
@@ -17,7 +17,7 @@ class TestBuild_fisher_contigency_table(TestCase):
         del self.count
 
     def test_build_fisher_contigency_table(self):
-        ret = kn.build_fisher_contigency_table(self.overlap_count, self.user_count,
+        ret = tl.build_fisher_contigency_table(self.overlap_count, self.user_count,
                                                self.gene_count, self.count)
         self.assertEqual(ret.all(), np.matrix([[1, 1], [2, 0]]).all())
 
