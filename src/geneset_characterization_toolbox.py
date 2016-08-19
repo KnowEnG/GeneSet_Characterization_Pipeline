@@ -12,6 +12,7 @@ import knpackage.toolbox as kn
 
 def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
     """ build contigency table for fisher exact test.
+
     Args:
         overlap_count: count of overlaps in user gene set and network gene set.
         user_count: count of ones in user gene set.
@@ -21,6 +22,10 @@ def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
         table: the contigency table used in fisher test.
     """
     table = np.zeros(shape=(2, 2))
+    # table[0, 0] = overlap_count
+    # table[0, 1] = user_count - overlap_count
+    # table[1, 0] = gene_count - overlap_count
+    # table[1, 1] = count - user_count - gene_count + overlap_count
     table[0, 0] = overlap_count
     table[0, 1] = user_count - overlap_count
     table[1, 0] = gene_count - overlap_count
@@ -31,6 +36,7 @@ def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
 def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
         spreadsheet_df, results_dir):
     """ central loop: compute components for fisher exact test.
+
     Args:
         prop_gene_network_sparse: sparse matrix of network gene set.
         sparse_dict: look up table of sparse matrix.
@@ -42,21 +48,46 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
     user_count = np.sum(spreadsheet_df.values, axis=0)
     gene_count = prop_gene_network_sparse.sum(axis=0)
     set_list = spreadsheet_df.columns.values
-    df_val = []
 
-    for i in range(overlap_count.shape[0]):
-        for j in range(overlap_count.shape[1]):
-            table = build_fisher_contigency_table(overlap_count[i, j], user_count[j],
-                                                  gene_count[0, i], universe_count)
-            pvalue = stats.fisher_exact(table, alternative="greater")[1]
-            if overlap_count[i, j] != 0:
-                row_item = [set_list[j], sparse_dict[i], int(universe_count), int(user_count[j]),
-                            int(gene_count[0, i]), int(overlap_count[i, j]), pvalue]
-                df_val.append(row_item)
-    df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
-    result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
-    file_name = kn.create_timestamped_filename("fisher_result", stamp_units=1e6)
+    pro_list = [sparse_dict[i] for i in range(len(sparse_dict))]
+    nu_ng = np.array(universe_count - gene_count.T - user_count + overlap_count).ravel()
+    u_g = (user_count - overlap_count).ravel()
+    g_u = np.array(gene_count.T - overlap_count).ravel()
+    u_and_g = (overlap_count).ravel()
+
+    pro_name = []
+    tmp = [pro_name.extend([i]*len(set_list)) for i in pro_list]
+    user_name = list(set_list)*len(pro_list)
+
+    val = np.concatenate([[u_and_g], [u_g], [g_u], [nu_ng]], axis=0).T
+    result_df = pd.DataFrame(val, columns=["overlap", "user_~gene", "gene_~user", "~gene_~user"])
+
+    result_df.insert(0, "user gene", user_name)
+    result_df.insert(1, "property", pro_name)
+    result_df['pval'] = result_df.apply(lambda x: (stats.fisher_exact(
+        build_fisher_contigency_table(x['overlap'], x['user_~gene'], x['gene_~user'], x['~gene_~user']),
+        alternative="greater")[1]), axis=1)
+
+    result_df = result_df.sort_values('pval', ascending=1)
+    result_df = result_df[result_df['overlap']>0]
+    file_name = kn.create_timestamped_filename("lambda_fisher", stamp_units=1e6)
     kn.save_df(result_df, results_dir, file_name)
+
+    # df_val = []
+    #
+    # for i in range(overlap_count.shape[0]):
+    #     for j in range(overlap_count.shape[1]):
+    #         table = build_fisher_contigency_table(overlap_count[i, j], user_count[j],
+    #                                               gene_count[0, i], universe_count)
+    #         pvalue = stats.fisher_exact(table, alternative="greater")[1]
+    #         if overlap_count[i, j] != 0:
+    #             row_item = [set_list[j], sparse_dict[i], int(universe_count), int(user_count[j]),
+    #                         int(gene_count[0, i]), int(overlap_count[i, j]), pvalue]
+    #             df_val.append(row_item)
+    # df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
+    # result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
+    # file_name = kn.create_timestamped_filename("fisher_result", stamp_units=1e6)
+    # kn.save_df(result_df, results_dir, file_name)
 
     return result_df
 
