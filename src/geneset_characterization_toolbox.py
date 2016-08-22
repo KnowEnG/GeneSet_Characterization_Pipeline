@@ -27,9 +27,9 @@ def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
     # table[1, 0] = gene_count - overlap_count
     # table[1, 1] = count - user_count - gene_count + overlap_count
     table[0, 0] = overlap_count
-    table[0, 1] = user_count - overlap_count
-    table[1, 0] = gene_count - overlap_count
-    table[1, 1] = count - user_count - gene_count + overlap_count
+    table[0, 1] = user_count
+    table[1, 0] = gene_count
+    table[1, 1] = count
 
     return table
 
@@ -74,7 +74,7 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
     kn.save_df(result_df, results_dir, file_name)
 
     # df_val = []
-    #
+    
     # for i in range(overlap_count.shape[0]):
     #     for j in range(overlap_count.shape[1]):
     #         table = build_fisher_contigency_table(overlap_count[i, j], user_count[j],
