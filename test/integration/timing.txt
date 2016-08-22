@@ -1,3 +1,0 @@
-run_fisher total time: 12.844573020935059
-run_fisher(use lambda) total time: 15.36175537109375
-run_DRaWR total time: 17.140079736709595

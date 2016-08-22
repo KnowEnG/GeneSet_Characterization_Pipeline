@@ -12,7 +12,7 @@ def fisher(run_parameters):
     import geneset_characterization_toolbox as tl
     t0 = time.time()
     tl.run_fisher(run_parameters)
-    print('run_fisher total time: {}'.format(time.time() - t0))
+    # print('run_fisher total time: {}'.format(time.time() - t0))
     return time.time() - t0
 
 def DRaWR(run_parameters):
@@ -20,7 +20,7 @@ def DRaWR(run_parameters):
     import geneset_characterization_toolbox as tl
     t0 = time.time()
     tl.run_DRaWR(run_parameters)
-    print('run_DRaWR total time: {}'.format(time.time() - t0))
+    # print('run_DRaWR total time: {}'.format(time.time() - t0))
     return time.time() - t0
 
 def net_one(run_parameters):
@@ -28,7 +28,7 @@ def net_one(run_parameters):
     import geneset_characterization_toolbox as tl
     t0 = time.time()
     tl.run_net_one(run_parameters)
-    print('run_net_one total time: {}'.format(time.time() - t0))
+    # print('run_net_one total time: {}'.format(time.time() - t0))
     return time.time() - t0
 
 SELECT = {
@@ -45,10 +45,10 @@ def main():
     run_parameters = get_run_parameters(run_directory, run_file)
 
     f_time = SELECT[run_parameters["method"]](run_parameters)
-    run_parameters["running time"] = f_time
+    run_parameters["running_time"] = f_time
     
     with open(os.path.join(run_directory, run_file), 'w') as file_handle:
-        yaml.dump(run_parameters, file_handle)
+        yaml.dump(run_parameters, file_handle, default_flow_style=False)
 
 if __name__ == "__main__":
     main()
