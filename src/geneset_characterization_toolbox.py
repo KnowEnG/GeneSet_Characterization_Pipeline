@@ -34,7 +34,7 @@ def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
     return table
 
 def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
-        spreadsheet_df, results_dir):
+                              spreadsheet_df, results_dir):
     """ central loop: compute components for fisher exact test.
 
     Args:
@@ -60,16 +60,16 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
     user_name = list(set_list)*len(pro_list)
 
     val = np.concatenate([[u_and_g], [u_g], [g_u], [nu_ng]], axis=0).T
-    result_df = pd.DataFrame(val, columns=["overlap", "user_~gene", "gene_~user", "~gene_~user"])
+    result_df = pd.DataFrame(val, columns=["overlap", "user-gene", "gene-user", "-gene-user"])
 
     result_df.insert(0, "user gene", user_name)
     result_df.insert(1, "property", pro_name)
     result_df['pval'] = result_df.apply(lambda x: (stats.fisher_exact(
-        build_fisher_contigency_table(x['overlap'], x['user_~gene'], x['gene_~user'], x['~gene_~user']),
+        build_fisher_contigency_table(x['overlap'], x['user-gene'], x['gene-user'], x['-gene-user']),
         alternative="greater")[1]), axis=1)
 
     result_df = result_df.sort_values('pval', ascending=1)
-    result_df = result_df[result_df['overlap']>0]
+    result_df = result_df[result_df['overlap'] > 0]
     file_name = kn.create_timestamped_filename("lambda_fisher", stamp_units=1e6)
     kn.save_df(result_df, results_dir, file_name)
 
