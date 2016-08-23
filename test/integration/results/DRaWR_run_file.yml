@@ -8,7 +8,7 @@ restart_tolerance: '0.0001'
 results_directory: results
 run_directory: /workspace/GeneSet_Characterization_Pipeline/test/integration/results/
 run_file: DRaWR_run_file.yml
-running_time: 12.001408338546753
+running_time: 12.361189603805542
 samples_file_name: /workspace/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gXc
 use_now_name: '1'
 verbose: '1'
