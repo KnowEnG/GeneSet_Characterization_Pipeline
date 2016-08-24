@@ -1,0 +1,22 @@
+# IDE
+.idea
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
