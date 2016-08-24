@@ -1,6 +1,9 @@
 pg_network_file_name: /workspace/input_data/kegg_pathway_property_gene
 samples_file_name: /workspace/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gXc
 gg_network_file_name: /workspace/input_data/STRING_experimental_gene_gene
+#pg_network_file_name: /Users/Runyu/Desktop/csGOOD/spring16/nbs/gene_set_chara_toolbox/input_data/kegg_pathway_property_gene
+#samples_file_name: /Users/Runyu/Desktop/csGOOD/spring16/nbs/gene_set_chara_toolbox/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
+#gg_network_file_name: /Users/Runyu/Desktop/csGOOD/spring16/nbs/gene_set_chara_toolbox/input_data/STRING_experimental_gene_gene
 results_directory: results
 method: DRaWR
 number_of_iteriations_in_rwr: "500"
