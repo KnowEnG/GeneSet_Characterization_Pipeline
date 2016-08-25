@@ -43,24 +43,9 @@ cd GeneSet_Characterization_Pipeline
     
 | User Spreadsheet Name                    | Format  | Header              | Index | Description       |
 | ---------------------------------------- | ------- | ------------------- | ----- | ----------------- |
-| ProGENI_rwr20_STExp_GDSC_500.rname.gxc.gz| binary  | User gene set names | Gene  | user spread sheet |
-1. Configure your environment to have the following packages
-  ```
-    System: ubuntu:14.04
-    apt-get install -y python3-pip
-    apt-get install -y libblas-dev liblapack-dev libatlas-base-dev gfortran
-    pip3 install -I numpy==1.11.1
-    pip3 install -I pandas==0.18.1 
-    pip3 install -I scipy==0.18.0
-    pip3 install -I scikit-learn==0.17.1
-    pip3 install -I vcversioner==2.16.0.0
-    pip3 install -I knpackage==0.1.2
-    apt-get install -y libfreetype6-dev libxft-dev 
-    pip3 install -I matplotlib==1.4.2
-    pip3 install pyyaml
-   ```
-   
-2. Run makefile targets
+| ProGENI_rwr20_STExp_GDSC_500.rname.gxc.gz| binary  | User gene set names | Gene  | User spread sheet |
+ 
+###6. Run makefile targets
   * Prepare input data and running directories. 
     ```
         make preparation
@@ -78,6 +63,7 @@ cd GeneSet_Characterization_Pipeline
     ```
  
 
-##DRaWR
-##Fisher
-##Net_One
+###7. Run functions seperately
+ *DRaWR
+ *Fisher
+ *Net_One
