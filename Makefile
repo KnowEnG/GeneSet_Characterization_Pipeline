@@ -9,7 +9,7 @@ BENCHMARKS = ./test/benchmarks/
 SCRIPT = ./src/geneset_characterization.py
 
 
-all: decompress_input_data create_run_dir copy_run_files
+preparation: decompress_input_data create_run_dir copy_run_files
 
 run_fisher:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file fisher_run_file.yml 
