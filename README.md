@@ -3,7 +3,7 @@ This pipeline selects one of three methods to **rank** a user supplied gene set 
 
 ## Steps to run pipelines
 1. Configure your environment to have the following packages
-   ```
+  ```
     System: ubuntu:14.04
     apt-get install -y python3-pip
     apt-get install -y libblas-dev liblapack-dev libatlas-base-dev gfortran
@@ -17,16 +17,19 @@ This pipeline selects one of three methods to **rank** a user supplied gene set 
     pip3 install -I matplotlib==1.4.2
     pip3 install pyyaml
    ```
+   
 2. Run makefile targets
   * Prepare input data and running directories. 
     ```
         make preparation
     ```
+    
   * Run the pipeline you desire
     ```
         make run_fisher
         make run_drawer
     ```
+    
   * Clean the running environment after you finish your tests and analysis
     ```
         make clean_dir_recursively
