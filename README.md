@@ -30,9 +30,9 @@ This pipeline selects one of three methods to **rank** a user supplied gene set 
         make run_drawer
     ```
     
-  * Clean the running environment after you finish your tests and analysis
+  * Clean the running environment and revert the local repository to original state after you finish your tests and analysis
     ```
-        make clean_dir_recursively
+        make final_clean 
     ```
  
 

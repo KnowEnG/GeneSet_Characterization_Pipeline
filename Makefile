@@ -23,9 +23,6 @@ decompress_input_data:
 compress_input_data:
 	$(GZIP) $(INPUT_DATA_DIR)/*
 
-create_input_data:
-	$(MKDIR_P) $(INPUT_DATA_DIR)	
-
 create_run_dir:
 	$(MKDIR_P) $(RESULTS_DIR) 
 
@@ -35,4 +32,5 @@ copy_run_files:
 clean_dir_recursively:
 	$(RMR) $(RUN_DIR)
 
- 
+final_clean: clean_dir_recursively compress_input_data
+	 
