@@ -64,22 +64,25 @@ cd GeneSet_Characterization_Pipeline
  
 
 ###7. Run methods seperately
-1. Create your own run directory outside GeneSet_Characterization_Pipeline repo
+
+* Create your own run directory outside GeneSet_Characterization_Pipeline repo
 ```
-   mkdir run_dir
+    mkdir run_dir
 ```
-2. Create results directory to save output files under run directory
+
+* Create results directory to save output files under run directory
 ```
    cd run_dir
    mkdir results
 ```
-Make sure you are in the run_dir directory
-  * Fisher
-  1. Copy fisher_run_file.yml into run_dir
+####Make sure you are in the run_dir directory.
+
+### Fisher
+  1. Copy `fisher_run_file.yml` into run_dir
   ```
      cp ../GeneSet_Characterization_Pipeline/test/benchmarks/fisher_run_file.yml fisher_run_file.yml
   ```
-  2. Make sure the directories of the input data in fisher_run_file.yml are correct
+  2. Make sure the directories of the input data in `fisher_run_file.yml` are correct
   ```
      pg_network_file_name: /../GeneSet_Characterization_Pipeline/input_data/kegg_pathway_property_gene
      samples_file_name: /../GeneSet_Characterization_Pipeline/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
@@ -89,13 +92,14 @@ Make sure you are in the run_dir directory
      PYTHONPATH='../GeneSet_Characterization_Pipeline/src' python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory ./ -run_file fisher_run_file.yml
   ```
   4. Output files are saved in results directory
-     Generate fisher_droplist.txt and fisher_result file with timestamp. Add the running time into fisher_run_file.yml
-  * DRaWR 
-  1. Copy DRaWR_run_file.yml into run_dir
+     Generate `fisher_droplist.txt` and `fisher_result` file with timestamp. Add the running time into `fisher_run_file.yml`
+
+### DRaWR 
+  1. Copy `DRaWR_run_file.yml` into run_dir
   ```
      cp ../GeneSet_Characterization_Pipeline/test/benchmarks/DRaWR_run_file.yml DRaWR_run_file.yml
   ```
-  2. Make sure the directories of the input data in DRaWR_run_file.yml are correct
+  2. Make sure the directories of the input data in `DRaWR_run_file.yml` are correct
   ```
      pg_network_file_name: /../GeneSet_Characterization_Pipeline/input_data/kegg_pathway_property_gene
      samples_file_name: /../GeneSet_Characterization_Pipeline/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
@@ -106,5 +110,5 @@ Make sure you are in the run_dir directory
      PYTHONPATH='../GeneSet_Characterization_Pipeline/src' python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory ./ -run_file DRaWR_run_file.yml
   ```
   4. Output files are saved in results directory
-     Generate DRaWR_droplist.txt and DRaWR_result file with timestamp. Add the running time into DRaWR_run_file.yml
+     Generate `DRaWR_droplist.txt` and `DRaWR_result` file with timestamp. Add the running time into `DRaWR_run_file.yml`
   * Net_One
