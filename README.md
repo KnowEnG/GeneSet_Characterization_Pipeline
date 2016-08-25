@@ -64,6 +64,6 @@ cd GeneSet_Characterization_Pipeline
  
 
 ###7. Run functions seperately
- *DRaWR
- *Fisher
- *Net_One
+  * Fisher 
+  * DRaWR 
+  * Net_One
