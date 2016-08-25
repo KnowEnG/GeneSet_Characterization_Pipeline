@@ -36,14 +36,14 @@ cd GeneSet_Characterization_Pipeline
 ###5. Prepare 'User Provided Gene Set Spreadsheet' and KnowEnG gene set collections
 1. Default user dataset and KnowEnG gene set collections include the following files in __input_data__:   
 
-    | File Name                       | Size    | Col1  | Col2 | Col3 | Col4      | Description                            |
-    | --------------------------------| ------- | -------- | ------- | ------- | ------------ | -------------------------------------- |
-    | STRING_experimental_gene_gene.gz| 25448   | Gene     | Gene    | Weight | Network Name  | Significant protein interaction dataset|
-    | kegg_pathway_property_gene.gz   | 3148460 | Property | Gene    | Weight | Property Name | Pathway propery dataset                |
+| Network Name                    | Size    | Col1     | Col2    | Col3   | Col4         | Description                            |
+| --------------------------------| ------- | -------- | ------- | ------ | ------------ | -------------------------------------- |
+| STRING_experimental_gene_gene.gz| 25448   | Gene     | Gene    | Weight | Network Name | Significant protein interaction dataset|
+| kegg_pathway_property_gene.gz   | 3148460 | Property | Gene    | Weight | Property Name| Pathway propery dataset                |
     
-    | File Name           | Format | Description                                    |
-    | ------------------- | ------ | ---------------------------------------------- |
-    | ProGENI_rwr20_STExp_GDSC_500.rname.gxc.gz| Float  | user spread sheet   |
+| User Spreadsheet Name                    | Format  | Header              | Index | Description       |
+| ---------------------------------------- | ------- | ------------------- | ----- | ----------------- |
+| ProGENI_rwr20_STExp_GDSC_500.rname.gxc.gz| binary  | User gene set names | Gene  | user spread sheet |
 1. Configure your environment to have the following packages
   ```
     System: ubuntu:14.04
