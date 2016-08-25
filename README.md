@@ -6,11 +6,10 @@ This pipeline selects one of three methods to **rank** a user supplied gene set 
 __Access__ KnowEnG-Research github repo
 
 ###2. Get a copy of the __GeneSet_Characterization_Pipeline__ code, data
-__Run__ the following command to get __GeneSet_Characterization_Pipeline__ of the NBS repo
-
-    ```
-    git clone https://github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git
-    ```
+__Run__ the following command to get __GeneSet_Characterization_Pipeline__ repo
+```
+ git clone https://github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git
+```
     
 ###3. Configure your environment to have the following packages
   ```
@@ -37,7 +36,7 @@ cd GeneSet_Characterization_Pipeline
 ###5. Prepare 'User Provided Gene Set Spreadsheet' and KnowEnG gene set collections
 1. Default user dataset and KnowEnG gene set collections include the following files in __input_data__:   
 
-    | File Name                       | Size    | Column1  | Column2 | Column3 | Column4      | Description                            |
+    | File Name                       | Size    | Col1  | Col2 | Col3 | Col4      | Description                            |
     | --------------------------------| ------- | -------- | ------- | ------- | ------------ | -------------------------------------- |
     | STRING_experimental_gene_gene.gz| 25448   | Gene     | Gene    | Weight | Network Name  | Significant protein interaction dataset|
     | kegg_pathway_property_gene.gz   | 3148460 | Property | Gene    | Weight | Property Name | Pathway propery dataset                |
