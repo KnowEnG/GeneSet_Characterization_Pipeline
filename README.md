@@ -65,14 +65,14 @@ cd GeneSet_Characterization_Pipeline
 
 ###7. Run methods seperately
 1. Create your own run directory outside GeneSet_Characterization_Pipeline repo
-  ```
-     mkdir run_dir
-  ```
+```
+   mkdir run_dir
+```
 2. Create results directory to save output files under run directory
-  ```
-     cd run_dir
-     mkdir results
-  ```
+```
+   cd run_dir
+   mkdir results
+```
 Make sure you are in the run_dir directory
   * Fisher
   1. Copy fisher_run_file.yml into run_dir
@@ -81,8 +81,8 @@ Make sure you are in the run_dir directory
   ```
   2. Make sure the directories of the input data in fisher_run_file.yml are correct
   ```
-     pg_network_file_name: ../GeneSet_Characterization_Pipeline/input_data/kegg_pathway_property_gene
-     samples_file_name: ../GeneSet_Characterization_Pipeline/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
+     pg_network_file_name: /../GeneSet_Characterization_Pipeline/input_data/kegg_pathway_property_gene
+     samples_file_name: /../GeneSet_Characterization_Pipeline/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
   ```
   3. Run fisher exact test
   ```
@@ -97,9 +97,9 @@ Make sure you are in the run_dir directory
   ```
   2. Make sure the directories of the input data in DRaWR_run_file.yml are correct
   ```
-     pg_network_file_name: ../GeneSet_Characterization_Pipeline/input_data/kegg_pathway_property_gene
-     samples_file_name: ../GeneSet_Characterization_Pipeline/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
-     gg_network_file_name: ../GeneSet_Characterization_Pipeline/input_data/STRING_experimental_gene_gene
+     pg_network_file_name: /../GeneSet_Characterization_Pipeline/input_data/kegg_pathway_property_gene
+     samples_file_name: /../GeneSet_Characterization_Pipeline/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
+     gg_network_file_name: /../GeneSet_Characterization_Pipeline/input_data/STRING_experimental_gene_gene
   ```
   3. Run DRaWR
   ```
