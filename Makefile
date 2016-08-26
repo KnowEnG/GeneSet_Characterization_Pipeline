@@ -1,11 +1,11 @@
 MKDIR_P = mkdir -p
 RMR = rm -rf
 GZIP = gzip
-GZIP_D = gzip -d
+GZIP_D = gzip -df
 INPUT_DATA_DIR = ./input_data
 RUN_DIR = ./run_dir
 RESULTS_DIR = $(RUN_DIR)/results
-BENCHMARKS = ./test/benchmarks/
+BUILD = ./build
 SCRIPT = ./src/geneset_characterization.py
 
 
@@ -27,7 +27,7 @@ create_run_dir:
 	$(MKDIR_P) $(RESULTS_DIR) 
 
 copy_run_files:
-	cp $(BENCHMARKS)/*.yml $(RUN_DIR) 
+	cp $(BUILD)/*.yml $(RUN_DIR) 
 
 clean_dir_recursively:
 	$(RMR) $(RUN_DIR)
