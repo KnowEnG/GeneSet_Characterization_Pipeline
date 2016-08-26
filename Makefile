@@ -1,7 +1,7 @@
 MKDIR_P = mkdir -p
 RMR = rm -rf
 GZIP = gzip
-GZIP_D = gzip -d
+GZIP_D = gzip -df
 INPUT_DATA_DIR = ./input_data
 RUN_DIR = ./run_dir
 RESULTS_DIR = $(RUN_DIR)/results
