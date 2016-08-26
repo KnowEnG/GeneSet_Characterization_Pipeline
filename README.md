@@ -1,19 +1,27 @@
-# GeneSet_Characterization_Pipeline
-This pipeline selects one of three methods to **rank** a user supplied gene set **against** a KnowEnG gene sets collection
+# Gene Set Characterization Pipeline
+This is the Knowledge Engine for Genomics (KnowEnG), an NIH BD2K Center of Excellence, Gene Set Characterization Pipeline.</br>
+This pipeline selects one of three methods to **rank** a user supplied gene set **against** a KnowEnG gene sets collection.
 
-## Steps to run pipelines
-###1. Setup github access:
-__Access__ KnowEnG-Research github repo
+One can select one of three gene set characterization options:
 
-###2. Get a copy of the GeneSet_Characterization_Pipeline code, data
-__Run__ the following command to get GeneSet_Characterization_Pipeline repo
+| **Options**                                      | **Method**                           | **Parameters** |
+| ------------------------------------------------ | -------------------------------------| -------------- |
+| Fisher exact test                                | Fisher                               | fisher         |
+| Discriminative Random Walks with Restart         | DRaWR                                | DRaWR          |
+| Net One                                          | Net One                              | net_one        |
+
+## How to run this pipeline with provided data
+###1. Get Access to KnowEnG-Research Repo:
+Email omarsobh@illinois.edu infrastructure team (IST) lead to:
+
+1. __Access__ KnowEnG-Research github repo
+
+###2. Clone the Samples_Clustering_Pipeline Repo
 ```
  git clone https://github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git
 ```
- 
-###3. Configure your environment to have the following packages
-  ```
- System: ubuntu:14.04
+###3. Install the following (Mac OS or Linux)
+```
  apt-get install -y python3-pip
  apt-get install -y libblas-dev liblapack-dev libatlas-base-dev gfortran
  pip3 install -I numpy==1.11.1
@@ -27,25 +35,12 @@ __Run__ the following command to get GeneSet_Characterization_Pipeline repo
  pip3 install pyyaml
 ```
 
-###4. start in the pipeline repo home directory
-
+###4. Change directory to  the GeneSet_Characterization_Pipeline
 ```
-cd GeneSet_Characterization_Pipeline
+ cd GeneSet_Characterization_Pipeline
 ```
 
-###5. Prepare 'User Provided Gene Set Spreadsheet' and KnowEnG gene set collections
-1. Default user dataset and KnowEnG gene set collections include the following files in __input_data__:
-
-Network Name|Size| Col1  | Col2 | Col3| Col4| Description |
-| --------------------------------| ------- | -------- | ------- | ------ | ------------ | -------------------------------------- |
-STRING_experimental_gene_gene.gz| 25448| Gene  | Gene | Weight | Network Name | Significant protein interaction dataset|
-kegg_pathway_property_gene.gz| 3148460 | Property | Gene | Weight | Property Name| Pathway propery dataset |
- 
-User Spreadsheet Name| Format  | Header | Index | Description |
-| ---------------------------------------- | ------- | ------------------- | ----- | ----------------- |
-| ProGENI_rwr20_STExp_GDSC_500.rname.gxc.gz| binary  | User gene set names | Gene  | User spread sheet |
- 
-###6. Run makefile targets
+###5. Use the following "make" command to create a local directory "run_dir" and place all the parameters files in it
   * Prepare input data and running directories. 
  ```
   make preparation
@@ -61,67 +56,40 @@ User Spreadsheet Name| Format  | Header | Index | Description |
  ```
   make final_clean 
  ```
- 
 
-###7. Run methods seperately
+## How to run it with your data 
+###6. Setup your run environment
+* Create a  run directory
 
-* Create your own run directory outside GeneSet_Characterization_Pipeline repo
  ```
- mkdir run_dir
+ mkdir run_directory_name
  ```
 
 * Create results directory to save output files under run directory
- ```
- cd run_dir
- mkdir results
- ```
- 
-####Make sure you are in the run_dir directory.
 
-### Fisher
-1. Copy `fisher_run_file.yml` into run_dir
-  ```
-  cp ../GeneSet_Characterization_Pipeline/test/benchmarks/fisher_run_file.yml fisher_run_file.yml
-  ```
+ ```
+ cd run_directory_name
+ mkdir results_directory_name
+ ```
+* Create run_paramerters file (yml format) 
+
+file_name.yml
+
+* Make sure the directories of the input data in `fisher_run_file.yml` and `DRaWR_run_file.yml` are correct
+ 
+* Run GeneSet_Characterization_Pipeline
+
+```
+  export PYTHONPATH='../GeneSet_Characterization_Pipeline/src':$PYTHONPATH    
+  python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory ./ -run_file file_name.yml
+```
   
-2. Make sure the directories of the input data in `fisher_run_file.yml` are correct
-  
-  pg_network_file_name:
-  ```
-  /../GeneSet_Characterization_Pipeline/input_data/kegg_pathway_property_gene
-  ```
-  samples_file_name:
-  ```
-  /../GeneSet_Characterization_Pipeline/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
-  ```
-  
-3. Run fisher exact test
-  ```
-  PYTHONPATH='../GeneSet_Characterization_Pipeline/src' python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory ./ -run_file fisher_run_file.yml
-  ```
-  
+* Output files are saved in results directory
+
 4. Output files are saved in results directory
   Generate `fisher_droplist.txt` and `fisher_result` file with timestamp. Add the running time into `fisher_run_file.yml`
 
-### DRaWR 
-1. Copy `DRaWR_run_file.yml` into run_dir
-  ```
-    cp ../GeneSet_Characterization_Pipeline/test/benchmarks/DRaWR_run_file.yml DRaWR_run_file.yml
-  ```
   
-2. Make sure the directories of the input data in `DRaWR_run_file.yml` are correct
-  ```
-  pg_network_file_name: /../GeneSet_Characterization_Pipeline/input_data/kegg_pathway_property_gene
-  samples_file_name: /../GeneSet_Characterization_Pipeline/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
-  gg_network_file_name: /../GeneSet_Characterization_Pipeline/input_data/STRING_experimental_gene_gene
-  ```
-  
-3. Run DRaWR
-  ```
-  PYTHONPATH='../GeneSet_Characterization_Pipeline/src' python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory ./ -run_file DRaWR_run_file.yml
-  ```
-  
-4. Output files are saved in results directory
-  Generate `DRaWR_droplist.txt` and `DRaWR_result` file with timestamp. Add the running time into `DRaWR_run_file.yml`
+
 
 ### Net_One
