@@ -1,6 +1,6 @@
 # yaml parameters file template with all options for fisher exact test
 method: fisher
-#	A clustering method name recongized by geneset_characterization.py.
+#	A gene set characterization method name recongized by geneset_characterization.py.
 # 	fisher
 # 	DRaWR
 
