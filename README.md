@@ -73,7 +73,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to:
  ```
 * Create run_paramerters file (yml format) 
 
-file_name.yml
+ file_name.yml
 
 * Make sure the directories of the input data in `fisher_run_file.yml` and `DRaWR_run_file.yml` are correct
  
@@ -84,12 +84,13 @@ file_name.yml
   python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory ./ -run_file file_name.yml
 ```
   
-* Output files are saved in results directory
+* Output files are saved in results directory</br>
+`fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`:
 
-4. Output files are saved in results directory
-  Generate `fisher_droplist.txt` and `fisher_result` file with timestamp. Add the running time into `fisher_run_file.yml`
+|**user gene**|**property**|**count**|**user count**|**gene count**|**overlap**|**pval**|
+| ------------| -----------| --------| -------------| -------------| ---------|------|
+|   string    |   string   |    int    |    int    |   int     |   int    |   float    |
 
-  
-
+`DRaWR_result` output file :
 
 ### Net_One
