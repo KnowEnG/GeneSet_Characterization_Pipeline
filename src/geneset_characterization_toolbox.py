@@ -122,8 +122,9 @@ def run_fisher(run_parameters):
     # - restrict spreadsheet and network to common genes and drop everthing else -
     # ----------------------------------------------------------------------------
     droplist = kn.find_dropped_node_names(spreadsheet_df, common_gene_names)
-    file_path = os.path.join(run_parameters['results_directory'], 'fisher_droplist.txt')
-    pd.DataFrame(droplist).to_csv(file_path, header=False, index=False, sep='\t')
+    file_name = kn.create_timestamped_filename("fisher_droplist", stamp_units=1e6)
+    kn.save_df(pd.DataFrame(droplist, columns=['droplist']),
+               run_parameters['results_directory'], file_name)
     spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, common_gene_names)
     prop_gene_network_df = kn.update_network_df(prop_gene_network_df, common_gene_names, "node_2")
 
@@ -171,8 +172,9 @@ def run_DRaWR(run_parameters):
 
     # restrict spreadsheet to unique genes and drop everthing else
     droplist = kn.find_dropped_node_names(spreadsheet_df, unique_gene_names)
-    file_path = os.path.join(run_parameters['results_directory'], 'DRaWR_droplist.txt')
-    pd.DataFrame(droplist).to_csv(file_path, header=False, index=False, sep='\t')
+    file_name = kn.create_timestamped_filename("DRaWR_droplist", stamp_units=1e6)
+    kn.save_df(pd.DataFrame(droplist, columns=['droplist']),
+               run_parameters['results_directory'], file_name)
     spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
     # map every gene name to a sequential integer index
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
