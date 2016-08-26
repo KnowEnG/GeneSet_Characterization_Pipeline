@@ -79,18 +79,19 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to:
  
 * Run GeneSet_Characterization_Pipeline
 
-```
-  export PYTHONPATH='../GeneSet_Characterization_Pipeline/src':$PYTHONPATH    
-  python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory ./ -run_file file_name.yml
-```
+ ```
+ export PYTHONPATH='../GeneSet_Characterization_Pipeline/src':$PYTHONPATH    
+ python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory ./ -run_file file_name.yml
+ ```
   
 * Output files are saved in results directory</br>
-`fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`:
+1.`DRaWR_result` output file saves sorted properties based on the difference between updated user gene vector and baseline.</br>
+2.`fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`.
 
-|**user gene**|**property**|**count**|**user count**|**gene count**|**overlap**|**pval**|
-| ------------| -----------| --------| -------------| -------------| ---------|------|
-|   string    |   string   |    int    |    int    |   int     |   int    |   float    |
+ |**user gene**|**property**|**count**|**user count**|**gene count**|**overlap**|**pval**|
+ | ------------| -----------| --------| -------------| -------------| ---------|------|
+ |   string    |   string   |    int    |    int    |   int     |   int    |   float    |
 
-`DRaWR_result` output file :
+
 
 ### Net_One
