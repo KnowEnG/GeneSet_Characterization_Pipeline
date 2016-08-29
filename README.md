@@ -48,8 +48,8 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to:
  
   * Run the pipeline you desire
  ```
-  make run_fisher
-  make run_drawer
+  make -f Makefile.docker docker_run_fisher
+  make -f Makefile.docker docker_run_drawer
  ```
  
   * Clean the running environment and revert the local repository to original state after you finish your tests and analysis
