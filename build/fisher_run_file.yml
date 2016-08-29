@@ -4,7 +4,7 @@ method: fisher
 # 	fisher
 # 	DRaWR
 
-gg_network_name_full_path: ./input_data/kegg_pathway_property_gene
+pg_network_name_full_path: ./input_data/kegg_pathway_property_gene
 #	4 col edge file for building sparse matrix in fisher exact test.
 
 spreadsheet_name_full_path: ./input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc

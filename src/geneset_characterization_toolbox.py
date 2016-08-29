@@ -57,7 +57,7 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
                 df_val.append(row_item)
     df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
     result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
-    file_name = kn.create_timestamped_filename("fisher_result", stamp_units=1e6)
+    file_name = kn.create_timestamped_filename("fisher_result")
     kn.save_df(result_df, results_dir, file_name)
 
     return result_df
@@ -85,7 +85,7 @@ def perform_DRaWR(network_sparse, new_spreadsheet_df, len_gene_names, run_parame
         final_spreadsheet_df['base'].sort_values(ascending=0).index.values
 
     final_spreadsheet_df.index = range(final_spreadsheet_df.shape[0])
-    file_name = kn.create_timestamped_filename("DRaWR_result", stamp_units=1e6)
+    file_name = kn.create_timestamped_filename("DRaWR_result")
     kn.save_df(final_spreadsheet_df, run_parameters['results_directory'], file_name)
 
     return final_spreadsheet_df
@@ -98,8 +98,8 @@ def run_fisher(run_parameters):
     # -----------------------------------
     # - Data read and extraction Section -
     # -----------------------------------
-    spreadsheet_df = kn.get_spreadsheet_df(run_parameters)
-    prop_gene_network_df = kn.get_network_df(run_parameters['pg_network_file_name'])
+    spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
+    prop_gene_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
 
     spreadsheet_gene_names = kn.extract_spreadsheet_gene_names(spreadsheet_df)
 
@@ -122,7 +122,7 @@ def run_fisher(run_parameters):
     # - restrict spreadsheet and network to common genes and drop everthing else -
     # ----------------------------------------------------------------------------
     droplist = kn.find_dropped_node_names(spreadsheet_df, common_gene_names)
-    file_name = kn.create_timestamped_filename("fisher_droplist", stamp_units=1e6)
+    file_name = kn.create_timestamped_filename("fisher_droplist")
     kn.save_df(pd.DataFrame(droplist, columns=['droplist']),
                run_parameters['results_directory'], file_name)
     spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, common_gene_names)
@@ -152,9 +152,9 @@ def run_DRaWR(run_parameters):
     Args:
         run_parameters: dictionary of run parameters
     '''
-    spreadsheet_df = kn.get_spreadsheet_df(run_parameters)
-    pg_network_df = kn.get_network_df(run_parameters['pg_network_file_name'])
-    gg_network_df = kn.get_network_df(run_parameters['gg_network_file_name'])
+    spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
+    pg_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
+    gg_network_df = kn.get_network_df(run_parameters['gg_network_name_full_path'])
 
     pg_network_n1_names,\
     pg_network_n2_names = kn.extract_network_node_names(pg_network_df)
@@ -172,7 +172,7 @@ def run_DRaWR(run_parameters):
 
     # restrict spreadsheet to unique genes and drop everthing else
     droplist = kn.find_dropped_node_names(spreadsheet_df, unique_gene_names)
-    file_name = kn.create_timestamped_filename("DRaWR_droplist", stamp_units=1e6)
+    file_name = kn.create_timestamped_filename("DRaWR_droplist")
     kn.save_df(pd.DataFrame(droplist, columns=['droplist']),
                run_parameters['results_directory'], file_name)
     spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
