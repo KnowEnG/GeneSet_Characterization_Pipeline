@@ -12,5 +12,7 @@ RUN pip3 install -I numpy==1.11.1 pandas==0.18.1 scipy==0.18.0 scikit-learn==0.1
 # Clone from github
 RUN git clone https://username:password@github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git ${SRC_LOC} 
 
+RUN rm -rf {SRC_LOC}/build {SRC_LOC}/input_data {SRC_LOC}/test {SRC_LOC}/docs
+
 # Set up working directory
 WORKDIR ${SRC_LOC} 
