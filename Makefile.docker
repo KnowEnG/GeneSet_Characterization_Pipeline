@@ -1,0 +1,9 @@
+
+
+docker_pipelines: docker_run_fisher docker_run_drawer
+
+docker_run_fisher:
+	docker run -v `pwd`/run_dir:/home/run_dir -v `pwd`/input_data:/home/input_data -it candicegjing/genesetcharacterization:0.3 make run_fisher
+
+docker_run_drawer:
+	docker run -v `pwd`/run_dir:/home/run_dir -v `pwd`/input_data:/home/input_data -it candicegjing/genesetcharacterization:0.3 make run_drawer
