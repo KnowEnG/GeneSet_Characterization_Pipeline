@@ -1,3 +1,4 @@
+.PYONY: docker_pipelines docker_run_fisher docker_run_drawer
 
 docker_pipelines: docker_run_fisher docker_run_drawer
 

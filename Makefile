@@ -9,6 +9,7 @@ BUILD = ./build
 #BUILD = ./test/benchmarks
 SCRIPT = ./src/geneset_characterization.py
 
+.PHONY: preparation run_fisher run_drawer decompress_input_data compress_input_data create_run_dir copy_run_files clean_dir_recursively final_clean 
 
 preparation: decompress_input_data create_run_dir copy_run_files
 
