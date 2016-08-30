@@ -28,11 +28,12 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to:
  pip3 install -I pandas==0.18.1 
  pip3 install -I scipy==0.18.0
  pip3 install -I scikit-learn==0.17.1
- pip3 install -I vcversioner==2.16.0.0
- pip3 install -I knpackage==0.1.2
  apt-get install -y libfreetype6-dev libxft-dev 
  pip3 install -I matplotlib==1.4.2
  pip3 install pyyaml
+```
+```
+ pip3 install -I knpackage
 ```
 
 ###4. Change directory to  the GeneSet_Characterization_Pipeline
