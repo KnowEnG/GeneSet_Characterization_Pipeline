@@ -31,7 +31,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to:
  apt-get install -y libfreetype6-dev libxft-dev 
  pip3 install matplotlib==1.4.2
  pip3 install pyyaml
- pip3 install `knpackage`
+ pip3 install knpackage
 ```
 
 ###4. Change directory to  the GeneSet_Characterization_Pipeline
