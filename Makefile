@@ -16,7 +16,7 @@ preparation: decompress_input_data create_run_dir copy_run_files
 run_fisher:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file fisher_run_file.yml 
 
-run_drawer:
+run_drawr:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR_run_file.yml
 
 decompress_input_data:
