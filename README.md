@@ -72,16 +72,16 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to:
  ```
 * Create run_paramerters file with example below (yml format)
  
- |**Key**|**Value**|**Comments**|
- |-------|---------|------------|
- |method |DRaWR or fisher   |Choose DRaWR or fisher as the gene set characterization method|
- |pg_network_name_full_path|./a/pg_network_name|Path and file name of the 4 col property file|
- |gg_network_name_full_path|./a/gg_network_name|Path and file name of the 4 col network file(only needed in DRaWR)|
- |spreadsheet_name_full_path|./a/spreadsheet_name|Path and file name of user supplied gene sets|
- |results_directory|./run_dir/results|Directory to save the output files|
- |rwr_max_iterations|500|Maximum number of iterations without convergence in random walk with restart(only needed in DRaWR)|
- |rwr_convergence_tolerence|0.0001|Frobenius norm tolerence of spreadsheet vector in random walk(only needed in DRaWR)|
- |rwr_restart_probability|0.5|alpha in `Vn+1 = alpha * N * Vn + (1-alpha) * Vo`(only needed in DRaWR)|
+ | **Key** | **Value** | **Comments** |
+ | ------- | --------- | ------------ |
+ | method  | DRaWR or fisher   | Choose DRaWR or fisher as the gene set characterization method |
+ | pg_network_name_full_path | ./a/pg_network_name |Path and file name of the 4 col property file |
+ | gg_network_name_full_path | ./a/gg_network_name |Path and file name of the 4 col network file(only needed in DRaWR) |
+ | spreadsheet_name_full_path | ./a/spreadsheet_name|  Path and file name of user supplied gene sets |
+ | results_directory | ./run_dir/results | Directory to save the output files |
+ | rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(only needed in DRaWR) |
+ | rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(only needed in DRaWR)|
+ | rwr_restart_probability | 0.5 | alpha in `Vn+1 = alpha * N * Vn + (1-alpha) * Vo`(only needed in DRaWR) |
 a = input_date</br>
 pg_network_name = kegg_pathway_property_gene</br>
 gg_network_name = STRING_experimental_gene_gene</br>
@@ -99,8 +99,8 @@ spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc
 1.`DRaWR_result` output file saves sorted properties based on the difference between updated user gene vector and baseline.</br>
 2.`fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`.
 
- |**user gene**|**property**|**count**|**user count**|**gene count**|**overlap**|**pval**|
- | ------------| -----------| --------| -------------| -------------| ---------|------|
+ | **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
+ | ------------- | ------------ | --------- | -------------- | -------------- |  ---------- | -------- |
  |   string    |   string   |    int    |    int    |   int     |   int    |   float    |
 
 
