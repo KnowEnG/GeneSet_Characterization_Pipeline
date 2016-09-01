@@ -1,9 +1,9 @@
-FROM knowengdev/base_image 
+FROM knowengdev/base_image:09_01_2016 
 MAINTAINER Jing Ge <jingge2@illinois.edu>
 
 ENV SRC_LOC /home
 
-# Install latest knpackage
+# Install the latest knpackage
 RUN pip3 install -I knpackage
 
 # Clone from github
@@ -14,4 +14,4 @@ RUN cd ${SRC_LOC} && \
     rm Dockerfile README.md
 
 # Set up working directory
-WORKDIR ${SRC_LOC} 
+WORKDIR ${SRC_LOC}
