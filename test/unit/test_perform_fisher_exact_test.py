@@ -24,7 +24,8 @@ class TestPerform_fisher_exact_test(TestCase):
         ret = tl.perform_fisher_exact_test(self.prop_gene_network_sparse,
                                            self.sparse_dict, self.spreadsheet_df,
                                            self.results_dir)
-        ret.columns = np.arange(7)
+        ret.columns = np.arange(ret.shape[1])
+        ret.index = np.arange(ret.shape[0])
         ret[6] = ret[6].round(4)
         data = [['GS1', 'p1', 3, 2, 1, 1, 0.6667], ['GS1', 'p2', 3, 2, 3, 2, 1.0000]]
         res = pd.DataFrame(data)

@@ -1,11 +1,8 @@
-pg_network_file_name: tmp/rw_pro.txt
-samples_file_name: tmp/rw_spreadsheet.txt
-gg_network_file_name: tmp/rw_net.txt
+pg_network_name_full_path: tmp/rw_pro.txt
+spreadsheet_name_full_path: tmp/rw_spreadsheet.txt
+gg_network_name_full_path: tmp/rw_net.txt
 results_directory: tmp
 method: DRaWR
-number_of_iteriations_in_rwr: "500"
-verbose: "1"
-use_now_name: "1"
-it_max: "10000"
-restart_tolerance: "0.0001"
-restart_probability: "0.5"
+rwr_max_iterations: "500"
+rwr_convergence_tolerence: "0.0001"
+rwr_restart_probability: "0.5"

@@ -16,6 +16,7 @@ class TestRun_fisher(TestCase):
     def test_run_fisher(self):
         ret = tl.run_fisher(self.run_parameters)
         ret['pval'] = ret['pval'].round(4)
+        ret.index = np.arange(ret.shape[0])
         data = [['drug1', 'P1', 3, 2, 1, 1, 0.6667], ['drug1', 'P2', 3, 2, 3, 2, 1.0000]]
         res = pd.DataFrame(data)
         res.columns = ['user gene', 'property', 'count', 'user count',
