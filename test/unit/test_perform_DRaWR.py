@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
 import geneset_characterization_toolbox as tl
+import numpy as np
 
 
 class TestPerform_DRaWR(TestCase):
@@ -23,8 +24,8 @@ class TestPerform_DRaWR(TestCase):
 
         self.spreadsheet_df.index = ['G1', 'G2', 'G3', 'G4', 'G5', 'P6', 'P7']
         self.len_gene_names = 5
-        self.run_parameters = {'number_of_iteriations_in_rwr': 500, 'it_max': 10000,
-                          'restart_tolerance': 0.0001, 'restart_probability': 0.5,
+        self.run_parameters = {'rwr_max_iterations': 500,
+                          'rwr_convergence_tolerence': 0.0001, 'rwr_restart_probability': 0.5,
                           'results_directory': os.getcwd()}
     def tearDown(self):
         del self.network_sparse
@@ -35,10 +36,9 @@ class TestPerform_DRaWR(TestCase):
     def test_perform_DRaWR(self):
         ret = tl.perform_DRaWR(self.network_sparse, self.spreadsheet_df,
                                self.len_gene_names, self.run_parameters)
+        ret.index = np.arange(ret.shape[0])
         res = pd.DataFrame({'GS1': ['P7', 'P6'], 'base': ['P7', 'P6']})
         comp = ret.equals(res)
-        print(ret)
-        print(res)
         self.assertEqual(True, comp)
 
 

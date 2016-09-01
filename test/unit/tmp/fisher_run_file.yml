@@ -1,6 +1,4 @@
-pg_network_file_name: tmp/fisher_pro.txt
-samples_file_name: tmp/fisher_spreadsheet.txt
+pg_network_name_full_path: tmp/fisher_pro.txt
+spreadsheet_name_full_path: tmp/fisher_spreadsheet.txt
 results_directory: tmp
 method: fisher
-verbose: "1"
-use_now_name: "1"
