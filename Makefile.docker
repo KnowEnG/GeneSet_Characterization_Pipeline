@@ -3,7 +3,7 @@
 docker_pipelines: docker_run_fisher docker_run_drawer
 
 docker_run_fisher:
-	docker run -v `pwd`/run_dir:/home/run_dir -v `pwd`/input_data:/home/input_data -it knowengdev/geneset_characterization:0.1 make run_fisher
+	docker run -v `pwd`/run_dir:/home/run_dir -v `pwd`/input_data:/home/input_data -it knowengdev/geneset_characterization:09_01_2016 make run_fisher
 
 docker_run_drawr:
-	docker run -v `pwd`/run_dir:/home/run_dir -v `pwd`/input_data:/home/input_data -it knowengdev/geneset_characterization:0.1 make run_drawer
+	docker run -v `pwd`/run_dir:/home/run_dir -v `pwd`/input_data:/home/input_data -it knowengdev/geneset_characterization:09_01_2016 make run_drawer
