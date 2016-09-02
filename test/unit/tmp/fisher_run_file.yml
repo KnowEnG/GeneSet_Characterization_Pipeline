@@ -1,0 +1,4 @@
+pg_network_name_full_path: tmp/fisher_pro.txt
+spreadsheet_name_full_path: tmp/fisher_spreadsheet.txt
+results_directory: tmp
+method: fisher

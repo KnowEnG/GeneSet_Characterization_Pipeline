@@ -1,0 +1,10 @@
+pg_network_file_name: /home/input_data/kegg_pathway_property_gene
+samples_file_name: /home/input_data/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
+gg_network_file_name: /home/input_data/STRING_experimental_gene_gene
+results_directory: /home/run_dir/results
+method: DRaWR
+number_of_iteriations_in_rwr: "500"
+verbose: "1"
+use_now_name: "1"
+restart_tolerance: "0.0001"
+restart_probability: "0.5"
