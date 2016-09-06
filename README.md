@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Gene Set Characterization Pipeline
 This is the Knowledge Engine for Genomics (KnowEnG), an NIH BD2K Center of Excellence, Gene Set Characterization Pipeline.</br>
 This pipeline selects one of three methods to **rank** a user supplied gene set **against** a KnowEnG gene sets collection.
@@ -106,3 +107,17 @@ spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc
 
 
 ### Net_One
+=======
+# GeneSet_Characterization_Pipeline
+This pipeline selects one of three methods to **rank** a user supplied gene set **against** a KnowEnG gene sets collection
+
+* User submits significance values (p-values) of all genes.
+* User also submits one or more annotations of genes.
+* System learns annotations linked to significant genes.
+* Probabilistic graphical model.
+* Specific example: 
+
+  * p-values are expression-phenotype correlations. 
+  * Annotations are eqtls under a tf’s binding sites. 
+  * Output: TFs linked to phenotype.
+>>>>>>> upstream/master
