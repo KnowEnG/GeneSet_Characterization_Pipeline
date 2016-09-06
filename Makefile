@@ -1,12 +1,14 @@
+# Commands that will be used in targets
 MKDIR_P = mkdir -p
 RMR = rm -rf
 GZIP = gzip
 GZIP_D = gzip -df
+# Directories that will be used in targets
 INPUT_DATA_DIR = ./input_data
 RUN_DIR = ./run_dir
+BUILD_DIR = ./build
 RESULTS_DIR = $(RUN_DIR)/results
-BUILD = ./build
-#BUILD = ./test/benchmarks
+#BUILD_DIR = ./test/benchmarks
 SCRIPT = ./src/geneset_characterization.py
 
 .PHONY: preparation run_fisher run_drawer decompress_input_data compress_input_data create_run_dir copy_run_files clean_dir_recursively final_clean 
@@ -29,7 +31,7 @@ create_run_dir:
 	$(MKDIR_P) $(RESULTS_DIR) 
 
 copy_run_files:
-	cp $(BUILD)/*.yml $(RUN_DIR) 
+	cp $(BUILD_DIR)/*.yml $(RUN_DIR) 
 
 clean_dir_recursively:
 	$(RMR) $(RUN_DIR)
