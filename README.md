@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Gene Set Characterization Pipeline
 This is the Knowledge Engine for Genomics (KnowEnG), an NIH BD2K Center of Excellence, Gene Set Characterization Pipeline.</br>
 This pipeline selects one of three methods to **rank** a user supplied gene set **against** a KnowEnG gene sets collection.
@@ -120,4 +119,3 @@ This pipeline selects one of three methods to **rank** a user supplied gene set 
   * p-values are expression-phenotype correlations. 
   * Annotations are eqtls under a tf’s binding sites. 
   * Output: TFs linked to phenotype.
->>>>>>> upstream/master
