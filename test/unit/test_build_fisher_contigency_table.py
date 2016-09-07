@@ -1,6 +1,6 @@
 import unittest
 from unittest import TestCase
-import geneset_characterization_toolbox as tl
+import src.geneset_characterization_toolbox as tl
 import numpy as np
 
 class TestBuild_fisher_contigency_table(TestCase):

@@ -1,4 +1,4 @@
-CUR_DATE=`date +'%m.%d.%Y'`
+CUR_DATE=`date +'%m_%d_%Y'`
 
 .PHONY: build_docker_image
 
