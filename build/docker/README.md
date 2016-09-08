@@ -1,7 +1,7 @@
-# Building The Samples Clustering Pipeline Docker Image
-The Dockefile in this directory contains all the commands, in order, needed to build samples_clustering_pipeline docker image.
+# Building The GeneSet Characterization Pipeline Docker Image
+The Dockefile in this directory contains all the commands, in order, needed to build geneset_characterization_pipeline docker image.
 
-* run the "make" command to build the samples_clustering_pipeline docker image (output: docker image called "samples_clustering_pipeline" and a tag with today's date and time):
+* run the "make" command to build the samples_clustering_pipeline docker image (output: docker image called "geneset_characterization_pipeline" and a tag with today's date and time):
 ```
     make build_docker_image
 ```
