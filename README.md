@@ -42,7 +42,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to:
 ###5. Use the following "make" command to create a local directory "run_dir" and place all the parameters files in it
   * Prepare input data and running directories. 
  ```
-  make preparation
+  make setup_env
  ```
  
   * Run the pipeline you desire
