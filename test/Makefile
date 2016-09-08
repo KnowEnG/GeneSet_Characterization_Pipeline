@@ -14,7 +14,7 @@ SCRIPT = ../src/geneset_characterization.py
 .PHONY: preparation run_fisher run_drawer decompress_input_data compress_input_data create_run_dir copy_run_files clean_dir_recursively final_clean 
 
 # Setup the running environment
-setup_env: create_run_dir copy_run_files decompress_input_data
+env_setup: create_run_dir copy_run_files decompress_input_data
 
 # Clean the pipeline after running the pipelines you desire
 final_clean: clean_dir_recursively compress_input_data
