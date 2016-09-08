@@ -37,7 +37,7 @@ endif
 
 # Compress input data to be gzip file
 compress_input_data:
-	@echo compress input data $(INPUT_DATA)
+	@echo Compress input data $(INPUT_DATA)
 	$(eval TMP = $(suffix $(INPUT_DATA)))
 ifeq ($(TMP),)
 		$(GZIP) $(INPUT_DATA)
