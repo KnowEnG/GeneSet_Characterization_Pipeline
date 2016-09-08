@@ -3,7 +3,7 @@ CUR_DATE=`date +'%m_%d_%Y'`
 build_docker_image:
 	docker build -t knowengdev/geneset_characterization:$(CUR_DATE) .
 
-login_to_docker:
+login_to_dockerhub:
 	docker login --username=$(username) --email=$(email)
 
 push_to_dockerhub:
