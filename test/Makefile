@@ -27,12 +27,15 @@ run_fisher:
 run_drawr:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR_run_file.yml
 
+# Decompress input data with .gz suffix
 decompress_input_data:
-	if ls -s $(INPUT_DATA); \
-	then \
-		$(GZIP_D) $(INPUT_DATA); \
-	fi;
+	@echo Decompress input data $(INPUT_DATA)
+	$(eval TMP = $(suffix $(INPUT_DATA)))
+ifeq ($(filter-out .gz, $(TMP)),)
+		$(GZIP_D) $(INPUT_DATA)
+endif	
 
+# Compress input data to be gzip file
 compress_input_data:
 	@echo compress input data $(INPUT_DATA)
 	$(eval TMP = $(suffix $(INPUT_DATA)))
@@ -40,12 +43,15 @@ ifeq ($(TMP),)
 		$(GZIP) $(INPUT_DATA)
 endif	
 
+# Greate run directory
 create_run_dir:
 	$(MKDIR_P) $(RESULTS_DIR) 
 
+# Copy run_files
 copy_run_files:
 	cp $(RUN_FILES)/*.yml $(RUN_DIR) 
 
+# Remove run directory
 clean_dir_recursively:
 	$(RMR) $(RUN_DIR)
 
