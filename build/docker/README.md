@@ -1,5 +1,5 @@
 # Building The GeneSet Characterization Pipeline Docker Image
-The Dockefile in this directory contains all the commands, in order, needed to build geneset_characterization_pipeline docker image.
+The Dockefile in this directory contains all the commands, in order, needed to build the geneset_characterization_pipeline docker image.
 
 * run the "make" command to build the samples_clustering_pipeline docker image (output: docker image called "geneset_characterization_pipeline" and a tag with today's date and time):
 ```
