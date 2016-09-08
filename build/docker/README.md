@@ -1,18 +1,18 @@
-# Gene Set Characterization Pipeline
-This Dockefile contains all the commands, in order, needed to build Gene Set Characterization pipeline. 
+# Building The Samples Clustering Pipeline Docker Image
+The Dockefile in this directory contains all the commands, in order, needed to build samples_clustering_pipeline docker image.
 
-## Getting Started
-Simply run the following command to build an image with latest code change. It uses the Dockerfile in current directory 
-and generates a docker image with the tag indicating the date when it was created.
-```makefile
+* run the "make" command to build the samples_clustering_pipeline docker image (output: docker image called "samples_clustering_pipeline" and a tag with today's date and time):
+```
     make build_docker_image
 ```
-Then login to docker hub before you push to it. When prompted, enter your password and press enter.
-```makefile
-    make login_to_docker username=abc email=abc
+
+* Login to docker hub. When prompted, enter your password and press enter:
 ```
-Last, upload your image to docker hub!
-```makefile
+    make login_to_docker username=your docker login here email=your email as in your Docker profile here
+```
+
+* Upload your image to docker hub:
+```
     make push_to_dockerhub
 ```
 
