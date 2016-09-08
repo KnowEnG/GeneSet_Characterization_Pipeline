@@ -6,18 +6,21 @@ GZIP_D = gzip -df
 DATA_DIR = ../data/networks ../data/spreadsheets
 INPUT_DATA := $(foreach dir,$(DATA_DIR),$(wildcard $(dir)/*))
 # Directories that will be used in targets
-RUN_DIR = ./test/run_dir
+RUN_DIR = ./run_dir
 RUN_FILES = ../data/run_files
 RESULTS_DIR = $(RUN_DIR)/results
 SCRIPT = ../src/geneset_characterization.py
 
 .PHONY: preparation run_fisher run_drawer decompress_input_data compress_input_data create_run_dir copy_run_files clean_dir_recursively final_clean 
 
-setup_env: decompress_input_data create_run_dir copy_run_files
+# Setup the running environment
+setup_env: create_run_dir copy_run_files decompress_input_data
 
+# Run the fisher pipeline 
 run_fisher:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file fisher_run_file.yml 
 
+# Run the DRaWR pipeline
 run_drawr:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR_run_file.yml
 
