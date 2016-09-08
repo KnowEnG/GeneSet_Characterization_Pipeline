@@ -4,13 +4,13 @@ method: fisher
 # 	fisher
 # 	DRaWR
 
-pg_network_name_full_path: ./data/networks/kegg_pathway_property_gene
+pg_network_name_full_path: /home/data/networks/kegg_pathway_property_gene
 #	4 col edge file for building sparse matrix in fisher exact test.
 
-spreadsheet_name_full_path: ./data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
+spreadsheet_name_full_path: /home/data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
 #	dataframe == matrix with row and column names in .tsv format.
 
-results_directory: ./test/run_dir/results
+results_directory: ./run_dir/results
 #	Where the computational output will be written.
 
 #verbose: "1"

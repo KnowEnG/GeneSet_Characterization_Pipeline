@@ -16,6 +16,9 @@ SCRIPT = ../src/geneset_characterization.py
 # Setup the running environment
 setup_env: create_run_dir copy_run_files decompress_input_data
 
+# Clean the pipeline after running the pipelines you desire
+final_clean: clean_dir_recursively compress_input_data
+
 # Run the fisher pipeline 
 run_fisher:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file fisher_run_file.yml 
@@ -46,4 +49,3 @@ copy_run_files:
 clean_dir_recursively:
 	$(RMR) $(RUN_DIR)
 
-final_clean: clean_dir_recursively compress_input_data
