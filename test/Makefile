@@ -4,10 +4,9 @@ RMR = rm -rf
 GZIP = gzip
 GZIP_D = gzip -df
 DATA_DIR = ../data/networks ../data/spreadsheets
-OBJS = $(foreach dir,$(DATA_DIR),$(wildcard $(dir)/*))
-#OBJS = $(foreach dir,$(DATA_DIR),$(wildcard $(dir)/*))
+INPUT_DATA := $(foreach dir,$(DATA_DIR),$(wildcard $(dir)/*))
 # Directories that will be used in targets
-RUN_DIR = ./run_dir
+RUN_DIR = ./test/run_dir
 RUN_FILES = ../data/run_files
 RESULTS_DIR = $(RUN_DIR)/results
 SCRIPT = ../src/geneset_characterization.py
@@ -22,17 +21,18 @@ run_fisher:
 run_drawr:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR_run_file.yml
 
-decompress_input_data: $(OBJS)
-	if ls -s $(OBJS)  ; \
+decompress_input_data:
+	if ls -s $(INPUT_DATA); \
 	then \
-		$(GZIP_D) $(OBJS); \
+		$(GZIP_D) $(INPUT_DATA); \
 	fi;
 
 compress_input_data:
-	ifneq ( $(suffix $(OBJS)), .gz )
-		$(GZIP) $(OBJS)
-	endif
-
+	@echo compress input data $(INPUT_DATA)
+	$(eval TMP = $(suffix $(INPUT_DATA)))
+ifeq ($(TMP),)
+		$(GZIP) $(INPUT_DATA)
+endif	
 
 create_run_dir:
 	$(MKDIR_P) $(RESULTS_DIR) 
@@ -44,4 +44,3 @@ clean_dir_recursively:
 	$(RMR) $(RUN_DIR)
 
 final_clean: clean_dir_recursively compress_input_data
-	 
