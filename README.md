@@ -12,7 +12,8 @@ One can select one of three gene set characterization options:
 
 ## How to run this pipeline with provided data in Docker container
 ###1. Get Access to KnowEnG-Research Repo:
-Email omarsobh@illinois.edu infrastructure team (IST) lead to get __Access__ to KnowEnG-Research github repo
+Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
+* __Access__ to KnowEnG-Research github repo
 
 ###2. Clone the Samples_Clustering_Pipeline Repo after You Grant with Access
 ```
