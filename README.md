@@ -111,7 +111,7 @@ __***Follow steps 1-4 above then do the following:***__
 * * * 
 
 * * * 
-## Description of "run_file" input data key,value pair
+## Description of "run_file" input data
 * * * 
 
 | **Key**                   | **Value** | **Comments** |
