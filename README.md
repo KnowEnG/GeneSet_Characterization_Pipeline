@@ -22,6 +22,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get __Access__ to 
   * Pull the docker image from Dockerhub with the pre-configured environment (__Recommended__)
     1. Install Docker engine in your machine based on your operation system: https://docs.docker.com/engine/installation/
     2. Run the following command to pull our docker image
+    
        ```
           docker pull knowengdev/geneset_characterization:09_08_2016
        ```
