@@ -72,7 +72,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
 
 ## How to run it with your data 
 ###6. Setup your run environment
-* Create a  run directory
+* In the **parent** directory of GeneSet_Characterization_Pipeline directory, create a run directory 
 
   ```
   mkdir run_directory_name
@@ -96,7 +96,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
  | rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(only needed in DRaWR) |
  | rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(only needed in DRaWR)|
  | rwr_restart_probability | 0.5 | alpha in `Vn+1 = alpha * N * Vn + (1-alpha) * Vo`(only needed in DRaWR) |
-a = input_data</br>
+a = input_data_directory</br>
 pg_network_name = kegg_pathway_property_gene</br>
 gg_network_name = STRING_experimental_gene_gene</br>
 spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc</br>
