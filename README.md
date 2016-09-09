@@ -10,7 +10,9 @@ One can select one of three gene set characterization options:
 | Discriminative Random Walks with Restart         | DRaWR                                | DRaWR          |
 | Net One                                          | Net One                              | net_one        |
 
-## How to run this pipeline with provided data
+* * * 
+## How to run this pipeline with Our data
+* * * 
 ###1. Get Access to KnowEnG-Research Repo:
 Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
 * __Access__ to KnowEnG-Research github repo
