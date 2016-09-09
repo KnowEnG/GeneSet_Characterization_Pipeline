@@ -54,25 +54,18 @@ cd test
 make env_setup
 ```
 
-###7. Use one of the following "make" commands to select and run a clustering option:
-
+###7. Select and run a gene set characterization option:
  
-  * Run the pipeline you desire locally
-    1. Prepare input data and running directories
-      ```
-      make env_setup    
-      ```
-      
-    2. Run fisher pipeline</br>
-      ```
-      make run_fisher
-      ```
-      
-    3. Run DRaWR pipeline</br>
-      ```
-      make run_drawr
-      ```
-      
+ * Run fisher pipeline</br>
+  ```
+  make run_fisher
+  ```
+ 
+ * Run DRaWR pipeline</br>
+  ```
+  make run_drawr
+  ```
+
 
   * Clean the running environment and revert the local repository to original state after you finish your tests and analysis
     ```
