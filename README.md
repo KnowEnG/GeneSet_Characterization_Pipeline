@@ -14,48 +14,48 @@ One can select one of three gene set characterization options:
 ## How to run this pipeline with Our data
 * * * 
 ###1. Get Access to KnowEnG-Research Repo:
-Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
-* __Access__ to KnowEnG-Research github repo
+Email omarsobh@illinois.edu infrastructure team (IST) lead to:
 
-###2. Configurate your Environment in *Two Ways* and Select the One You Prefer
-  * Pull the docker image from Dockerhub with the pre-configured environment (__Recommended__)
-    1. Install Docker engine in your machine based on your operation system: https://docs.docker.com/engine/installation/
-    2. Run the following command to pull our docker image
-    
-       ```
-       docker pull knowengdev/geneset_characterization:09_08_2016
-       ```
-       
-    3. Or install the following package one by one in your machine (Ubuntu or Linux)
-  
-       ```
-       apt-get install -y python3-pip
-       pip3 install numpy==1.11.1
-       pip3 install pandas==0.18.1 
-       pip3 install scipy==0.18.0
-       pip3 install scikit-learn==0.17.1
-       pip3 install matplotlib==1.4.2
-       pip3 install pyyaml
-       pip3 install knpackage
-       ```
-       
-        __Note__: *Other dependencies may apply due to different operation system.*
+* __Access__ KnowEnG-Research github repo
 
-###3. Clone the Samples_Clustering_Pipeline Repo after You are Grant with Access
+###2. Clone the GeneSet_Characterization_Pipeline Repo
+```
+ git clone https://github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git
+```
+ 
+###3. Install the following (Ubuntu or Linux)
   ```
-   git clone https://github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git
-  ```
+ apt-get install -y python3-pip
+ apt-get install -y libblas-dev liblapack-dev libatlas-base-dev gfortran
+ pip3 install numpy==1.11.1
+ pip3 install pandas==0.18.1
+ pip3 install scipy==0.18.0
+ pip3 install scikit-learn==0.17.1
+ apt-get install -y libfreetype6-dev libxft-dev
+ pip3 install matplotlib==1.4.2
+ pip3 install pyyaml
+ pip3 install knpackage
+```
 
-###4. Change directory to the GeneSet_Characterization_Pipeline
-  ```
-   cd GeneSet_Characterization_Pipeline
-  ```
+###4. Change directory to GeneSet_Characterization_Pipeline
 
-###5. Use the following "make" command to create a local directory "run_dir" below test directory and place all the parameters files in it
-  * Change to test directory, prepare input data and running directories
-  ```
-   cd test
-  ```
+```
+cd GeneSet_Characterization_Pipeline
+```
+
+###5. Change directory to test
+
+```
+cd test
+```
+ 
+###6. Create a local directory "run_dir" and place all the run files in it
+```
+make env_setup
+```
+
+###7. Use one of the following "make" commands to select and run a clustering option:
+
  
   * Run the pipeline you desire locally
     1. Prepare input data and running directories
@@ -73,45 +73,58 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
       make run_drawr
       ```
       
-  * Run the pipeline you desire in docker
-    1.  Prepare input data and running directories
-      ```
-      make -f Makefile.docker env_setup
-      ```
-    
-    2. Run fisher pipeline
-      ```
-      make -f Makefile.docker docker_run_fisher
-      ```
-   
-    3. Run DRaWR pipeline
-      ```
-      make -f Makefile.docker docker_run_drawr
-      ```
- 
+
   * Clean the running environment and revert the local repository to original state after you finish your tests and analysis
     ```
      make final_clean 
     ```
 
-## How to run it with your data 
-###6. Setup your run environment
-* In the **parent** directory of GeneSet_Characterization_Pipeline directory, create a run directory 
+* * * 
+## How to run this pipeline with Your data
+* * * 
 
-  ```
-  mkdir run_directory_name
-  ```
+__***Follow steps 1-4 above then do the following:***__
 
-* Create results directory to save output files under run directory
+### * Create your run directory
 
-  ```
-  cd run_directory_name
-  mkdir results_directory_name
-  ```
+ ```
+ mkdir run_directory
+ ```
+
+### * Change directory to the run_directory
+
+ ```
+ cd run_directory
+ ```
+
+### * Create your results directory
+
+ ```
+ mkdir results_directory
+ ```
+ 
+### * Create run_paramters file (YAML Format)
+ ``` 
+ Look for examples of run_parameters in the GeneSet_Characterization_Pipeline/data/run_files template_run_parameters.yml
+ ```
+
+### * Run the GeneSet Characterization Pipeline:
+
+  * Update PYTHONPATH enviroment variable
+   ``` 
+   export PYTHONPATH='./src':$PYTHONPATH    
+   ```
+   
+  * Run
+   ```
+  python3 ./src/geneset_characterization.py -run_directory ./ -run_file template_run_parameters.yml
+   ```
+
+* * * 
+
 * Create run_paramerters file with example below (yml format)
-  ```
-  cp ../GeneSet_Characterization_Pipeline/data/run_files/fisher_run_file.yml fisher_run_file.yml
-  cp ../GeneSet_Characterization_Pipeline/data/run_files/DRaWR_run_file.yml DRaWR_run_file.yml
+  ``` 
+  Look for examples of run_parameters in the GeneSet_Characterization_Pipeline/data/run_files
   ```
 
  | **Key** | **Value** | **Comments** |
@@ -129,15 +142,8 @@ gg_network_name = STRING_experimental_gene_gene</br>
 spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc</br>
 run_dir = run_directory_name</br>
 results_dir = results_directory_name
-* Make sure the directories of the input data in `fisher_run_file.yml` and `DRaWR_run_file.yml` are correct
- 
-* Run GeneSet_Characterization_Pipeline under run_directory_name directory
 
- ```
- export PYTHONPATH='../GeneSet_Characterization_Pipeline/src':$PYTHONPATH    
- python3 ../GeneSet_Characterization_Pipeline/src/geneset_characterization.py -run_directory ./ -run_file file_name.yml
- ```
-  
+
 * Output files are saved in results directory</br>
 1.`DRaWR_result` output file saves sorted properties based on the difference between updated user gene vector and baseline.</br>
 2.`fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`.
@@ -145,20 +151,3 @@ results_dir = results_directory_name
 | **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
 |:-------------:|:------------:|:---------:|:--------------:|:--------------:|:-----------:|:--------:|
 |   string      |   string     |    int    |    int         |   int          |   int       |   float  |
-
-
-
-### Net_One
-=======
-# GeneSet_Characterization_Pipeline
-This pipeline selects one of three methods to **rank** a user supplied gene set **against** a KnowEnG gene sets collection
-
-* User submits significance values (p-values) of all genes.
-* User also submits one or more annotations of genes.
-* System learns annotations linked to significant genes.
-* Probabilistic graphical model.
-* Specific example: 
-
-  * p-values are expression-phenotype correlations. 
-  * Annotations are eqtls under a tf’s binding sites. 
-  * Output: TFs linked to phenotype.
