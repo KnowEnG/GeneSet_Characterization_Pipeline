@@ -122,7 +122,7 @@ __***Follow steps 1-4 above then do the following:***__
 | results_directory | ./run_dir/results_dir | Directory to save the output files |
 | rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(only needed in DRaWR) |
 | rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(only needed in DRaWR)|
-| rwr_restart_probability | 0.5 | alpha in $$ Vn+1 = alpha * N * Vn + (1-alpha) * Vo $$ (only needed in DRaWR) |
+| rwr_restart_probability | 0.5 | alpha in 'V_(n+1) = alpha * N * Vn + (1-alpha) * Vo'(only needed in DRaWR) |
 
 pg_network_name = kegg_pathway_property_gene</br>
 gg_network_name = STRING_experimental_gene_gene</br>
