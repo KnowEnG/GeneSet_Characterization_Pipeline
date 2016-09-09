@@ -20,12 +20,13 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get __Access__ to 
 ```
 ###3. Configurate your Environment in *Two Ways* and Select the One You Prefer
   * Pull the docker image from Dockerhub with the pre-configured environment (__Recommended__)
-    1. Install Docker engine in your machine based on your operation system: [https://docs.docker.com/engine/installation/]
+    1. Install Docker engine in your machine based on your operation system: https://docs.docker.com/engine/installation/
     2. Run the following command to pull our docker image
        ```
           docker pull knowengdev/geneset_characterization:09_08_2016
        ```
   * Or install the following package one by one in your machine (Mac OS or Linux)
+  
     ```
      apt-get install -y python3-pip
      pip3 install numpy==1.11.1
@@ -36,6 +37,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get __Access__ to 
      pip3 install pyyaml
      pip3 install knpackage
     ```
+
 
 ###4. Change directory to the GeneSet_Characterization_Pipeline
   ```
