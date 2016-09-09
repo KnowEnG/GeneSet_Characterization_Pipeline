@@ -42,7 +42,7 @@ endif
 # Compress input data to be gzip file
 compress_input_data:
 	@echo Compress input data...
-ifeq ($(filter-out .gxc, $(INPUT_DATA_SUFFIX)),)
+ifeq ($(filter .gz, $(INPUT_DATA_SUFFIX)),)
 	$(GZIP) $(INPUT_DATA)
 else
 	@echo Illegal file format detected. Aborting compressing input data...
