@@ -98,6 +98,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
 * Create run_paramerters file with example below (yml format)
   ```
   cp ../GeneSet_Characterization_Pipeline/data/run_files/fisher_run_file.yml fisher_run_file.yml
+  cp ../GeneSet_Characterization_Pipeline/data/run_files/DRaWR_run_file.yml DRaWR_run_file.yml
   ```
 
  | **Key** | **Value** | **Comments** |
