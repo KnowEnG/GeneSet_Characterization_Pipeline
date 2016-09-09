@@ -67,11 +67,6 @@ make env_setup
   ```
 
 
-  * Clean the running environment and revert the local repository to original state after you finish your tests and analysis
-    ```
-     make final_clean 
-    ```
-
 * * * 
 ## How to run this pipeline with Your data
 * * * 
@@ -115,10 +110,10 @@ __***Follow steps 1-4 above then do the following:***__
 
 * * * 
 
-* Create run_paramerters file with example below (yml format)
-  ``` 
-  Look for examples of run_parameters in the GeneSet_Characterization_Pipeline/data/run_files
-  ```
+* * * 
+## Description of "run_file" input data key,value pair
+* * * 
+
 
  | **Key** | **Value** | **Comments** |
  | ------- | --------- | ------------ |
