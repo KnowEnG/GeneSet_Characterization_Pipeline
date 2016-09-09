@@ -114,7 +114,6 @@ __***Follow steps 1-4 above then do the following:***__
 ## Description of "run_file" input data key,value pair
 * * * 
 
-
  | **Key** | **Value** | **Comments** |
  | ------- | --------- | ------------ |
  | method  | DRaWR or fisher   | Choose DRaWR or fisher as the gene set characterization method |
@@ -125,6 +124,7 @@ __***Follow steps 1-4 above then do the following:***__
  | rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(only needed in DRaWR) |
  | rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(only needed in DRaWR)|
  | rwr_restart_probability | 0.5 | alpha in `Vn+1 = alpha * N * Vn + (1-alpha) * Vo`(only needed in DRaWR) |
+
 pg_network_name = kegg_pathway_property_gene</br>
 gg_network_name = STRING_experimental_gene_gene</br>
 spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc</br>
