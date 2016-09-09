@@ -111,7 +111,7 @@ __***Follow steps 1-4 above then do the following:***__
 * * * 
 
 * * * 
-## Description of "run_file" input data
+## Description of "run_parameters" file
 * * * 
 
 | **Key**                   | **Value** | **Comments** |
@@ -129,7 +129,7 @@ pg_network_name = kegg_pathway_property_gene</br>
 gg_network_name = STRING_experimental_gene_gene</br>
 spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc</br>
 run_dir = run_directory_name</br>
-results_dir = results_directory_name
+results_dir = results_directory_name</br>
 
 
 * Output files are saved in results directory</br>
