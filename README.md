@@ -114,6 +114,7 @@ __***Follow steps 1-4 above then do the following:***__
 ## Description of "run_file" input data key,value pair
 * * * 
 
+
  | **Key** | **Value** | **Comments** |
  | ------- | --------- | ------------ |
  | method  | DRaWR or fisher   | Choose DRaWR or fisher as the gene set characterization method |
