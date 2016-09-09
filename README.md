@@ -39,7 +39,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to:
  cd GeneSet_Characterization_Pipeline
 ```
 
-###5. Use the following "make" command to create a local directory "run_dir" and place all the parameters files in it
+###5. Use the following "make" command to create a local directory "run_dir" below test directory and place all the parameters files in it
   * Change to test directory, prepare input data and running directories
  ```
   cd test
@@ -91,7 +91,7 @@ run_dir = run_directory_name</br>
 results_dir = results_directory_name
 * Make sure the directories of the input data in `fisher_run_file.yml` and `DRaWR_run_file.yml` are correct
  
-* Go up one level to your run_directory_name and run GeneSet_Characterization_Pipeline
+* Run GeneSet_Characterization_Pipeline under run_directory_name directory
 
  ```
  export PYTHONPATH='../GeneSet_Characterization_Pipeline/src':$PYTHONPATH    
