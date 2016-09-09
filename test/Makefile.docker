@@ -2,6 +2,11 @@
 
 docker_pipelines: docker_run_fisher docker_run_drawer
 
+# Set up the environment to run docker image
+# It includes create a run directory, copy run_files for docker to run directory and decompress input data 
+env_setup: 
+	make create_run_dir copy_run_files_docker decompress_input_data
+
 # Run fisher pipeline
 docker_run_fisher:
 	docker run -v $(CURDIR)/run_dir:/home/test/run_dir knowengdev/geneset_characterization:09_08_2016 /bin/bash -c "cd test; make run_fisher"
