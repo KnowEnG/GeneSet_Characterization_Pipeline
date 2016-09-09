@@ -55,14 +55,16 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
   ```
  
   * Run the pipeline you desire locally
-    1. Run fisher pipeline
-    ```
-    make run_fisher
-    ```
-    2. Run DRaWR pipeline
-    ```
-    make run_drawr
-    ```
+    1. Run fisher pipeline</br>
+      ```
+      make run_fisher
+      ```
+      
+    2. Run DRaWR pipeline</br>
+      ```
+      make run_drawr
+      ```
+      
   * Run the pipeline you desire in docker
     1. Run fisher pipeline
       ```
