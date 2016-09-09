@@ -129,10 +129,12 @@ spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc</br>
 run_dir = run_directory_name</br>
 results_dir = results_directory_name</br>
 
+* * * 
+## Description of Output files saved in results directory
+* * * 
 
-* Output files are saved in results directory</br>
-1.`DRaWR_result` output file saves sorted properties based on the difference between updated user gene vector and baseline.</br>
-2.`fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`.
+* `DRaWR_result` output file saves sorted properties based on the difference between updated user gene vector and baseline.</br>
+* `fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`.
  | **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
  |:-------------:|:------------:|:---------:|:--------------:|:--------------:|:-----------:|:--------:|
  |   string      |   string     |    int    |    int         |   int          |   int       |   float  |
