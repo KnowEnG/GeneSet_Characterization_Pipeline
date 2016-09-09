@@ -54,7 +54,16 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
    make env_setup
   ```
  
-  * Run the pipeline you desire
+  * Run the pipeline you desire locally
+    1. Run fisher pipeline
+    ```
+    make run_fisher
+    ```
+    2. Run DRaWR pipeline
+    ```
+    make run_drawr
+    ```
+  * Run the pipeline you desire in docker
     1. Run fisher pipeline
       ```
       make -f Makefile.docker docker_run_fisher
