@@ -1,0 +1,4 @@
+pg_network_name_full_path: unit_test_run_dir/fisher_pro.txt
+spreadsheet_name_full_path: unit_test_run_dir/fisher_spreadsheet.txt
+results_directory: unit_test_run_dir
+method: fisher

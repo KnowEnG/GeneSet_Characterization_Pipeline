@@ -8,7 +8,7 @@ import numpy as np
 
 class TestRun_DRaWR(TestCase):
     def setUp(self):
-        with open("tmp/DRaWR_run_file.yml", 'r') as file_handle:
+        with open("unit_test_run_dir/DRaWR_run_file.yml", 'r') as file_handle:
             self.run_parameters = yaml.load(file_handle)
 
     def tearDown(self):
