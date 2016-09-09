@@ -138,7 +138,9 @@ results_dir = results_directory_name</br>
 
  | **user gene set name1** |**user gene set name2**|**...**|**user gene set name n**|**base**|
  | :--------------------: |:--------------------:|---|:--------------------:|:--------------------:|
- | property name (string) |property name (string)|...|property name (string)|property name (string)|
+ | property name (string)</br> (most significant) |property name (string)</br> (most significant)|...|property name (string)</br> (most significant)|property name (string)</br> (most significant)|
+ | ... |...|...|...|...|
+ | property name (string)</br> (least significant) |property name (string)</br> (least significant)|...|property name (string)</br> (least significant)|property name (string)</br> (least significant)|
 * `fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`.
 
  | **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
