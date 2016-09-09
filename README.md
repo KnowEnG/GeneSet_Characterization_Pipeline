@@ -28,7 +28,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
           docker pull knowengdev/geneset_characterization:09_08_2016
        ```
        
-  * Or install the following package one by one in your machine (Mac OS or Linux)
+  * Or install the following package one by one in your machine (Ubentu or Linux)
   
     ```
      apt-get install -y python3-pip
