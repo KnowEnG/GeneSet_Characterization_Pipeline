@@ -96,7 +96,10 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
   mkdir results_directory_name
   ```
 * Create run_paramerters file with example below (yml format)
- 
+  ```
+  cp ../GeneSet_Characterization_Pipeline/data/run_files/fisher_run_file.yml fisher_run_file.yml
+  ```
+
  | **Key** | **Value** | **Comments** |
  | ------- | --------- | ------------ |
  | method  | DRaWR or fisher   | Choose DRaWR or fisher as the gene set characterization method |
