@@ -5,6 +5,7 @@ GZIP = gzip
 GZIP_D = gzip -df
 DATA_DIR = ../data/networks ../data/spreadsheets
 INPUT_DATA = $(foreach dir,$(DATA_DIR),$(wildcard $(dir)/*))
+INPUT_DATA_SUFFIX = $(suffix $(INPUT_DATA)) 
 # Directories that will be used in targets
 RUN_DIR = ./run_dir
 RUN_FILES_DIR = ../data/run_files
@@ -31,10 +32,9 @@ run_drawr:
 
 # Decompress input data with .gz suffix
 decompress_input_data:
-	@echo Decompress input data $(INPUT_DATA)
-	$(eval TMP = $(suffix $(INPUT_DATA)))
-ifeq ($(filter-out .gz, $(TMP)),)
-		$(GZIP_D) $(INPUT_DATA)
+	@echo Decompress input data...
+ifeq ($(filter-out .gz, $(INPUT_DATA_SUFFIX)),)
+	$(GZIP_D) $(INPUT_DATA)
 else
 	@echo No gzip file needs to be decompressed.
 endif	
@@ -42,8 +42,7 @@ endif
 # Compress input data to be gzip file
 compress_input_data:
 	@echo Compress input data...
-	$(eval TMP = $(suffix $(INPUT_DATA)))
-ifeq ($(TMP),)
+ifeq ($(filter-out .gxc, $(INPUT_DATA_SUFFIX)),)
 	$(GZIP) $(INPUT_DATA)
 else
 	@echo Illegal file format detected. Aborting compressing input data...

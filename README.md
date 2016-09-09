@@ -84,7 +84,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
    
     3. Run DRaWR pipeline
       ```
-      make -f Makefile.docker docker_run_drawer
+      make -f Makefile.docker docker_run_drawr
       ```
  
   * Clean the running environment and revert the local repository to original state after you finish your tests and analysis
