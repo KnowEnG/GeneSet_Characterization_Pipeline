@@ -109,8 +109,6 @@ __***Follow steps 1-4 above then do the following:***__
    ```
 
 * * * 
-
-* * * 
 ## Description of "run_parameters" file
 * * * 
 
@@ -135,7 +133,6 @@ results_dir = results_directory_name</br>
 * Output files are saved in results directory</br>
 1.`DRaWR_result` output file saves sorted properties based on the difference between updated user gene vector and baseline.</br>
 2.`fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`.
-
-| **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
-|:-------------:|:------------:|:---------:|:--------------:|:--------------:|:-----------:|:--------:|
-|   string      |   string     |    int    |    int         |   int          |   int       |   float  |
+ | **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
+ |:-------------:|:------------:|:---------:|:--------------:|:--------------:|:-----------:|:--------:|
+ |   string      |   string     |    int    |    int         |   int          |   int       |   float  |
