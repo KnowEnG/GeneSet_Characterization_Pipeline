@@ -1,7 +1,7 @@
 # KnowEnG's Gene Set Characterization Pipeline
 This is the Knowledge Engine for Genomics (KnowEnG), an NIH BD2K Center of Excellence, Gene Set Characterization Pipeline.
 
-This pipeline selects one of three methods to **rank** a user supplied gene set **against** a KnowEnG gene sets collection.
+This pipeline **ranks** a user supplied gene set **against** a KnowEnG's gene sets collection.
 
 There are three gene set characterization methods that one can choose from:
 
@@ -135,9 +135,7 @@ results_dir = results_directory_name</br>
 * * * 
 
 * `DRaWR_result` output file saves sorted properties based on the difference between updated user gene vector and baseline.</br>
- | **user gene set name1** |**user gene set name2**|**...**|**user gene set name n**|**base**|
- | :--------------------: |:--------------------:|---|:--------------------:|:--------------------:|
- | property name (string) |property name (string)|...|property name (string)|property name (string)|
+
 * `fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`.
 
  | **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
