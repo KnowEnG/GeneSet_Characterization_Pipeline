@@ -9,7 +9,7 @@ env_setup:
 
 # Run fisher pipeline
 docker_run_fisher:
-	docker run -v $(CURDIR)/run_dir:/home/test/run_dir knowengdev/geneset_characterization:09_08_2016 /bin/bash -c "cd test; make run_fisher"
+	docker run -v $(CURDIR)/run_dir:/home/test/run_dir -v $(abspath ../)/data/networks:/home/data/networks -v $(abspath ../)/data/spreadsheets:/home/data/spreadsheets knowengdev/geneset_characterization:09_08_2016 /bin/bash -c "cd test; make run_fisher"
 
 # Run DRaWR pipeline
 docker_run_drawr:
