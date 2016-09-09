@@ -21,20 +21,20 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
     2. Run the following command to pull our docker image
     
        ```
-          docker pull knowengdev/geneset_characterization:09_08_2016
+       docker pull knowengdev/geneset_characterization:09_08_2016
        ```
        
-      * Or install the following package one by one in your machine (Ubuntu or Linux)
+    3. Or install the following package one by one in your machine (Ubuntu or Linux)
   
        ```
-        apt-get install -y python3-pip
-        pip3 install numpy==1.11.1
-        pip3 install pandas==0.18.1 
-        pip3 install scipy==0.18.0
-        pip3 install scikit-learn==0.17.1
-        pip3 install matplotlib==1.4.2
-        pip3 install pyyaml
-        pip3 install knpackage
+       apt-get install -y python3-pip
+       pip3 install numpy==1.11.1
+       pip3 install pandas==0.18.1 
+       pip3 install scipy==0.18.0
+       pip3 install scikit-learn==0.17.1
+       pip3 install matplotlib==1.4.2
+       pip3 install pyyaml
+       pip3 install knpackage
        ```
        
         __Note__: *Other dependencies may apply due to different operation system.*
@@ -58,7 +58,7 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
   * Run the pipeline you desire locally
     1. Prepare input data and running directories
       ```
-         make env_setup    
+      make env_setup    
       ```
       
     2. Run fisher pipeline</br>
@@ -73,9 +73,9 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
       
   * Run the pipeline you desire in docker
     1.  Prepare input data and running directories
-    ```
-       make -f Makefile.docker env_setup
-    ```
+      ```
+      make -f Makefile.docker env_setup
+      ```
     
     2. Run fisher pipeline
       ```
@@ -88,9 +88,9 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to get:
       ```
  
   * Clean the running environment and revert the local repository to original state after you finish your tests and analysis
-  ```
-   make final_clean 
-  ```
+    ```
+     make final_clean 
+    ```
 
 ## How to run it with your data 
 ###6. Setup your run environment
