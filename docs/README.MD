@@ -3,7 +3,7 @@
 * Install sphinx, at the command prompt type:
     * >> pip install sphinx
     
-* Change to the Samples_Clustering_Pipeline/docs directory in your cloned code.
+* Change to the GeneSet_Characterization_Pipeline/docs directory in your cloned code.
 * Generate the intermediate (.rst) files at the command prompt:
     * >> sphinx-apidoc -f -o source/ ../src/
     
