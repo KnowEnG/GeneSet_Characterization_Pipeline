@@ -1,6 +1,6 @@
 """
 Created on Wed Jul 20 14:47:45 2016
-@author: Xi, Suyang, Jing, Dan, Nahil
+@author: The Gene Sets Characterization dev team
 """
 import sys
 import time
