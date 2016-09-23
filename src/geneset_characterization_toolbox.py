@@ -36,8 +36,8 @@ def run_gene_prioritization(spreadsheet_df_full_path, drug_response_full_path):
     spreadsheet_df = kn.get_spreadsheet_df(spreadsheet_df_full_path)
     drug_response = kn.get_spreadsheet_df(drug_response_full_path)
     pc_array = perform_pearson_correlation(spreadsheet_df.values, drug_response.values[0])
-    result_df = pd.DataFrame(pc_array, index=spreadsheet_df.index.values, 
-        columns=['PCC']).abs().sort_values("PCC", ascending=0)
+    result_df = pd.DataFrame(pc_array, index=spreadsheet_df.index.values,
+                             columns=['PCC']).abs().sort_values("PCC", ascending=0)
     file_name = kn.create_timestamped_filename("pcc_result", "df")
     result_df.to_csv(file_name, header=True, index=True, sep='\t')
 
