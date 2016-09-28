@@ -106,7 +106,7 @@ __***Follow steps 1-4 above then do the following:***__
    
   * Run
    ```
-  python3 ./src/geneset_characterization.py -run_directory ./ -run_file template_run_parameters.yml
+  python3 ../src/geneset_characterization.py -run_directory ./ -run_file template_run_parameters.yml
    ```
 
 * * * 
