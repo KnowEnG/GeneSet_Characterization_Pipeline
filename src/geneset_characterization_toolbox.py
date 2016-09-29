@@ -9,6 +9,13 @@ from scipy import stats
 from sklearn.preprocessing import normalize
 import knpackage.toolbox as kn
 
+def perform_k_SVD(smooth_spreadsheet_matrix, k):
+    U, S, Vh = LA.svd(smooth_spreadsheet_matrix)
+    S_full_squared_matrix = np.zeros((k, k))
+    np.fill_diagonal(S_full_squared_matrix, np.sqrt(S[:k]))
+    U = U[:, :k]
+    return U, S_full_squared_matrix
+
 def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
     """ build contigency table for fisher exact test.
 
