@@ -20,7 +20,6 @@ def perform_k_SVD(smooth_spreadsheet_matrix, k):
 def project_matrix_to_new_space_and_split(U, S_full_squared_matrix,
                                           unique_gene_length):
     L = U.dot(S_full_squared_matrix)
-    
     g_newspace_matrix = L[:unique_gene_length]
     p_newspace_matrix = L[unique_gene_length:]
 
@@ -29,8 +28,39 @@ def project_matrix_to_new_space_and_split(U, S_full_squared_matrix,
 def perform_cosine_correlation(g_newspace_matrix, p_newspace_matrix,
                                gene_names, property_names):
     cosine_matrix = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
-    cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, columns=pg_network_n1_names)
+    cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, 
+        columns=pg_network_n1_names)
     return cosine_matrix_df
+
+def smooth_final_spreadsheet_matrix(final_rwr_matrix):
+    eps = np.float(1/final_rwr_matrix.shape[0])
+    smooth_rwr_matrix = np.log(final_rwr_matrix + eps) - np.log(eps)
+    return smooth_rwr_matrix
+
+def rank_property(spreadsheet_df, cosine_matrix_df):
+    property_rank_df = pd.DataFrame(columns=spreadsheet_df.columns.values)
+    for col_name in spreadsheet_df.columns.values:
+        user_gene_list = spreadsheet_df[spreadsheet_df[col_name]==1].index.values
+        new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
+    property_rank_df[col_name] = new_spreadsheet_df.sort_values(ascending=False).index.values
+    return property_rank_df
+
+def perform_NetPath(spreadsheet_df, network_sparse, run_parameters):
+    hetero_network = normalize(network_sparse, norm='l1', axis=0)
+    restart = np.eye(hetero_network.shape[0])
+    final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
+        restart, hetero_network, run_parameters)
+    smooth_rwr_matrix = smooth_final_spreadsheet_matrix(final_rwr_matrix)
+
+    U, S_full_squared_matrix = perform_k_SVD(smooth_rwr_matrix, run_parameters['k_space'])
+    g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
+        U, S_full_squared_matrix, len(unique_gene_names))
+    cosine_matrix_df = perform_cosine_correlation(g_newspace_matrix, p_newspace_matrix, 
+        unique_gene_names, pg_network_n1_names)
+    property_rank_df = rank_property(spreadsheet_df, cosine_matrix_df)
+    file_name = kn.create_timestamped_filename("NetPath_result", "df")
+    kn.save_df(property_rank_df, run_parameters['results_directory'], file_name)
+    return property_rank_df
 
 def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
     """ build contigency table for fisher exact test.
@@ -225,3 +255,10 @@ def run_DRaWR(run_parameters):
     ret = perform_DRaWR(network_sparse, new_spreadsheet_df, len(unique_gene_names), run_parameters)
 
     return ret
+
+# def run_NetPath(run_parameters):
+
+
+
+#     ret = perform_NetPath(spreadsheet_df, network_sparse, run_parameters)
+#     return ret
