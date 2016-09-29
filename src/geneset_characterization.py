@@ -21,19 +21,19 @@ def DRaWR(run_parameters):
     import geneset_characterization_toolbox as tl
     tl.run_DRaWR(run_parameters)
 
-def net_one(run_parameters):
+def net_path(run_parameters):
     """net_one geneset characterization method
 
     Args:
         run_parameters: parameter set dictionary.
     """
     import geneset_characterization_toolbox as tl
-    tl.run_net_one(run_parameters)
+    tl.run_net_path(run_parameters)
 
 SELECT = {
     "fisher":fisher,
     "DRaWR":DRaWR,
-    "net_one":net_one}
+    "net_one":net_path}
 
 def main():
     """
