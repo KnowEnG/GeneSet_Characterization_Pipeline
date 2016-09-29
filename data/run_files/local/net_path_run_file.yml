@@ -1,0 +1,33 @@
+# yaml parameters file template with all options for net_path
+method: net_path
+#   A gene set characterization method name recongized by geneset_characterization.py.
+#   fisher
+#   DRaWR
+#   net_path
+
+gg_network_name_full_path: ../data/networks/net_path_network.txt
+#   4 col edge file for building hybrid sparse matrix in net_path.
+
+pg_network_name_full_path: ../data/networks/net_path_property.txt
+#   4 col edge file for building hybrid sparse matrix in net_path.
+
+spreadsheet_name_full_path: ../data/spreadsheets/net_path_user_gene_set.txt
+#   dataframe == matrix with row and column names in .tsv format.
+
+results_directory: ./
+#   Where the computational output will be written.
+
+rwr_max_iterations: "500"
+#   Random walk with restart; maximum number of iterations without convergence.
+
+rwr_convergence_tolerence: "0.000001"
+#   Finish rwr when the frobenius norm of the spreadsheet vector(s) is within tolerence of the previous one.
+
+rwr_restart_probability: "0.5"
+#   rwr_restart_probability = alhpa in Vn+1 = alpha * N * Vn + (1-alpha) * Vo
+
+k_space: "2"
+#   number of dimensions of the new space in SVD
+
+#verbose: "1"
+#use_now_name: "1"

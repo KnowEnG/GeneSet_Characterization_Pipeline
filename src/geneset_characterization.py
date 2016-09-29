@@ -22,7 +22,7 @@ def DRaWR(run_parameters):
     tl.run_DRaWR(run_parameters)
 
 def net_path(run_parameters):
-    """net_one geneset characterization method
+    """net_path geneset characterization method
 
     Args:
         run_parameters: parameter set dictionary.
@@ -33,14 +33,14 @@ def net_path(run_parameters):
 SELECT = {
     "fisher":fisher,
     "DRaWR":DRaWR,
-    "net_one":net_path}
+    "net_path":net_path}
 
 def main():
     """
     This the main function to characterize gene
-    set from three methods: fisher, DRaWR, net one.
+    set from three methods: fisher, DRaWR, net path.
     """
-    import yaml
+    import sys
     from knpackage.toolbox import get_run_directory_and_file
     from knpackage.toolbox import get_run_parameters
 

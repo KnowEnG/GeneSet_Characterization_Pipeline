@@ -9,6 +9,7 @@ from scipy import stats
 from sklearn.preprocessing import normalize
 import knpackage.toolbox as kn
 from sklearn.metrics.pairwise import cosine_similarity
+import numpy.linalg as LA
 
 def perform_k_SVD(smooth_spreadsheet_matrix, k):
     U, S, Vh = LA.svd(smooth_spreadsheet_matrix)
@@ -26,10 +27,10 @@ def project_matrix_to_new_space_and_split(U, S_full_squared_matrix,
     return g_newspace_matrix, p_newspace_matrix
 
 def perform_cosine_correlation(g_newspace_matrix, p_newspace_matrix,
-                               gene_names, property_names):
+                               gene_names, property_name):
     cosine_matrix = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
-    cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, 
-        columns=pg_network_n1_names)
+    cosine_matrix_df = pd.DataFrame(cosine_matrix, index=gene_names, 
+        columns=property_name)
     return cosine_matrix_df
 
 def smooth_final_spreadsheet_matrix(final_rwr_matrix):
@@ -42,17 +43,18 @@ def rank_property(spreadsheet_df, cosine_matrix_df):
     for col_name in spreadsheet_df.columns.values:
         user_gene_list = spreadsheet_df[spreadsheet_df[col_name]==1].index.values
         new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
-    property_rank_df[col_name] = new_spreadsheet_df.sort_values(ascending=False).index.values
+        property_rank_df[col_name] = new_spreadsheet_df.sort_values(ascending=False).index.values
     return property_rank_df
 
-def perform_net_path(spreadsheet_df, network_sparse, run_parameters):
+def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names, 
+                     pg_network_n1_names, run_parameters):
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
     restart = np.eye(hetero_network.shape[0])
     final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
         restart, hetero_network, run_parameters)
     smooth_rwr_matrix = smooth_final_spreadsheet_matrix(final_rwr_matrix)
 
-    U, S_full_squared_matrix = perform_k_SVD(smooth_rwr_matrix, run_parameters['k_space'])
+    U, S_full_squared_matrix = perform_k_SVD(smooth_rwr_matrix, int(run_parameters['k_space']))
     g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
         U, S_full_squared_matrix, len(unique_gene_names))
     cosine_matrix_df = perform_cosine_correlation(g_newspace_matrix, p_newspace_matrix, 
@@ -288,5 +290,6 @@ def run_net_path(run_parameters):
     network_sparse = kn.convert_network_df_to_sparse(
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
 
-    ret = perform_net_path(spreadsheet_df, network_sparse, run_parameters)
+    ret = perform_net_path(spreadsheet_df, network_sparse, 
+        unique_gene_names, pg_network_n1_names, run_parameters)
     return ret
