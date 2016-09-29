@@ -16,6 +16,16 @@ def perform_k_SVD(smooth_spreadsheet_matrix, k):
     U = U[:, :k]
     return U, S_full_squared_matrix
 
+def project_matrix_to_new_space_and_split(U, S_full_squared_matrix,
+                                          unique_gene_length):
+    L = U.dot(S_full_squared_matrix)
+    
+    g_newspace_matrix = L[:unique_gene_length]
+    p_newspace_matrix = L[unique_gene_length:]
+
+    return g_newspace_matrix, p_newspace_matrix
+
+
 def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
     """ build contigency table for fisher exact test.
 
