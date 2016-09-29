@@ -8,6 +8,7 @@ import pandas as pd
 from scipy import stats
 from sklearn.preprocessing import normalize
 import knpackage.toolbox as kn
+from sklearn.metrics.pairwise import cosine_similarity
 
 def perform_k_SVD(smooth_spreadsheet_matrix, k):
     U, S, Vh = LA.svd(smooth_spreadsheet_matrix)
@@ -25,6 +26,11 @@ def project_matrix_to_new_space_and_split(U, S_full_squared_matrix,
 
     return g_newspace_matrix, p_newspace_matrix
 
+def perform_cosine_correlation(g_newspace_matrix, p_newspace_matrix,
+                               gene_names, property_names):
+    cosine_matrix = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
+    cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, columns=pg_network_n1_names)
+    return cosine_matrix_df
 
 def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
     """ build contigency table for fisher exact test.
