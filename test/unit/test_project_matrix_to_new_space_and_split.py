@@ -18,8 +18,8 @@ class TestProject_matrix_to_new_space_and_split(TestCase):
     def test_project_matrix_to_new_space_and_split(self):
         ret_g, ret_p = tl.project_matrix_to_new_space_and_split(self.U, self.S_full_squared_matrix, self.unique_gene_length)
 
-        self.assertEqual(ret_g.all(), np.array([[6, 3], [-12, 5]]).all())
-        self.assertEqual(ret_p.all(), np.array([[-3, -2]]).all())
+        self.assertEqual(np.array_equal(ret_g, np.array([[6, 3], [-12, 5]])), True)
+        self.assertEqual(np.array_equal(ret_p, np.array([[-3, -2]])), True)
 
 
 if __name__ == '__main__':

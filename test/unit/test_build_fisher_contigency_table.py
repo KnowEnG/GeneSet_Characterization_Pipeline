@@ -19,7 +19,7 @@ class TestBuild_fisher_contigency_table(TestCase):
     def test_build_fisher_contigency_table(self):
         ret = tl.build_fisher_contigency_table(self.overlap_count, self.user_count,
                                                self.gene_count, self.count)
-        self.assertEqual(ret.all(), np.matrix([[1, 1], [2, 0]]).all())
+        self.assertEqual(np.array_equal(ret, np.matrix([[1, 1], [2, 0]])), True)
 
 if __name__ == '__main__':
     unittest.main()
