@@ -12,6 +12,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy.linalg as LA
 
 def perform_k_SVD(smooth_spreadsheet_matrix, k):
+    """Perform SVD on input matrix.
+
+    Args:
+        smooth_spreadsheet_matrix: Input matrix to perform SVD on.
+        k: Number of singular values and vectors to compute.
+        
+    Returns:
+        U: Unitary matrix having left singular vectors as column.
+        S_full_squared_matrix: Matrix with diagonal to be k singular values.
+    """
     U, S, Vh = LA.svd(smooth_spreadsheet_matrix)
     S_full_squared_matrix = np.zeros((k, k))
     np.fill_diagonal(S_full_squared_matrix, np.sqrt(S[:k]))
@@ -20,6 +30,18 @@ def perform_k_SVD(smooth_spreadsheet_matrix, k):
 
 def project_matrix_to_new_space_and_split(U, S_full_squared_matrix,
                                           unique_gene_length):
+    """This to project matrix to the new space and split into gene and
+    property two parts.
+
+    Args:
+        U: Unitary matrix having left singular vectors as column.
+        S_full_squared_matrix: Matrix with diagonal to be k singular values.
+        unique_gene_length: Length of unique genes.
+
+    Returns:
+        g_newspace_matrix: gene matrix projected to the new space.
+        p_newspace_matrix: property matrix projected to new space.
+    """
     L = U.dot(S_full_squared_matrix)
     g_newspace_matrix = L[:unique_gene_length]
     p_newspace_matrix = L[unique_gene_length:]
@@ -28,17 +50,46 @@ def project_matrix_to_new_space_and_split(U, S_full_squared_matrix,
 
 def perform_cosine_correlation(g_newspace_matrix, p_newspace_matrix,
                                gene_names, property_name):
+    """This is to perform cosine similarity on two input matrixes.
+
+    Args:
+        g_newspace_matrix: input gene matrix.
+        p_newspace_matrix: intput property matrix.
+        gene_names: list of gene names.
+        property_name: list of property names.
+
+    Returns:
+        cosine_matrix_df: dataframe with cosine values calculated from input
+        matrixes. 
+    """
     cosine_matrix = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
     cosine_matrix_df = pd.DataFrame(cosine_matrix, index=gene_names, 
         columns=property_name)
     return cosine_matrix_df
 
 def smooth_final_spreadsheet_matrix(final_rwr_matrix):
+    """This is to add pseudo count to the input matrix.
+
+    Args: 
+        final_rwr_matrix: input matrix.
+
+    Returns:
+        smooth_rwr_matrix: the smoothed matrix with pseudo counts.
+    """
     eps = np.float(1/final_rwr_matrix.shape[0])
     smooth_rwr_matrix = np.log(final_rwr_matrix + eps) - np.log(eps)
     return smooth_rwr_matrix
 
 def rank_property(spreadsheet_df, cosine_matrix_df):
+    """This is to rank property based on cosine values:
+
+    Args:
+        spreadsheet_df: user supplied spreadsheet dataframe.
+        cosine_matrix_df: dataframe with cosine value.
+
+    Returns:
+        property_rank_df: dataframe with ranked property names in each column.
+    """
     property_rank_df = pd.DataFrame(columns=spreadsheet_df.columns.values)
     for col_name in spreadsheet_df.columns.values:
         user_gene_list = spreadsheet_df[spreadsheet_df[col_name]==1].index.values
@@ -48,6 +99,18 @@ def rank_property(spreadsheet_df, cosine_matrix_df):
 
 def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names, 
                      pg_network_n1_names, run_parameters):
+    """Perform net path method on gene characterization.
+
+    Args:
+        network_sparse: sparse matrix of global network.
+        spreadsheet_df: dataframe of user gene sets.
+        unique_gene_names: list of genes in the in the user spreadsheet.
+        pg_network_n1_names: list of property names in the network.
+        run_parameters: parameters dictionary.
+
+    Returns:
+        property_rank_df: dataframe with ranked property names in each column.
+    """
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
     restart = np.eye(hetero_network.shape[0])
     final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
@@ -259,6 +322,10 @@ def run_DRaWR(run_parameters):
     return ret
 
 def run_net_path(run_parameters):
+    ''' wrapper: call sequence to perform net path
+    Args:
+        run_parameters: dictionary of run parameters
+    '''
     spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
     pg_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
     gg_network_df = kn.get_network_df(run_parameters['gg_network_name_full_path'])
