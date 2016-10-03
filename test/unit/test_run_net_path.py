@@ -17,9 +17,7 @@ class TestRun_net_path(TestCase):
     def test_net_path(self):
         ret = tl.run_net_path(self.run_parameters)
         ret.index = np.arange(ret.shape[0])
-        print(ret)
         res = pd.DataFrame([['P6', 'P7'],['P7', 'P6']], columns=['user1', 'user2'])
-        print(res)
         comp = ret.equals(res)
         self.assertEqual(True, comp)
 
