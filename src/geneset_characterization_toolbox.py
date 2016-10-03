@@ -4,12 +4,12 @@ Created on Tue Jun 28 14:39:35 2016
 """
 
 import numpy as np
+import numpy.linalg as LA
 import pandas as pd
 from scipy import stats
 from sklearn.preprocessing import normalize
-import knpackage.toolbox as kn
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy.linalg as LA
+import knpackage.toolbox as kn
 
 def perform_k_SVD(smooth_spreadsheet_matrix, k):
     """Perform SVD on input matrix.
@@ -17,7 +17,7 @@ def perform_k_SVD(smooth_spreadsheet_matrix, k):
     Args:
         smooth_spreadsheet_matrix: Input matrix to perform SVD on.
         k: Number of singular values and vectors to compute.
-        
+
     Returns:
         U: Unitary matrix having left singular vectors as column.
         S_full_squared_matrix: Matrix with diagonal to be k singular values.
@@ -60,17 +60,16 @@ def perform_cosine_correlation(g_newspace_matrix, p_newspace_matrix,
 
     Returns:
         cosine_matrix_df: dataframe with cosine values calculated from input
-        matrixes. 
+        matrixes.
     """
     cosine_matrix = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
-    cosine_matrix_df = pd.DataFrame(cosine_matrix, index=gene_names, 
-        columns=property_name)
+    cosine_matrix_df = pd.DataFrame(cosine_matrix, index=gene_names, columns=property_name)
     return cosine_matrix_df
 
 def smooth_final_spreadsheet_matrix(final_rwr_matrix):
     """This is to add pseudo count to the input matrix.
 
-    Args: 
+    Args:
         final_rwr_matrix: input matrix.
 
     Returns:
@@ -92,12 +91,12 @@ def rank_property(spreadsheet_df, cosine_matrix_df):
     """
     property_rank_df = pd.DataFrame(columns=spreadsheet_df.columns.values)
     for col_name in spreadsheet_df.columns.values:
-        user_gene_list = spreadsheet_df[spreadsheet_df[col_name]==1].index.values
+        user_gene_list = spreadsheet_df[spreadsheet_df[col_name] == 1].index.values
         new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
         property_rank_df[col_name] = new_spreadsheet_df.sort_values(ascending=False).index.values
     return property_rank_df
 
-def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names, 
+def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names,
                      pg_network_n1_names, run_parameters):
     """Perform net path method on gene characterization.
 
@@ -120,8 +119,8 @@ def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names,
     U, S_full_squared_matrix = perform_k_SVD(smooth_rwr_matrix, int(run_parameters['k_space']))
     g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
         U, S_full_squared_matrix, len(unique_gene_names))
-    cosine_matrix_df = perform_cosine_correlation(g_newspace_matrix, p_newspace_matrix, 
-        unique_gene_names, pg_network_n1_names)
+    cosine_matrix_df = perform_cosine_correlation(
+        g_newspace_matrix, p_newspace_matrix, unique_gene_names, pg_network_n1_names)
     property_rank_df = rank_property(spreadsheet_df, cosine_matrix_df)
     file_name = kn.create_timestamped_filename("net_path_result", "df")
     kn.save_df(property_rank_df, run_parameters['results_directory'], file_name)
@@ -162,7 +161,7 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
     gene_count = prop_gene_network_sparse.sum(axis=0)
     set_list = spreadsheet_df.columns.values
     df_val = []
-    
+
     for i in range(overlap_count.shape[0]):
         for j in range(overlap_count.shape[1]):
             table = build_fisher_contigency_table(overlap_count[i, j], user_count[j],
@@ -357,6 +356,6 @@ def run_net_path(run_parameters):
     network_sparse = kn.convert_network_df_to_sparse(
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
 
-    ret = perform_net_path(spreadsheet_df, network_sparse, 
-        unique_gene_names, pg_network_n1_names, run_parameters)
+    ret = perform_net_path(
+        spreadsheet_df, network_sparse, unique_gene_names, pg_network_n1_names, run_parameters)
     return ret
