@@ -75,6 +75,7 @@ def smooth_final_spreadsheet_matrix(final_rwr_matrix):
     Returns:
         smooth_rwr_matrix: the smoothed matrix with pseudo counts.
     """
+    assert ((final_rwr_matrix >= 0).all())
     eps = np.float(1/final_rwr_matrix.shape[0])
     smooth_rwr_matrix = np.log(final_rwr_matrix + eps) - np.log(eps)
     return smooth_rwr_matrix
