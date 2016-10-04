@@ -344,6 +344,11 @@ def run_net_path(run_parameters):
     pg_network_n1_names_dict = kn.create_node_names_dict(
         pg_network_n1_names, len(unique_gene_names))
 
+    droplist = kn.find_dropped_node_names(spreadsheet_df, unique_gene_names)
+    file_name = kn.create_timestamped_filename("net_path_droplist", "tsv")
+    kn.save_df(pd.DataFrame(droplist, columns=['droplist']),
+               run_parameters['results_directory'], file_name)
+
     #spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
