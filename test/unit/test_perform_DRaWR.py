@@ -26,7 +26,7 @@ class TestPerform_DRaWR(TestCase):
         self.len_gene_names = 5
         self.run_parameters = {'rwr_max_iterations': 500,
                           'rwr_convergence_tolerence': 0.0001, 'rwr_restart_probability': 0.5,
-                          'results_directory': os.getcwd()}
+                          'results_directory': "unit_test_run_dir/results"}
     def tearDown(self):
         del self.network_sparse
         del self.spreadsheet_df

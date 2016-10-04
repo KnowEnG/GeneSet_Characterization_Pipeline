@@ -12,7 +12,7 @@ class TestPerform_fisher_exact_test(TestCase):
         self.sparse_dict = {0: 'p1', 1: 'p2'}
         self.spreadsheet_df = pd.DataFrame({'GS1': [1, 1, 0]},
                                            index=['G1', 'G2', 'G3'])
-        self.results_dir = os.getcwd()
+        self.results_dir = "unit_test_run_dir/results"
 
     def tearDown(self):
         del self.prop_gene_network_sparse

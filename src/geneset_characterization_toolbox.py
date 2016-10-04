@@ -349,7 +349,7 @@ def run_net_path(run_parameters):
     kn.save_df(pd.DataFrame(droplist, columns=['droplist']),
                run_parameters['results_directory'], file_name)
 
-    #spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
+    spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_gene_names)
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
     pg_network_df = kn.map_node_names_to_index(pg_network_df, pg_network_n1_names_dict, "node_1")
