@@ -221,8 +221,7 @@ def perform_DRaWR(network_sparse, new_spreadsheet_df, len_gene_names, run_parame
     final_spreadsheet_df.iloc[:, :-1] = final_spreadsheet_df.iloc[:, :-1].apply(
         lambda x: (x - final_spreadsheet_df['base']).sort_values(ascending=0).index.values)
 
-    final_spreadsheet_df['base'] = \
-        final_spreadsheet_df['base'].sort_values(ascending=0).index.values
+    final_spreadsheet_df = final_spreadsheet_df.drop('base', 1)
 
     final_spreadsheet_df.index = range(final_spreadsheet_df.shape[0])
     file_name = kn.create_timestamped_filename("DRaWR_result", "df")

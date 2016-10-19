@@ -37,7 +37,7 @@ class TestPerform_DRaWR(TestCase):
         ret = tl.perform_DRaWR(self.network_sparse, self.spreadsheet_df,
                                self.len_gene_names, self.run_parameters)
         ret.index = np.arange(ret.shape[0])
-        res = pd.DataFrame({'GS1': ['P7', 'P6'], 'base': ['P7', 'P6']})
+        res = pd.DataFrame({'GS1': ['P7', 'P6']})
         comp = ret.equals(res)
         self.assertEqual(True, comp)
 
