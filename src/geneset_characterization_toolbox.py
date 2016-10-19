@@ -2,6 +2,7 @@
 Created on Tue Jun 28 14:39:35 2016
 @author: The Gene Sets Characterization dev team
 """
+import os
 import numpy as np
 import numpy.linalg as LA
 import pandas as pd
@@ -124,7 +125,9 @@ def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names,
         U, S_full_squared_matrix, len(unique_gene_names))
     cosine_matrix_df = perform_cosine_correlation(
         g_newspace_matrix, p_newspace_matrix, unique_gene_names, pg_network_n1_names)
-    cosine_matrix_df.to_csv("cosine_matrix.df", header=True, index=True,sep='\t')
+
+    cosine_matrix_df.to_csv(os.path.join(run_parameters['results_directory'], "cosine_matrix.df"),
+                            header=True, index=True, sep='\t')
     property_rank_df = rank_property(spreadsheet_df, cosine_matrix_df)
     file_name = kn.create_timestamped_filename("net_path_result", "df")
     kn.save_df(property_rank_df, run_parameters['results_directory'], file_name)
