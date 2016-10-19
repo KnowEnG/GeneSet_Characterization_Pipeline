@@ -149,6 +149,22 @@ def build_fisher_contigency_table(overlap_count, user_count, gene_count, count):
 
     return table
 
+def fisher_save_geneset_property(result_df, set_list, col_name, col_index):
+    """ Build dataframe with headers to be gene sets and values to be ranked properties.
+
+    Args:
+        result_df: input dataframe with seven columns
+        set_list: column names of new dataframe
+        col_name: header of selected column
+        col_index: index of selected column
+    Returns:
+        new_result_df: output dataframe.
+    """
+    new_result_df = pd.DataFrame(columns=set_list)
+    for gene_set in set_list:
+        new_result_df.loc[:, gene_set] = result_df[result_df[col_name]==gene_set].values[:, col_index] 
+    return new_result_df
+
 def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
                               spreadsheet_df, results_dir):
     """ central loop: compute components for fisher exact test.
@@ -178,12 +194,9 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
     df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
     result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
     file_name = kn.create_timestamped_filename("fisher_result", "df")
-    kn.save_df(result_df, results_dir, file_name)
+    kn.save_df(result_df, results_dir, file_name)  
 
-    new_result_df = pd.DataFrame(columns=set_list)
-    for gene_set in set_list:
-        new_result_df.loc[:, gene_set] = result_df[result_df['user gene']==gene_set].values[:, 1]  
-
+    new_result_df = fisher_save_geneset_property(result_df, set_list, 'user gene', 1)
     new_file_name = kn.create_timestamped_filename("fisher_result_geneset_property", "df")
     kn.save_df(new_result_df, results_dir, new_file_name)
 
