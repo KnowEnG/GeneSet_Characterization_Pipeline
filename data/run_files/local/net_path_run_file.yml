@@ -5,13 +5,13 @@ method: net_path
 #   DRaWR
 #   net_path
 
-gg_network_name_full_path: ../data/networks/net_path_network.txt
+gg_network_name_full_path: ../data/networks/STRING_experimental_gene_gene
 #   4 col edge file for building hybrid sparse matrix in net_path.
 
-pg_network_name_full_path: ../data/networks/net_path_property.txt
+pg_network_name_full_path: ../data/networks/kegg_pathway_property_gene
 #   4 col edge file for building hybrid sparse matrix in net_path.
 
-spreadsheet_name_full_path: ../data/spreadsheets/net_path_user_gene_set.txt
+spreadsheet_name_full_path: ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
 #   dataframe == matrix with row and column names in .tsv format.
 
 results_directory: ./
@@ -20,13 +20,13 @@ results_directory: ./
 rwr_max_iterations: "500"
 #   Random walk with restart; maximum number of iterations without convergence.
 
-rwr_convergence_tolerence: "0.000001"
+rwr_convergence_tolerence: "0.0001"
 #   Finish rwr when the frobenius norm of the spreadsheet vector(s) is within tolerence of the previous one.
 
 rwr_restart_probability: "0.5"
 #   rwr_restart_probability = alhpa in Vn+1 = alpha * N * Vn + (1-alpha) * Vo
 
-k_space: "2"
+k_space: "100"
 #   number of dimensions of the new space in SVD
 
 #verbose: "1"

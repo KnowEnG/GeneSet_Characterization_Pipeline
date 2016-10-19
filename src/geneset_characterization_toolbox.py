@@ -2,7 +2,6 @@
 Created on Tue Jun 28 14:39:35 2016
 @author: The Gene Sets Characterization dev team
 """
-
 import numpy as np
 import numpy.linalg as LA
 import pandas as pd
@@ -23,6 +22,10 @@ def perform_k_SVD(smooth_spreadsheet_matrix, k):
         S_full_squared_matrix: Matrix with diagonal to be k singular values.
     """
     U, S, Vh = LA.svd(smooth_spreadsheet_matrix)
+    # U_df = pd.DataFrame(U)
+    # U_df.to_csv("U_full_matrix.csv", sep='\t', header=False, index=False)
+    # S_df = pd.DataFrame(S)
+    # S_df.to_csv("S_full_list.csv", sep='\t', header=False, index=False)
     S_full_squared_matrix = np.zeros((k, k))
     np.fill_diagonal(S_full_squared_matrix, np.sqrt(S[:k]))
     U = U[:, :k]
@@ -116,12 +119,12 @@ def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names,
     final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
         restart, hetero_network, run_parameters)
     smooth_rwr_matrix = smooth_final_spreadsheet_matrix(final_rwr_matrix)
-
     U, S_full_squared_matrix = perform_k_SVD(smooth_rwr_matrix, int(run_parameters['k_space']))
     g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
         U, S_full_squared_matrix, len(unique_gene_names))
     cosine_matrix_df = perform_cosine_correlation(
         g_newspace_matrix, p_newspace_matrix, unique_gene_names, pg_network_n1_names)
+    cosine_matrix_df.to_csv("cosine_matrix.df", header=True, index=True,sep='\t')
     property_rank_df = rank_property(spreadsheet_df, cosine_matrix_df)
     file_name = kn.create_timestamped_filename("net_path_result", "df")
     kn.save_df(property_rank_df, run_parameters['results_directory'], file_name)
@@ -168,14 +171,21 @@ def perform_fisher_exact_test(prop_gene_network_sparse, sparse_dict,
             table = build_fisher_contigency_table(overlap_count[i, j], user_count[j],
                                                   gene_count[0, i], universe_count)
             pvalue = stats.fisher_exact(table, alternative="greater")[1]
-            if overlap_count[i, j] != 0:
-                row_item = [set_list[j], sparse_dict[i], int(universe_count), int(user_count[j]),
-                            int(gene_count[0, i]), int(overlap_count[i, j]), pvalue]
-                df_val.append(row_item)
+            row_item = [set_list[j], sparse_dict[i], int(universe_count), int(user_count[j]),
+                        int(gene_count[0, i]), int(overlap_count[i, j]), pvalue]
+            df_val.append(row_item)
+
     df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
     result_df = pd.DataFrame(df_val, columns=df_col).sort_values("pval", ascending=1)
     file_name = kn.create_timestamped_filename("fisher_result", "df")
     kn.save_df(result_df, results_dir, file_name)
+
+    new_result_df = pd.DataFrame(columns=set_list)
+    for gene_set in set_list:
+        new_result_df.loc[:, gene_set] = result_df[result_df['user gene']==gene_set].values[:, 1]  
+
+    new_file_name = kn.create_timestamped_filename("fisher_result_geneset_property", "df")
+    kn.save_df(new_result_df, results_dir, new_file_name)
 
     return result_df
 
