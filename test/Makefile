@@ -24,15 +24,15 @@ final_clean: clean_dir_recursively compress_input_data
 
 # Run the fisher pipeline 
 run_fisher:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file fisher_run_file.yml 
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file fisher.yml 
 
 # Run the DRaWR pipeline
 run_drawr:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR_run_file.yml
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR.yml
 
 # Run the NetPath pipeline
 run_netpath:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file net_path_run_file.yml
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file net_path.yml
 
 # Decompress input data with .gz suffix
 decompress_input_data:
