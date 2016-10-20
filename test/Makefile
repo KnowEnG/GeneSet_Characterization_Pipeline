@@ -30,6 +30,10 @@ run_fisher:
 run_drawr:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR_run_file.yml
 
+# Run the NetPath pipeline
+run_netpath:
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file net_path_run_file.yml
+
 # Decompress input data with .gz suffix
 decompress_input_data:
 	@echo Decompress input data...
