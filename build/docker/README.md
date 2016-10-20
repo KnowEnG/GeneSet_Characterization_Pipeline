@@ -36,7 +36,7 @@ cd test
 make env_setup
 ```
 
-### * Run the Samples Clustering Pipeline
+### * Run the GeneSet Characterization Pipeline
 ```
 make run_fisher
 ```
