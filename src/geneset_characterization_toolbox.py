@@ -19,26 +19,26 @@ def perform_k_SVD(smooth_spreadsheet_matrix, k):
         k: Number of singular values and vectors to compute.
 
     Returns:
-        U: Unitary matrix having left singular vectors as column.
+        U_unitary_matrix: Unitary matrix having left singular vectors as column.
         S_full_squared_matrix: Matrix with diagonal to be k singular values.
     """
-    U, S, Vh = LA.svd(smooth_spreadsheet_matrix)
+    U_unitary_matrix, singular_value, V_unitary_matrix = LA.svd(smooth_spreadsheet_matrix)
     # U_df = pd.DataFrame(U)
     # U_df.to_csv("U_full_matrix.csv", sep='\t', header=False, index=False)
     # S_df = pd.DataFrame(S)
     # S_df.to_csv("S_full_list.csv", sep='\t', header=False, index=False)
     S_full_squared_matrix = np.zeros((k, k))
-    np.fill_diagonal(S_full_squared_matrix, np.sqrt(S[:k]))
-    U = U[:, :k]
-    return U, S_full_squared_matrix
+    np.fill_diagonal(S_full_squared_matrix, np.sqrt(singular_value[:k]))
+    U_unitary_matrix = U_unitary_matrix[:, :k]
+    return U_unitary_matrix, S_full_squared_matrix
 
-def project_matrix_to_new_space_and_split(U, S_full_squared_matrix,
+def project_matrix_to_new_space_and_split(U_unitary_matrix, S_full_squared_matrix,
                                           unique_gene_length):
     """This to project matrix to the new space and split into gene and
     property two parts.
 
     Args:
-        U: Unitary matrix having left singular vectors as column.
+        U_unitary_matrix: Unitary matrix having left singular vectors as column.
         S_full_squared_matrix: Matrix with diagonal to be k singular values.
         unique_gene_length: Length of unique genes.
 
@@ -46,7 +46,7 @@ def project_matrix_to_new_space_and_split(U, S_full_squared_matrix,
         g_newspace_matrix: gene matrix projected to the new space.
         p_newspace_matrix: property matrix projected to new space.
     """
-    L = U.dot(S_full_squared_matrix)
+    L = U_unitary_matrix.dot(S_full_squared_matrix)
     g_newspace_matrix = L[:unique_gene_length]
     p_newspace_matrix = L[unique_gene_length:]
 
@@ -101,6 +101,15 @@ def rank_property(spreadsheet_df, cosine_matrix_df):
         property_rank_df[col_name] = new_spreadsheet_df.sort_values(ascending=False).index.values
     return property_rank_df
 
+def save_cosine_matrix_df(cosine_matrix_df, run_parameters):
+    """This is to save the cosine matrix df to output file
+
+    Args:
+        cosine_matrix_df: dataframe with cosine value.
+        run_parameters: parameters dictionary.
+    """
+    cosine_matrix_df.to_csv(os.path.join(run_parameters['results_directory'], "cosine_matrix.df"), header=True, index=True, sep='\t')
+
 def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names,
                      pg_network_n1_names, run_parameters):
     """Perform net path method on gene characterization.
@@ -120,14 +129,14 @@ def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names,
     final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
         restart, hetero_network, run_parameters)
     smooth_rwr_matrix = smooth_final_spreadsheet_matrix(final_rwr_matrix)
-    U, S_full_squared_matrix = perform_k_SVD(smooth_rwr_matrix, int(run_parameters['k_space']))
+
+    U_unitary_matrix, S_full_squared_matrix = perform_k_SVD(smooth_rwr_matrix, int(run_parameters['k_space']))
     g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
-        U, S_full_squared_matrix, len(unique_gene_names))
+        U_unitary_matrix, S_full_squared_matrix, len(unique_gene_names))
     cosine_matrix_df = perform_cosine_correlation(
         g_newspace_matrix, p_newspace_matrix, unique_gene_names, pg_network_n1_names)
+    save_cosine_matrix_df(cosine_matrix_df, run_parameters)
 
-    cosine_matrix_df.to_csv(os.path.join(run_parameters['results_directory'], "cosine_matrix.df"),
-                            header=True, index=True, sep='\t')
     property_rank_df = rank_property(spreadsheet_df, cosine_matrix_df)
     file_name = kn.create_timestamped_filename("net_path_result", "df")
     kn.save_df(property_rank_df, run_parameters['results_directory'], file_name)
