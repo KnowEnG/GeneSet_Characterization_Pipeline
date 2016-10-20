@@ -31,7 +31,7 @@ docker run -v \`pwd\`:/home/test/run_dir/ -it knowengdev/geneset_characterizatio
 cd test
 ```
 
-### * Create a local directory "run_dir" and place all the run files in it
+### * Create the local directory "run_dir" and place all the run files in it
 ```
 make env_setup
 ```
