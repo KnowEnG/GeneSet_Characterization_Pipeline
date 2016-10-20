@@ -66,6 +66,11 @@ make env_setup
   ```
   make run_drawr
   ```
+  
+ * Run DRaWR pipeline</br>
+  ```
+  make run_netpath
+  ```
 
 
 * * * 
