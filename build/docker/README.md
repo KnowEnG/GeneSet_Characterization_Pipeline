@@ -9,7 +9,7 @@ The Dockefile in this directory contains all the commands, in order, needed to b
 
 * Login to docker hub. When prompted, enter your password and press enter:
 ```
-    make login_to_dockerhub username=*enter your docker login here* email=*enter your email here*
+    make login_to_dockerhub username=(enter your docker login here) email=(enter your email here)
 ```
 
 * Upload your image to docker hub:
