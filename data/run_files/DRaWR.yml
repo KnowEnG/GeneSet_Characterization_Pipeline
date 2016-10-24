@@ -24,7 +24,3 @@ rwr_convergence_tolerence: "0.0001"
 
 rwr_restart_probability: "0.5"
 #	rwr_restart_probability = alhpa in Vn+1 = alpha * N * Vn + (1-alpha) * Vo
-
-
-#verbose: "1"
-#use_now_name: "1"
