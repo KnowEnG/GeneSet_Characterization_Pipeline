@@ -1,5 +1,4 @@
 FROM knowengdev/base_image:09_01_2016
-
 MAINTAINER Jing Ge <jingge2@illinois.edu>
 
 ENV SRC_LOC /home
