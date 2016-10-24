@@ -13,6 +13,3 @@ spreadsheet_name_full_path: ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rn
 results_directory: ./run_dir/results
 #	Where the computational output will be written.
 
-#verbose: "1"
-#use_now_name: "1"
-
