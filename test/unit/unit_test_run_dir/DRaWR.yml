@@ -3,6 +3,6 @@ spreadsheet_name_full_path: unit_test_run_dir/data/rw_spreadsheet.txt
 gg_network_name_full_path: unit_test_run_dir/data/rw_net.txt
 results_directory: unit_test_run_dir/results
 method: DRaWR
-rwr_max_iterations: "500"
-rwr_convergence_tolerence: "0.0001"
-rwr_restart_probability: "0.5"
+rwr_max_iterations: 500
+rwr_convergence_tolerence: 0.0001
+rwr_restart_probability: 0.5

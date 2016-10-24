@@ -17,14 +17,14 @@ spreadsheet_name_full_path: ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rn
 results_directory: ./run_dir/results
 #   Where the computational output will be written.
 
-rwr_max_iterations: "500"
+rwr_max_iterations: 500
 #   Random walk with restart; maximum number of iterations without convergence.
 
-rwr_convergence_tolerence: "0.0001"
+rwr_convergence_tolerence: 0.0001
 #   Finish rwr when the frobenius norm of the spreadsheet vector(s) is within tolerence of the previous one.
 
-rwr_restart_probability: "0.5"
+rwr_restart_probability: 0.5
 #   rwr_restart_probability = alhpa in Vn+1 = alpha * N * Vn + (1-alpha) * Vo
 
-k_space: "100"
+k_space: 100
 #   number of dimensions of the new space in SVD

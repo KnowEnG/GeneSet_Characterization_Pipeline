@@ -9,7 +9,7 @@ INPUT_DATA_SUFFIX = $(suffix $(INPUT_DATA))
 # Directories that will be used in targets
 RUN_DIR = ./run_dir
 RUN_FILES_DIR = ../data/run_files
-RUN_FILE_LOCAL = $(RUN_FILES_DIR)/local
+RUN_FILE_LOCAL = $(RUN_FILES_DIR)
 RUN_FILE_DOCKER = $(RUN_FILES_DIR)/docker
 RESULTS_DIR = $(RUN_DIR)/results
 SCRIPT = ../src/geneset_characterization.py
