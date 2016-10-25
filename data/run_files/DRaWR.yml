@@ -8,6 +8,6 @@ spreadsheet_name_full_path: ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rn
 results_directory:           ./run_dir/results
 
 rwr_max_iterations:         500
-rwr_convergence_tolerence:  0.0001
+rwr_convergence_tolerence:  1.0e-4
 rwr_restart_probability:    0.5       # Vn+1 = alpha * N * Vn + (1-alpha) * Vo
 
