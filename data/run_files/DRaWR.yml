@@ -1,26 +1,10 @@
-# yaml parameters file template with all options for DRaWR
-method: DRaWR
-#	A gene set characterization method name recongized by geneset_characterization.py.
-# 	fisher
-# 	DRaWR
+method: DRaWR 
 
-gg_network_name_full_path: ../data/networks/STRING_experimental_gene_gene
-#	4 col edge file for building hybrid sparse matrix in DRaWR.
-
-pg_network_name_full_path: ../data/networks/kegg_pathway_property_gene
-#	4 col edge file for building hybrid sparse matrix in DRaWR.
-
+gg_network_name_full_path:  ../data/networks/STRING_experimental_gene_gene
+pg_network_name_full_path:  ../data/networks/kegg_pathway_property_gene
 spreadsheet_name_full_path: ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
-#	dataframe == matrix with row and column names in .tsv format.
+results_directory:          ./run_dir/results
 
-results_directory: ./run_dir/results
-#	Where the computational output will be written.
-
-rwr_max_iterations: 500
-#	Random walk with restart; maximum number of iterations without convergence.
-
-rwr_convergence_tolerence: 0.0001
-#	Finish rwr when the frobenius norm of the spreadsheet vector(s) is within tolerence of the previous one.
-
-rwr_restart_probability: 0.5
-#	rwr_restart_probability = alhpa in Vn+1 = alpha * N * Vn + (1-alpha) * Vo
+rwr_max_iterations:         500
+rwr_convergence_tolerence:  0.0001
+rwr_restart_probability:    0.5   # Vn+1 = alpha * N * Vn + (1-alpha) * Vo
