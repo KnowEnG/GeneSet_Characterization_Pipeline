@@ -1,5 +1,5 @@
 
-method: fisher        # this is one of the three available methods
+method: fisher                        # Available methods: DRaWR, fisher, net_path
 
 pg_network_name_full_path:  ../data/networks/kegg_pathway_property_gene
 spreadsheet_name_full_path: ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
