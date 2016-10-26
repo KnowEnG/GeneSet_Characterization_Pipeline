@@ -56,58 +56,26 @@ def run_fisher(run_parameters):
     fisher_contingency_pval = get_fisher_exact_test(prop_gene_network_sparse,
         reverse_prop_dict, new_spreadsheet_df)
 
-    save_fisher_test_result(fisher_contingency_pval, 
+    fisher_final_result = save_fisher_test_result(fisher_contingency_pval, 
         run_parameters['results_directory'], spreadsheet_df.columns.values)
     map_and_save_droplist(spreadsheet_df, common_gene_names, 'fisher_droplist', run_parameters)
 
-    return fisher_contingency_pval
+    return fisher_final_result
 
 def run_DRaWR(run_parameters):
     ''' wrapper: call sequence to perform random walk with restart
     Args:
         run_parameters: dictionary of run parameters
     '''
-    spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
-    pg_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
-    gg_network_df = kn.get_network_df(run_parameters['gg_network_name_full_path'])
 
-    pg_network_n1_names,\
-    pg_network_n2_names = kn.extract_network_node_names(pg_network_df)
-
-    gg_network_n1_names,\
-    gg_network_n2_names = kn.extract_network_node_names(gg_network_df)
-
-    # limit the gene set to the intersection of networks (gene_gene and prop_gene) and user gene set
-    unique_gene_names = kn.find_unique_node_names(gg_network_n1_names, gg_network_n2_names)
-    unique_gene_names = kn.find_unique_node_names(unique_gene_names, pg_network_n2_names)
-    unique_all_node_names = unique_gene_names + pg_network_n1_names
-    unique_gene_names_dict = kn.create_node_names_dict(unique_gene_names)
-    pg_network_n1_names_dict = kn.create_node_names_dict(
-        pg_network_n1_names, len(unique_gene_names))
-
-    # map every gene name to a sequential integer index
-    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
-    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
-    pg_network_df = kn.map_node_names_to_index(pg_network_df, pg_network_n1_names_dict, "node_1")
-    pg_network_df = kn.map_node_names_to_index(pg_network_df, unique_gene_names_dict, "node_2")
-
-    gg_network_df = kn.symmetrize_df(gg_network_df)
-    pg_network_df = kn.symmetrize_df(pg_network_df)
-
-    gg_network_df = kn.normalize_network_df_by_sum(gg_network_df, 'wt')
-    pg_network_df = kn.normalize_network_df_by_sum(pg_network_df, 'wt')
-
-    hybrid_network_df = kn.form_hybrid_network_df([gg_network_df, pg_network_df])
-
-    # store the network in a csr sparse format
-    network_sparse = kn.convert_network_df_to_sparse(
-        hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
-
-    new_spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
+    network_sparse, unique_gene_names, pg_network_n1_names, \
+    unique_all_node_names = build_hybrid_df(run_parameters, True, True)
     
+    spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
+    new_spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
+
     base_col = np.append(np.ones(len(unique_gene_names), dtype=np.int),
                          np.zeros(len(set(pg_network_n1_names)), dtype=np.int))
-
     new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
 
     final_spreadsheet_df = get_DRaWR(network_sparse, new_spreadsheet_df, 
@@ -122,48 +90,28 @@ def run_net_path(run_parameters):
     Args:
         run_parameters: dictionary of run parameters
     '''
+    network_sparse, unique_gene_names, pg_network_n1_names, \
+    unique_all_node_names = build_hybrid_df(run_parameters, False, False)
+
     spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
-    pg_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
-    gg_network_df = kn.get_network_df(run_parameters['gg_network_name_full_path'])
-
-    pg_network_n1_names, \
-    pg_network_n2_names = kn.extract_network_node_names(pg_network_df)
-    gg_network_n1_names, \
-    gg_network_n2_names = kn.extract_network_node_names(gg_network_df)
-
-    # limit the gene set to the intersection of networks (gene_gene and prop_gene) and user gene set
-    unique_gene_names = kn.find_unique_node_names(gg_network_n1_names, gg_network_n2_names)
-    unique_all_node_names = unique_gene_names + pg_network_n1_names
-    pg_network_df = kn.update_network_df(pg_network_df, unique_gene_names, 'node_2')
-
-    unique_gene_names_dict = kn.create_node_names_dict(unique_gene_names)
-    pg_network_n1_names_dict = kn.create_node_names_dict(
-        pg_network_n1_names, len(unique_gene_names))
-
-
     spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_gene_names)
-    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
-    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
-    pg_network_df = kn.map_node_names_to_index(pg_network_df, pg_network_n1_names_dict, "node_1")
-    pg_network_df = kn.map_node_names_to_index(pg_network_df, unique_gene_names_dict, "node_2")
 
-    gg_network_df = kn.symmetrize_df(gg_network_df)
-    pg_network_df = kn.symmetrize_df(pg_network_df)
+    hetero_network = normalize(network_sparse, norm='l1', axis=0)
+    final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
+        np.eye(hetero_network.shape[0]), hetero_network, run_parameters)
+    smooth_rwr_matrix = smooth_final_spreadsheet_matrix(final_rwr_matrix, len(unique_gene_names))
+    
+    cosine_matrix = get_net_path_results(len(unique_gene_names), smooth_rwr_matrix, run_parameters)
+    cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, columns=pg_network_n1_names)
+    save_cosine_matrix_df(cosine_matrix_df, run_parameters)
 
-    hybrid_network_df = kn.form_hybrid_network_df([gg_network_df, pg_network_df])
-    network_sparse = kn.convert_network_df_to_sparse(
-        hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
-
-    ret = perform_net_path(
-        spreadsheet_df, network_sparse, unique_gene_names, pg_network_n1_names, run_parameters)
-
-    save_timestamped_df(ret, run_parameters['results_directory'], 'net_path_result')
+    property_rank_df = rank_property(spreadsheet_df, cosine_matrix_df)
+    save_timestamped_df(property_rank_df, run_parameters['results_directory'], 'net_path_result')
     map_and_save_droplist(spreadsheet_df, unique_gene_names, 'net_path_droplist', run_parameters)
     
-    return ret
+    return property_rank_df
 
-
-def perform_k_SVD(smooth_spreadsheet_matrix, k):
+def calculate_k_SVD(smooth_spreadsheet_matrix, k):
     """Perform SVD on input matrix.
 
     Args:
@@ -199,24 +147,6 @@ def project_matrix_to_new_space_and_split(U_unitary_matrix, S_full_squared_matri
     p_newspace_matrix = L[unique_gene_length:]
 
     return g_newspace_matrix, p_newspace_matrix
-
-def perform_cosine_correlation(g_newspace_matrix, p_newspace_matrix,
-                               gene_names, property_name):
-    """This is to perform cosine similarity on two input matrixes.
-
-    Args:
-        g_newspace_matrix: input gene matrix.
-        p_newspace_matrix: intput property matrix.
-        gene_names: list of gene names.
-        property_name: list of property names.
-
-    Returns:
-        cosine_matrix_df: dataframe with cosine values calculated from input
-        matrixes.
-    """
-    cosine_matrix = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
-    cosine_matrix_df = pd.DataFrame(cosine_matrix, index=gene_names, columns=property_name)
-    return cosine_matrix_df
 
 def smooth_final_spreadsheet_matrix(final_rwr_matrix, gene_length):
     """This is to add pseudo count to the input matrix.
@@ -260,36 +190,27 @@ def save_cosine_matrix_df(cosine_matrix_df, run_parameters):
     new_file_name = kn.create_timestamped_filename("cosine_matrix", "df")
     cosine_matrix_df.to_csv(os.path.join(run_parameters['results_directory'], new_file_name), header=True, index=True, sep='\t')
 
-def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names,
-                     pg_network_n1_names, run_parameters):
+def get_net_path_results(gene_length, smooth_rwr_matrix, run_parameters):
     """Perform net path method on gene characterization.
 
     Args:
-        network_sparse: sparse matrix of global network.
-        spreadsheet_df: dataframe of user gene sets.
-        unique_gene_names: list of genes in the in the user spreadsheet.
-        pg_network_n1_names: list of property names in the network.
+        gene_length: length of gene list.
+        smooth_rwr_matrix: smoothed matrix need to perform SVD on
         run_parameters: parameters dictionary.
 
     Returns:
-        property_rank_df: dataframe with ranked property names in each column.
+        cosine_matrix: matrix with property and gene cosine similarity values.
     """
-    hetero_network = normalize(network_sparse, norm='l1', axis=0)
-    restart = np.eye(hetero_network.shape[0])
-    final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
-        restart, hetero_network, run_parameters)
-    smooth_rwr_matrix = smooth_final_spreadsheet_matrix(final_rwr_matrix, len(unique_gene_names))
-    unique_all_node_names = unique_gene_names + pg_network_n1_names
-    U_unitary_matrix, S_full_squared_matrix = perform_k_SVD(smooth_rwr_matrix, 
-        int(run_parameters['k_space']), unique_all_node_names)
-    g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
-        U_unitary_matrix, S_full_squared_matrix, len(unique_gene_names))
-    cosine_matrix_df = perform_cosine_correlation(
-        g_newspace_matrix, p_newspace_matrix, unique_gene_names, pg_network_n1_names)
-    save_cosine_matrix_df(cosine_matrix_df, run_parameters)
 
-    property_rank_df = rank_property(spreadsheet_df, cosine_matrix_df)
-    return property_rank_df
+    U_unitary_matrix, S_full_squared_matrix = calculate_k_SVD(smooth_rwr_matrix, 
+        int(run_parameters['k_space']))
+
+    g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
+        U_unitary_matrix, S_full_squared_matrix, gene_length)
+
+    cosine_matrix = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
+
+    return cosine_matrix
 
 def build_fisher_contingency_table(overlap_count, user_count, gene_count, count):
     """ build contingency table for fisher exact test.
@@ -369,6 +290,8 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
     Args:
         fisher_contingency_pval: list of seven items lists.
         set_list: column values of spreadsheet.
+    Returns:
+        result_df: the final dataframe of fisher exact test
     """
     df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
     result_df = pd.DataFrame(fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=1) 
@@ -379,6 +302,7 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
         new_result_df.loc[:, gene_set] = result_df[result_df['user gene']==gene_set].values[:, 1] 
 
     save_timestamped_df(new_result_df, results_dir, 'fisher_result_geneset_property')
+    return result_df
 
 def save_timestamped_df(input_df, results_dir, name):
     """ Save dataframe to files with timestamped name.
@@ -407,3 +331,62 @@ def map_and_save_droplist(spreadsheet_df, gene_names, droplist_name, run_paramet
     file_name = kn.create_timestamped_filename(droplist_name, "tsv")
     kn.save_df(pd.DataFrame(droplist, columns=[droplist_name]),
                run_parameters['results_directory'], file_name)
+
+def build_hybrid_df(run_parameters, normalize_by_sum, construct_by_union):
+    """This is to build hybrid sparse matrix with gene gene network and
+    gene property network.
+
+    Args:
+        run_parameters: dictionary of run parameters.
+        normalize_by_sum: boolean value to check whether to normalize separate
+        network by sum or not.
+        construct_by_union: boolean value to check whether the genes in network
+        control the genes in property or not. 
+
+    Returns:
+        network_sparse: output sparse matrix.
+        unique_gene_names: gene names of the hybrid matrix
+        pg_network_n1_names: property names of hybrid matrix.
+        unique_all_node_names: all node names of hybrid matrix.
+    """
+    pg_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
+    gg_network_df = kn.get_network_df(run_parameters['gg_network_name_full_path'])
+
+    pg_network_n1_names,\
+    pg_network_n2_names = kn.extract_network_node_names(pg_network_df)
+
+    gg_network_n1_names,\
+    gg_network_n2_names = kn.extract_network_node_names(gg_network_df)
+
+    # limit the gene set to the intersection of networks (gene_gene and prop_gene) and user gene set
+    unique_gene_names = kn.find_unique_node_names(gg_network_n1_names, gg_network_n2_names)
+    if construct_by_union==True:
+        unique_gene_names = kn.find_unique_node_names(unique_gene_names, pg_network_n2_names)
+    else:
+        pg_network_df = kn.update_network_df(pg_network_df, unique_gene_names, 'node_2')
+    unique_all_node_names = unique_gene_names + pg_network_n1_names
+    unique_gene_names_dict = kn.create_node_names_dict(unique_gene_names)
+    pg_network_n1_names_dict = kn.create_node_names_dict(
+        pg_network_n1_names, len(unique_gene_names))
+
+    # map every gene name to a sequential integer index
+    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
+    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
+    pg_network_df = kn.map_node_names_to_index(pg_network_df, pg_network_n1_names_dict, "node_1")
+    pg_network_df = kn.map_node_names_to_index(pg_network_df, unique_gene_names_dict, "node_2")
+
+    gg_network_df = kn.symmetrize_df(gg_network_df)
+    pg_network_df = kn.symmetrize_df(pg_network_df)
+
+    if normalize_by_sum==True:
+        gg_network_df = kn.normalize_network_df_by_sum(gg_network_df, 'wt')
+        pg_network_df = kn.normalize_network_df_by_sum(pg_network_df, 'wt')
+
+    hybrid_network_df = kn.form_hybrid_network_df([gg_network_df, pg_network_df])
+
+    # store the network in a csr sparse format
+    network_sparse = kn.convert_network_df_to_sparse(
+        hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
+
+    return network_sparse, unique_gene_names, pg_network_n1_names, unique_all_node_names
+
