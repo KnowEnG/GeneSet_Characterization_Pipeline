@@ -4,31 +4,19 @@ Created on Wed Jul 20 14:47:45 2016
 """
 
 def fisher(run_parameters):
-    """fisher geneset characterization
-
-    Args:
-        run_parameters: parameter set dictionary.
-    """
-    import geneset_characterization_toolbox as tl
-    tl.run_fisher(run_parameters)
+    '''fisher geneset characterization'''
+    from geneset_characterization_toolbox import run_fisher
+    run_fisher(run_parameters)
     
 def DRaWR(run_parameters):
-    """Discriminative Random Walk with Restart
-
-    Args:
-        run_parameters: parameter set dictionary.
-    """
-    import geneset_characterization_toolbox as tl
-    tl.run_DRaWR(run_parameters)
+    '''Discriminative Random Walk with Restart'''
+    from geneset_characterization_toolbox import run_DRaWR
+    run_DRaWR(run_parameters)
 
 def net_path(run_parameters):
-    """net_path geneset characterization method
-
-    Args:
-        run_parameters: parameter set dictionary.
-    """
-    import geneset_characterization_toolbox as tl
-    tl.run_net_path(run_parameters)
+    '''net_path geneset characterization method'''
+    from geneset_characterization_toolbox import run_net_path
+    run_net_path(run_parameters)
 
 SELECT = {
     "fisher":fisher,
