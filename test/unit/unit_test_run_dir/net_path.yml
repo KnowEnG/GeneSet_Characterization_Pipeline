@@ -2,8 +2,8 @@ gg_network_name_full_path: unit_test_run_dir/data/net_path_network.txt
 pg_network_name_full_path: unit_test_run_dir/data/net_path_property.txt
 spreadsheet_name_full_path: unit_test_run_dir/data/net_path_user_gene_set.txt
 results_directory: unit_test_run_dir/results
-rwr_max_iterations: "500"
-rwr_convergence_tolerence: "0.000001"
-rwr_restart_probability: "0.5"
-k_space: "2"
+rwr_max_iterations: 500
+rwr_convergence_tolerence: 0.000001
+rwr_restart_probability: 0.5
+k_space: 2
 method: net_path
