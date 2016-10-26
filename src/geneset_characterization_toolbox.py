@@ -126,17 +126,12 @@ def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names,
     """
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
     restart = np.eye(hetero_network.shape[0])
-    a = time.time()
     final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
         restart, hetero_network, run_parameters)
-    b = time.time()
-    print('rwr done', b-a)
     smooth_rwr_matrix = smooth_final_spreadsheet_matrix(final_rwr_matrix, len(unique_gene_names))
     unique_all_node_names = unique_gene_names + pg_network_n1_names
     U_unitary_matrix, S_full_squared_matrix = perform_k_SVD(smooth_rwr_matrix, 
         int(run_parameters['k_space']), unique_all_node_names)
-    c = time.time()
-    print('svd done', c-b)
     g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
         U_unitary_matrix, S_full_squared_matrix, len(unique_gene_names))
     cosine_matrix_df = perform_cosine_correlation(
@@ -380,8 +375,6 @@ def run_net_path(run_parameters):
     unique_all_node_names = unique_gene_names + pg_network_n1_names
     pg_network_df = kn.update_network_df(pg_network_df, unique_gene_names, 'node_2')
 
-    name_list = pd.DataFrame(unique_all_node_names)
-    name_list.to_csv('gene_property_lookup_table.tsv', header=False, index=True, sep='\t')
     unique_gene_names_dict = kn.create_node_names_dict(unique_gene_names)
     pg_network_n1_names_dict = kn.create_node_names_dict(
         pg_network_n1_names, len(unique_gene_names))
@@ -401,7 +394,6 @@ def run_net_path(run_parameters):
     pg_network_df = kn.symmetrize_df(pg_network_df)
 
     hybrid_network_df = kn.form_hybrid_network_df([gg_network_df, pg_network_df])
-    hybrid_network_df.to_csv('ppi_pathway_hybrid_df.csv', header=False, index=False, sep='\t')
     network_sparse = kn.convert_network_df_to_sparse(
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
 
