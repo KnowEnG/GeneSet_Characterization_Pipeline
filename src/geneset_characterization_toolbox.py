@@ -62,23 +62,6 @@ def run_fisher(run_parameters):
 
     return fisher_contingency_pval
 
-def map_and_save_droplist(spreadsheet_df, gene_names, droplist_name, run_parameters):
-    """This is to map and save droplist
-
-    Args:
-        spreadsheet_df: user supplied spreadsheet dataframe.
-        gene_names: list of genes.
-        droplist_name: name of droplist file.
-        run_parameters: dictionary of run parameters.
-
-    Returns:
-        property_rank_df: dataframe with ranked property names in each column.
-    """
-    droplist = kn.find_dropped_node_names(spreadsheet_df, gene_names)
-    file_name = kn.create_timestamped_filename(droplist_name, "tsv")
-    kn.save_df(pd.DataFrame(droplist, columns=[droplist_name]),
-               run_parameters['results_directory'], file_name)
-
 def run_DRaWR(run_parameters):
     ''' wrapper: call sequence to perform random walk with restart
     Args:
@@ -102,12 +85,6 @@ def run_DRaWR(run_parameters):
     pg_network_n1_names_dict = kn.create_node_names_dict(
         pg_network_n1_names, len(unique_gene_names))
 
-    # restrict spreadsheet to unique genes and drop everthing else
-    droplist = kn.find_dropped_node_names(spreadsheet_df, unique_gene_names)
-    file_name = kn.create_timestamped_filename("DRaWR_droplist", "tsv")
-    kn.save_df(pd.DataFrame(droplist, columns=['droplist']),
-               run_parameters['results_directory'], file_name)
-    spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
     # map every gene name to a sequential integer index
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
@@ -126,15 +103,19 @@ def run_DRaWR(run_parameters):
     network_sparse = kn.convert_network_df_to_sparse(
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
 
-    property_size = spreadsheet_df.shape[0] - len(unique_gene_names)
+    new_spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
+    
     base_col = np.append(np.ones(len(unique_gene_names), dtype=np.int),
-                         np.zeros(property_size, dtype=np.int))
+                         np.zeros(len(set(pg_network_n1_names)), dtype=np.int))
 
-    new_spreadsheet_df = kn.append_column_to_spreadsheet(spreadsheet_df, base_col, 'base')
+    new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
 
-    ret = perform_DRaWR(network_sparse, new_spreadsheet_df, len(unique_gene_names), run_parameters)
+    final_spreadsheet_df = get_DRaWR(network_sparse, new_spreadsheet_df, 
+        len(unique_gene_names), run_parameters)
 
-    return ret
+    save_timestamped_df(final_spreadsheet_df, run_parameters['results_directory'], 'DRaWR_result')
+    map_and_save_droplist(spreadsheet_df, unique_gene_names, 'DRaWR_droplist', run_parameters)
+    return final_spreadsheet_df
 
 def run_net_path(run_parameters):
     ''' wrapper: call sequence to perform net path
@@ -159,10 +140,6 @@ def run_net_path(run_parameters):
     pg_network_n1_names_dict = kn.create_node_names_dict(
         pg_network_n1_names, len(unique_gene_names))
 
-    droplist = kn.find_dropped_node_names(spreadsheet_df, unique_gene_names)
-    file_name = kn.create_timestamped_filename("net_path_droplist", "tsv")
-    kn.save_df(pd.DataFrame(droplist, columns=['droplist']),
-               run_parameters['results_directory'], file_name)
 
     spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_gene_names)
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
@@ -179,7 +156,12 @@ def run_net_path(run_parameters):
 
     ret = perform_net_path(
         spreadsheet_df, network_sparse, unique_gene_names, pg_network_n1_names, run_parameters)
+
+    save_timestamped_df(ret, run_parameters['results_directory'], 'net_path_result')
+    map_and_save_droplist(spreadsheet_df, unique_gene_names, 'net_path_droplist', run_parameters)
+    
     return ret
+
 
 def perform_k_SVD(smooth_spreadsheet_matrix, k):
     """Perform SVD on input matrix.
@@ -307,8 +289,6 @@ def perform_net_path(spreadsheet_df, network_sparse, unique_gene_names,
     save_cosine_matrix_df(cosine_matrix_df, run_parameters)
 
     property_rank_df = rank_property(spreadsheet_df, cosine_matrix_df)
-    file_name = kn.create_timestamped_filename("net_path_result", "df")
-    kn.save_df(property_rank_df, run_parameters['results_directory'], file_name)
     return property_rank_df
 
 def build_fisher_contingency_table(overlap_count, user_count, gene_count, count):
@@ -359,32 +339,15 @@ def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df)
 
     return fisher_contingency_pval
 
-def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
-    """ Save two output files of fisher exact test results.
-
-    Args:
-        fisher_contingency_pval: list of seven items lists.
-        set_list: column values of spreadsheet.
-    """
-    df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
-    result_df = pd.DataFrame(fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=1)
-    file_name = kn.create_timestamped_filename("fisher_result", "df")
-    kn.save_df(result_df, results_dir, file_name)  
-
-    new_result_df = pd.DataFrame(columns=set_list)
-    for gene_set in set_list:
-        new_result_df.loc[:, gene_set] = result_df[result_df['user gene']==gene_set].values[:, 1] 
-    new_file_name = kn.create_timestamped_filename("fisher_result_geneset_property", "df")
-    kn.save_df(new_result_df, results_dir, new_file_name)
-
-
-def perform_DRaWR(network_sparse, new_spreadsheet_df, len_gene_names, run_parameters):
+def get_DRaWR(network_sparse, new_spreadsheet_df, len_gene_names, run_parameters):
     """ calculate random walk with global network and user set gene sets  and write output.
     Args:
         network_sparse: sparse matrix of global network.
         new_spreadsheet_df: dataframe of user gene sets.
         len_gene_names: length of genes in the in the user spreadsheet.
         run_parameters: parameters dictionary.
+    Returns:
+        final_spreadsheet_df: dataframe with ranked property names.
     """
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
     final_spreadsheet_matrix, step = kn.smooth_matrix_with_rwr(
@@ -396,13 +359,51 @@ def perform_DRaWR(network_sparse, new_spreadsheet_df, len_gene_names, run_parame
 
     final_spreadsheet_df.iloc[:, :-1] = final_spreadsheet_df.iloc[:, :-1].apply(
         lambda x: (x - final_spreadsheet_df['base']).sort_values(ascending=0).index.values)
-
     final_spreadsheet_df = final_spreadsheet_df.drop('base', 1)
-
-    final_spreadsheet_df.index = range(final_spreadsheet_df.shape[0])
-    file_name = kn.create_timestamped_filename("DRaWR_result", "df")
-    kn.save_df(final_spreadsheet_df, run_parameters['results_directory'], file_name)
 
     return final_spreadsheet_df
 
+def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
+    """ Save two output files of fisher exact test results.
 
+    Args:
+        fisher_contingency_pval: list of seven items lists.
+        set_list: column values of spreadsheet.
+    """
+    df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
+    result_df = pd.DataFrame(fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=1) 
+    save_timestamped_df(result_df, results_dir, 'fisher_result')
+
+    new_result_df = pd.DataFrame(columns=set_list)
+    for gene_set in set_list:
+        new_result_df.loc[:, gene_set] = result_df[result_df['user gene']==gene_set].values[:, 1] 
+
+    save_timestamped_df(new_result_df, results_dir, 'fisher_result_geneset_property')
+
+def save_timestamped_df(input_df, results_dir, name):
+    """ Save dataframe to files with timestamped name.
+
+    Args:
+        fisher_contingency_pval: list of seven items lists.
+        results_dir: directory to save outputs.
+        name: file name.
+    """
+    file_name = kn.create_timestamped_filename(name, "df")
+    kn.save_df(input_df, results_dir, file_name)
+
+def map_and_save_droplist(spreadsheet_df, gene_names, droplist_name, run_parameters):
+    """This is to map and save droplist
+
+    Args:
+        spreadsheet_df: user supplied spreadsheet dataframe.
+        gene_names: list of genes.
+        droplist_name: name of droplist file.
+        run_parameters: dictionary of run parameters.
+
+    Returns:
+        property_rank_df: dataframe with ranked property names in each column.
+    """
+    droplist = kn.find_dropped_node_names(spreadsheet_df, gene_names)
+    file_name = kn.create_timestamped_filename(droplist_name, "tsv")
+    kn.save_df(pd.DataFrame(droplist, columns=[droplist_name]),
+               run_parameters['results_directory'], file_name)
