@@ -77,16 +77,21 @@ def run_DRaWR(run_parameters):
 
     unique_genes_length = len(unique_gene_names)
     property_length = len(set(pg_network_n1_names))
-    base_col = np.append(np.ones(unique_genes_length, dtype=np.int),
-                         np.zeros(property_length, dtype=np.int))
-    new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
+    # base_col = np.append(np.ones(unique_genes_length, dtype=np.int),
+    #                      np.zeros(property_length, dtype=np.int))
+    # new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
 
-    final_spreadsheet_df = get_DRaWR(network_sparse, new_spreadsheet_df, 
+    smooth_spreadsheet_df = get_DRaWR(network_sparse, new_spreadsheet_df, 
         unique_genes_length, run_parameters)
 
-    save_timestamped_df(final_spreadsheet_df, run_parameters['results_directory'], 'DRaWR_result')
+    gene_result_df = form_drawr_result_df(smooth_spreadsheet_df, 0, unique_genes_length)
+    prop_result_df = form_drawr_result_df(smooth_spreadsheet_df, unique_genes_length, property_length)
+
+    save_timestamped_df(gene_result_df, run_parameters['results_directory'], 'DRaWR_gene_result')
+    save_timestamped_df(prop_result_df, run_parameters['results_directory'], 'DRaWR_property_result')
     map_and_save_droplist(spreadsheet_df, unique_gene_names, 'DRaWR_droplist', run_parameters)
-    return final_spreadsheet_df
+
+    return 
 
 def run_net_path(run_parameters):
     ''' wrapper: call sequence to perform net path
@@ -288,11 +293,32 @@ def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df)
             table = build_fisher_contingency_table(overlap_count[i, j], user_count[j],
                                                   gene_count[0, i], universe_count)
             pvalue = stats.fisher_exact(table, alternative="greater")[1]
-            row_item = [set_list[j], sparse_dict[i], int(universe_count), int(user_count[j]),
-                        int(gene_count[0, i]), int(overlap_count[i, j]), pvalue]
+            row_item = [set_list[j], sparse_dict[i], -1.0*np.log(pvalue), int(universe_count), int(user_count[j]),
+                        int(gene_count[0, i]), int(overlap_count[i, j])]
             fisher_contingency_pval.append(row_item)
 
     return fisher_contingency_pval
+
+def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
+    """ Save two output files of fisher exact test results.
+
+    Args:
+        fisher_contingency_pval: list of seven items lists.
+        set_list: column values of spreadsheet.
+    Returns:
+        result_df: the final dataframe of fisher exact test
+    """
+    df_col = ["user_gene_set", "property_gene_set", "pval", "universe_count",
+     "user_count", "propert_gene", "overlap_count"]
+    result_df = pd.DataFrame(fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=0) 
+    save_timestamped_df(result_df, results_dir, 'fisher_result')
+
+    new_result_df = pd.DataFrame(columns=set_list)
+    for gene_set in set_list:
+        new_result_df.loc[:, gene_set] = result_df[result_df['user_gene_set']==gene_set].values[:, 1] 
+
+    save_timestamped_df(new_result_df, results_dir, 'fisher_result_geneset_property')
+    return result_df
 
 def get_DRaWR(network_sparse, new_spreadsheet_df, len_gene_names, run_parameters):
     """ calculate random walk with global network and user set gene sets  and write output.
@@ -304,39 +330,48 @@ def get_DRaWR(network_sparse, new_spreadsheet_df, len_gene_names, run_parameters
     Returns:
         final_spreadsheet_df: dataframe with ranked property names.
     """
+
+    property_length = new_spreadsheet_df.shape[0] - len_gene_names
+    base_col = np.append(np.ones(len_gene_names, dtype=np.int),
+                         np.zeros(property_length, dtype=np.int))
+    new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
+
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
     final_spreadsheet_matrix, step = kn.smooth_matrix_with_rwr(
         normalize(new_spreadsheet_df, norm='l1', axis=0), hetero_network, run_parameters)
 
-    final_spreadsheet_df = pd.DataFrame(final_spreadsheet_matrix[len_gene_names:])
-    final_spreadsheet_df.index = new_spreadsheet_df.index.values[len_gene_names:]
+    final_spreadsheet_df = pd.DataFrame(final_spreadsheet_matrix)
+    final_spreadsheet_df.index = new_spreadsheet_df.index.values
     final_spreadsheet_df.columns = new_spreadsheet_df.columns.values
-
-    final_spreadsheet_df.iloc[:, :-1] = final_spreadsheet_df.iloc[:, :-1].apply(
-        lambda x: (x - final_spreadsheet_df['base']).sort_values(ascending=0).index.values)
-    final_spreadsheet_df = final_spreadsheet_df.drop('base', 1)
 
     return final_spreadsheet_df
 
-def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
-    """ Save two output files of fisher exact test results.
+def form_drawr_result_df(input_df, start_index, len_gene_names):
 
-    Args:
-        fisher_contingency_pval: list of seven items lists.
-        set_list: column values of spreadsheet.
-    Returns:
-        result_df: the final dataframe of fisher exact test
-    """
-    df_col = ["user gene", "property", "count", "user count", "gene count", "overlap", "pval"]
-    result_df = pd.DataFrame(fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=1) 
-    save_timestamped_df(result_df, results_dir, 'fisher_result')
+    len_set_names = input_df.shape[1] - 1
+    end_index = start_index + len_gene_names
+    orig_val = np.ravel(input_df.values[start_index:end_index, :-1])
+    set_name = np.array(list(input_df.columns.values[:-1])*len_gene_names)
+    gene_name = np.repeat(input_df.index.values[start_index:end_index], len_set_names)
+    base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names)
+    diff_val = orig_val - base_val
 
-    new_result_df = pd.DataFrame(columns=set_list)
-    for gene_set in set_list:
-        new_result_df.loc[:, gene_set] = result_df[result_df['user gene']==gene_set].values[:, 1] 
+    ret_col = ['user_gene_set', 'property_gene_set', 'difference_score', 'query_score', 'baseline_score']
+    result_val = np.column_stack((set_name, gene_name, diff_val, orig_val, base_val))
+    result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("difference_score", ascending=0) 
 
-    save_timestamped_df(new_result_df, results_dir, 'fisher_result_geneset_property')
     return result_df
+
+# def save_drawr_result(final_spreadsheet_matrix, new_spreadsheet_df, len_gene_names):
+#     final_spreadsheet_df = pd.DataFrame(final_spreadsheet_matrix[len_gene_names:])
+#     final_spreadsheet_df.index = new_spreadsheet_df.index.values[len_gene_names:]
+#     final_spreadsheet_df.columns = new_spreadsheet_df.columns.values
+
+#     final_spreadsheet_df.iloc[:, :-1] = final_spreadsheet_df.iloc[:, :-1].apply(
+#         lambda x: (x - final_spreadsheet_df['base']).sort_values(ascending=0).index.values)
+#     final_spreadsheet_df = final_spreadsheet_df.drop('base', 1)
+
+#     return final_spreadsheet_df
 
 def save_timestamped_df(input_df, results_dir, output_file_name):
     """ Save dataframe to files with timestamped name.
@@ -399,6 +434,7 @@ def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_un
     pg_network_n1_names_dict = kn.create_node_names_dict(
         pg_network_n1_names, len(unique_gene_names))
 
+    unique_all_node_names = unique_gene_names + pg_network_n1_names
     # map every gene name to a sequential integer index
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
     gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
@@ -417,6 +453,7 @@ def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_un
     # store the network in a csr sparse format
     network_sparse = kn.convert_network_df_to_sparse(
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
+
 
     return network_sparse, unique_gene_names, pg_network_n1_names
 
