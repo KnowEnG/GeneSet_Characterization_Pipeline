@@ -77,64 +77,43 @@ def run_DRaWR(run_parameters):
 
     unique_genes_length = len(unique_gene_names)
     property_length = len(set(pg_network_n1_names))
-    # base_col = np.append(np.ones(unique_genes_length, dtype=np.int),
-    #                      np.zeros(property_length, dtype=np.int))
-    # new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
 
-    smooth_spreadsheet_df = get_DRaWR(network_sparse, new_spreadsheet_df, 
-        unique_genes_length, run_parameters)
+    base_col = np.append(np.ones(unique_genes_length, dtype=np.int),
+                         np.zeros(property_length, dtype=np.int))
+    new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
+    hetero_network = normalize(network_sparse, norm='l1', axis=0) 
+    final_spreadsheet_matrix, step = kn.smooth_matrix_with_rwr(
+        normalize(new_spreadsheet_df, norm='l1', axis=0), hetero_network, run_parameters)
 
-    gene_result_df = form_drawr_result_df(smooth_spreadsheet_df, 0, unique_genes_length)
-    prop_result_df = form_drawr_result_df(smooth_spreadsheet_df, unique_genes_length, property_length)
+    final_spreadsheet_df = pd.DataFrame(final_spreadsheet_matrix)
+    final_spreadsheet_df.index = new_spreadsheet_df.index.values
+    final_spreadsheet_df.columns = new_spreadsheet_df.columns.values
 
+    prop_spreadsheet_df = rank_drawr_property(final_spreadsheet_df, pg_network_n1_names)
+    
+    gene_result_df = form_drawr_result_df(final_spreadsheet_df, 0, unique_genes_length)
+    prop_result_df = form_drawr_result_df(final_spreadsheet_df, 
+        unique_genes_length, final_spreadsheet_df.shape[0])
+
+    save_timestamped_df(prop_spreadsheet_df, run_parameters['results_directory'], 'DRaWR_result')
     save_timestamped_df(gene_result_df, run_parameters['results_directory'], 'DRaWR_gene_result')
     save_timestamped_df(prop_result_df, run_parameters['results_directory'], 'DRaWR_property_result')
+
     map_and_save_droplist(spreadsheet_df, unique_gene_names, 'DRaWR_droplist', run_parameters)
 
-    return 
+    return final_spreadsheet_df
 
 def run_net_path(run_parameters):
     ''' wrapper: call sequence to perform net path
     Args:
         run_parameters: dictionary of run parameters
     '''
-    # network_sparse, unique_gene_names, \
-    # # pg_network_n1_names = build_hybrid_sparse_matrix(run_parameters, False, False)
+    network_sparse, unique_gene_names, \
+    pg_network_n1_names = build_hybrid_sparse_matrix(run_parameters, False, False)
 
-    # spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
-    # spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_gene_names)
     spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
-    pg_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
-    gg_network_df = kn.get_network_df(run_parameters['gg_network_name_full_path'])
-
-    pg_network_n1_names, \
-    pg_network_n2_names = kn.extract_network_node_names(pg_network_df)
-    gg_network_n1_names, \
-    gg_network_n2_names = kn.extract_network_node_names(gg_network_df)
-
-    # limit the gene set to the intersection of networks (gene_gene and prop_gene) and user gene set
-    unique_gene_names = kn.find_unique_node_names(gg_network_n1_names, gg_network_n2_names)
-    unique_all_node_names = unique_gene_names + pg_network_n1_names
-    pg_network_df = kn.update_network_df(pg_network_df, unique_gene_names, 'node_2')
-
-    unique_gene_names_dict = kn.create_node_names_dict(unique_gene_names)
-    pg_network_n1_names_dict = kn.create_node_names_dict(
-        pg_network_n1_names, len(unique_gene_names))
-
-
     spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_gene_names)
-    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_1")
-    gg_network_df = kn.map_node_names_to_index(gg_network_df, unique_gene_names_dict, "node_2")
-    pg_network_df = kn.map_node_names_to_index(pg_network_df, pg_network_n1_names_dict, "node_1")
-    pg_network_df = kn.map_node_names_to_index(pg_network_df, unique_gene_names_dict, "node_2")
-
-    gg_network_df = kn.symmetrize_df(gg_network_df)
-    pg_network_df = kn.symmetrize_df(pg_network_df)
-
-    hybrid_network_df = kn.form_hybrid_network_df([gg_network_df, pg_network_df])
-    network_sparse = kn.convert_network_df_to_sparse(
-        hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
-
+    
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
     final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
         np.eye(hetero_network.shape[0]), hetero_network, run_parameters)
@@ -144,7 +123,7 @@ def run_net_path(run_parameters):
     cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, columns=pg_network_n1_names)
     save_cosine_matrix_df(cosine_matrix_df, run_parameters)
 
-    property_rank_df = rank_property(spreadsheet_df, cosine_matrix_df)
+    property_rank_df = rank_netpath_property(spreadsheet_df, cosine_matrix_df)
     save_timestamped_df(property_rank_df, run_parameters['results_directory'], 'net_path_result')
     map_and_save_droplist(spreadsheet_df, unique_gene_names, 'net_path_droplist', run_parameters)
     
@@ -202,7 +181,7 @@ def smooth_final_spreadsheet_matrix(final_rwr_matrix, gene_length):
     smooth_rwr_matrix = np.log(final_rwr_matrix + eps) - np.log(eps)
     return smooth_rwr_matrix
 
-def rank_property(spreadsheet_df, cosine_matrix_df):
+def rank_netpath_property(spreadsheet_df, cosine_matrix_df):
     """This is to rank property based on cosine values:
 
     Args:
@@ -320,38 +299,36 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
     save_timestamped_df(new_result_df, results_dir, 'fisher_result_geneset_property')
     return result_df
 
-def get_DRaWR(network_sparse, new_spreadsheet_df, len_gene_names, run_parameters):
-    """ calculate random walk with global network and user set gene sets  and write output.
+def rank_drawr_property(final_spreadsheet_df, pg_network_n1_names):
+    """ This is to rank properties for each user gene set.
+
     Args:
-        network_sparse: sparse matrix of global network.
-        new_spreadsheet_df: dataframe of user gene sets.
-        len_gene_names: length of genes in the in the user spreadsheet.
-        run_parameters: parameters dictionary.
+        final_spreadsheet_df: final smoothed dataframe.
+        pg_network_n1_names: list of property names.
     Returns:
-        final_spreadsheet_df: dataframe with ranked property names.
+        prop_spreadsheet_df: a new spreadsheet with user gene set as header and properties as values.
     """
+    prop_spreadsheet_df = final_spreadsheet_df.loc[pg_network_n1_names]
+    prop_spreadsheet_df.iloc[:, :-1] = prop_spreadsheet_df.iloc[:, :-1].apply(
+        lambda x: (x - prop_spreadsheet_df['base']).sort_values(ascending=0).index.values)
+    prop_spreadsheet_df = prop_spreadsheet_df.drop('base', 1)
 
-    property_length = new_spreadsheet_df.shape[0] - len_gene_names
-    base_col = np.append(np.ones(len_gene_names, dtype=np.int),
-                         np.zeros(property_length, dtype=np.int))
-    new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
+    return prop_spreadsheet_df
 
-    hetero_network = normalize(network_sparse, norm='l1', axis=0)
-    final_spreadsheet_matrix, step = kn.smooth_matrix_with_rwr(
-        normalize(new_spreadsheet_df, norm='l1', axis=0), hetero_network, run_parameters)
+def form_drawr_result_df(input_df, start_index, end_index):
+    """Construct a five-column DRaWR result dataframe with 
+    selected rows from smoothed spreadsheet dataframe. 
 
-    final_spreadsheet_df = pd.DataFrame(final_spreadsheet_matrix)
-    final_spreadsheet_df.index = new_spreadsheet_df.index.values
-    final_spreadsheet_df.columns = new_spreadsheet_df.columns.values
-
-    return final_spreadsheet_df
-
-def form_drawr_result_df(input_df, start_index, len_gene_names):
-
+    Args:
+        input_df: input spreadsheet dataframe.
+        start_index: starting index
+        end_index: end index
+    Returns:
+        result_df: result five-column dataframe.
+    """
     len_set_names = input_df.shape[1] - 1
-    end_index = start_index + len_gene_names
     orig_val = np.ravel(input_df.values[start_index:end_index, :-1])
-    set_name = np.array(list(input_df.columns.values[:-1])*len_gene_names)
+    set_name = np.array(list(input_df.columns.values[:-1])*(end_index-start_index))
     gene_name = np.repeat(input_df.index.values[start_index:end_index], len_set_names)
     base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names)
     diff_val = orig_val - base_val
@@ -361,17 +338,6 @@ def form_drawr_result_df(input_df, start_index, len_gene_names):
     result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("difference_score", ascending=0) 
 
     return result_df
-
-# def save_drawr_result(final_spreadsheet_matrix, new_spreadsheet_df, len_gene_names):
-#     final_spreadsheet_df = pd.DataFrame(final_spreadsheet_matrix[len_gene_names:])
-#     final_spreadsheet_df.index = new_spreadsheet_df.index.values[len_gene_names:]
-#     final_spreadsheet_df.columns = new_spreadsheet_df.columns.values
-
-#     final_spreadsheet_df.iloc[:, :-1] = final_spreadsheet_df.iloc[:, :-1].apply(
-#         lambda x: (x - final_spreadsheet_df['base']).sort_values(ascending=0).index.values)
-#     final_spreadsheet_df = final_spreadsheet_df.drop('base', 1)
-
-#     return final_spreadsheet_df
 
 def save_timestamped_df(input_df, results_dir, output_file_name):
     """ Save dataframe to files with timestamped name.
