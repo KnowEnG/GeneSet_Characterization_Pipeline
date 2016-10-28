@@ -13,3 +13,4 @@ rwr_convergence_tolerence:  0.0001
 rwr_restart_probability:    0.5       #	Vn+1 = alpha * N * Vn + (1-alpha) * Vo
 
 k_space: 100                            # number of dimensions of the new space in SVD
+
