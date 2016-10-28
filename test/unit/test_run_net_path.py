@@ -8,13 +8,22 @@ import numpy as np
 
 class TestRun_net_path(TestCase):
     def setUp(self):
-        with open("unit_test_run_dir/net_path.yml", 'r') as file_handle:
-            self.run_parameters = yaml.load(file_handle)
+        self.run_parameters = {"gg_network_name_full_path":"../../data/networks/test2_gene_gene.edge.txt",
+                            "pg_network_name_full_path":"../../data/networks/test2_property_gene.edge.txt",
+                            "spreadsheet_name_full_path":"../../data/spreadsheets/test2_spreadsheet.tsv",
+                            "results_directory":"../../data/verification",
+                            "rwr_max_iterations":500,
+                            "rwr_convergence_tolerence":1.0e-4,
+                            "rwr_restart_probability":0.5,        
+                            "k_space":2}
+        # with open("unit_test_run_dir/net_path.yml", 'r') as file_handle:
+        #     self.run_parameters = yaml.load(file_handle)
 
     def tearDown(self):
         del self.run_parameters
 
     def test_net_path(self):
+    
         ret = tl.run_net_path(self.run_parameters)
         ret.index = np.arange(ret.shape[0])
         res = pd.DataFrame([['P6', 'P7'],['P7', 'P6']], columns=['user1', 'user2'])

@@ -1,9 +1,0 @@
-	drug1
-GS1	1
-GS2	1
-GS3	0
-GS4	1
-GS5	1
-GS6	1
-GS7	0
-GS8	1

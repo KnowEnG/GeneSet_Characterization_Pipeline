@@ -9,29 +9,21 @@ import numpy as np
 
 class TestPerform_net_path(TestCase):
     def setUp(self):
-        self.network_sparse = np.array([[0,0.5,1,0,1],[0.5,0,1,1,0],[1,1,0,1,1],[0,1,1,0,0],[1,0,1,0,0]])
-        self.spreadsheet_df = pd.DataFrame([[0,1],[1,0],[1,1]], columns=['user1', 'user2'], index=['G1','G2','G3'])
-        self.unique_gene_names = ['G1','G2','G3']
-        self.pg_network_n1_names = ['P6', 'P7']
-        self.run_parameters = {'rwr_max_iterations': 500,
-                               'rwr_convergence_tolerence': 0.000001, 'rwr_restart_probability': 0.5, 'k_space': 2,
-                               'results_directory': "unit_test_run_dir/results"}
+        self.smooth_rwr_matrix = np.array([[3,2],[4,1],[5,3],[7,7],[8,2]])
+        self.gene_length = 3
+        self.run_parameters = {'k_space': 2}
 
     def tearDown(self):
-        del self.network_sparse
-        del self.spreadsheet_df
-        del self.unique_gene_names
-        del self.pg_network_n1_names
+        del self.smooth_rwr_matrix
+        del self.gene_length
         del self.run_parameters
 
-    def test_perform_net_path(self):
-        ret = tl.get_net_path_results(self.spreadsheet_df, self.network_sparse, self.unique_gene_names,
-                               self.pg_network_n1_names, self.run_parameters)
-        ret.index = np.arange(ret.shape[0])
-        res = pd.DataFrame({'user1': ['P6', 'P7'], 'user2': ['P7', 'P6']})
-        comp = ret.equals(res)
-        self.assertEqual(True, comp)
 
+    def test_perform_net_path(self):
+        ret = tl.get_net_path_results(self.gene_length, self.smooth_rwr_matrix, self.run_parameters)
+        res = np.array([[0.9316, 0.7976],[0.5239, 1.0000], [0.8925, 0.8517]])
+        self.assertEqual(np.array_equal(res, np.round(ret, 4)), True)
 
 if __name__ == '__main__':
     unittest.main()
+

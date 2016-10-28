@@ -23,12 +23,8 @@ class TestGet_fisher_exact_test(TestCase):
         ret = tl.get_fisher_exact_test(self.prop_gene_network_sparse,
                                            self.sparse_dict, self.spreadsheet_df)
         for i in range(2):
-            print(ret[i][2])
             ret[i][2] = format(ret[i][2], '.4f')
-            print(ret[i][2])
-        print(ret)
         data = [['GS1', 'p1', '0.4055', 3, 2, 1, 1], ['GS1', 'p2', '-0.0000', 3, 2, 3, 2]]
-        print(data)
         self.assertEqual(ret, data)
 
 if __name__ == '__main__':

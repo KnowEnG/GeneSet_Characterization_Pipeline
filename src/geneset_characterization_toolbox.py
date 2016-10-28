@@ -91,8 +91,8 @@ def run_DRaWR(run_parameters):
 
     prop_spreadsheet_df = rank_drawr_property(final_spreadsheet_df, pg_network_n1_names)
     
-    gene_result_df = form_drawr_result_df(final_spreadsheet_df, 0, unique_genes_length)
-    prop_result_df = form_drawr_result_df(final_spreadsheet_df, 
+    gene_result_df = construct_drawr_result_df(final_spreadsheet_df, 0, unique_genes_length)
+    prop_result_df = construct_drawr_result_df(final_spreadsheet_df, 
         unique_genes_length, final_spreadsheet_df.shape[0])
 
     save_timestamped_df(prop_spreadsheet_df, run_parameters['results_directory'], 'DRaWR_result')
@@ -118,8 +118,9 @@ def run_net_path(run_parameters):
     final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
         np.eye(hetero_network.shape[0]), hetero_network, run_parameters)
     smooth_rwr_matrix = smooth_final_spreadsheet_matrix(final_rwr_matrix, len(unique_gene_names))
-    
+
     cosine_matrix = get_net_path_results(len(unique_gene_names), smooth_rwr_matrix, run_parameters)
+   
     cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, columns=pg_network_n1_names)
     save_cosine_matrix_df(cosine_matrix_df, run_parameters)
 
@@ -127,7 +128,7 @@ def run_net_path(run_parameters):
     prop_result_df = construct_netpath_result_df(new_spreadsheet_df, cosine_matrix_df)
 
     save_timestamped_df(property_rank_df, run_parameters['results_directory'], 'net_path_result')
-    save_timestamped_df(prop_result_df, run_parameters['results_directory'], 'netpath_three_col_property_result')
+    save_timestamped_df(prop_result_df, run_parameters['results_directory'], 'net_path_three_col_property_result')
     map_and_save_droplist(spreadsheet_df, unique_gene_names, 'net_path_droplist', run_parameters)
     
     return property_rank_df
