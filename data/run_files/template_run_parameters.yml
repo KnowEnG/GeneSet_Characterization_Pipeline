@@ -1,4 +1,6 @@
-
+# ------------------------------------------------------------------------------------------------------
+# - Analysis Method: fisher, DRaWR, net_path                                                           -
+# ------------------------------------------------------------------------------------------------------
 method: DRaWR
 
 gg_network_name_full_path:  ../data/networks/STRING_experimental_gene_gene
@@ -9,3 +11,5 @@ results_directory:          ./run_dir/results
 rwr_max_iterations:         500
 rwr_convergence_tolerence:  0.0001
 rwr_restart_probability:    0.5       #	Vn+1 = alpha * N * Vn + (1-alpha) * Vo
+
+k_space: 100                            # number of dimensions of the new space in SVD
