@@ -1,4 +1,6 @@
-
+# ------------------------------------------------------------------------------------------------------
+# - Analysis Method: fisher, DRaWR, net_path                                                           -
+# ------------------------------------------------------------------------------------------------------
 method: net_path                        # Available methods: DRaWR, fisher, net_path
 
 gg_network_name_full_path:   ../data/networks/STRING_experimental_gene_gene
