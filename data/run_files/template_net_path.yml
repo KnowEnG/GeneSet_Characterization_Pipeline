@@ -30,3 +30,4 @@ rwr_restart_probability:    0.5
 # - number of dimensions of the new space in SVD                     -
 # --------------------------------------------------------------------
 k_space: 100                            
+
