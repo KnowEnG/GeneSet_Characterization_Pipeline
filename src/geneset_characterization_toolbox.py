@@ -124,7 +124,7 @@ def run_net_path(run_parameters):
     save_cosine_matrix_df(cosine_matrix_df, run_parameters)
 
     property_rank_df = rank_netpath_property(new_spreadsheet_df, cosine_matrix_df)
-    prop_result_df = form_netpath_result_df(new_spreadsheet_df, cosine_matrix_df)
+    prop_result_df = construct_netpath_result_df(new_spreadsheet_df, cosine_matrix_df)
 
     save_timestamped_df(property_rank_df, run_parameters['results_directory'], 'net_path_result')
     save_timestamped_df(prop_result_df, run_parameters['results_directory'], 'netpath_three_col_property_result')
