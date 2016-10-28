@@ -25,7 +25,7 @@ class TestPerform_net_path(TestCase):
         del self.run_parameters
 
     def test_perform_net_path(self):
-        ret = tl.perform_net_path(self.spreadsheet_df, self.network_sparse, self.unique_gene_names,
+        ret = tl.get_net_path_results(self.spreadsheet_df, self.network_sparse, self.unique_gene_names,
                                self.pg_network_n1_names, self.run_parameters)
         ret.index = np.arange(ret.shape[0])
         res = pd.DataFrame({'user1': ['P6', 'P7'], 'user2': ['P7', 'P6']})

@@ -17,10 +17,10 @@ class TestRun_fisher(TestCase):
         ret = tl.run_fisher(self.run_parameters)
         ret['pval'] = ret['pval'].round(4)
         ret.index = np.arange(ret.shape[0])
-        data = [['drug1', 'P1', 3, 2, 1, 1, 0.6667], ['drug1', 'P2', 3, 2, 3, 2, 1.0000]]
+        data = [['drug1', 'P1', 0.4055, 3, 2, 1, 1], ['drug1', 'P2', 0.0000, 3, 2, 3, 2]]
         res = pd.DataFrame(data)
-        res.columns = ['user gene', 'property', 'count', 'user count',
-                       'gene count', 'overlap', 'pval']
+        res.columns = ["user_gene_set", "property_gene_set", "pval", "universe_count",
+                       "user_count", "property_count", "overlap_count"]
         self.assertEqual(True, ret.equals(pd.DataFrame(res)))
 
 if __name__ == '__main__':

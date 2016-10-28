@@ -15,7 +15,7 @@ class TestSmooth_final_spreadsheet_matrix(TestCase):
         del self.ret
 
     def test_smooth_final_spreadsheet_matrix(self):
-        result = tl.smooth_final_spreadsheet_matrix(self.final_rwr_matrix)
+        result = tl.smooth_final_spreadsheet_matrix(self.final_rwr_matrix, 2)
         self.assertEqual(np.array_equal(self.ret, np.round(result, 8)), True)
 
 

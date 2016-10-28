@@ -96,12 +96,12 @@ def run_DRaWR(run_parameters):
         unique_genes_length, final_spreadsheet_df.shape[0])
 
     save_timestamped_df(prop_spreadsheet_df, run_parameters['results_directory'], 'DRaWR_result')
-    save_timestamped_df(gene_result_df, run_parameters['results_directory'], 'DRaWR_gene_result')
-    save_timestamped_df(prop_result_df, run_parameters['results_directory'], 'DRaWR_property_result')
+    save_timestamped_df(gene_result_df, run_parameters['results_directory'], 'DRaWR_five_col_gene_result')
+    save_timestamped_df(prop_result_df, run_parameters['results_directory'], 'DRaWR_five_col_property_result')
 
     map_and_save_droplist(spreadsheet_df, unique_gene_names, 'DRaWR_droplist', run_parameters)
 
-    return final_spreadsheet_df
+    return prop_spreadsheet_df
 
 def run_net_path(run_parameters):
     ''' wrapper: call sequence to perform net path
@@ -112,7 +112,7 @@ def run_net_path(run_parameters):
     pg_network_n1_names = build_hybrid_sparse_matrix(run_parameters, False, False)
 
     spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
-    spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_gene_names)
+    new_spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_gene_names)
     
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
     final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
@@ -123,8 +123,11 @@ def run_net_path(run_parameters):
     cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, columns=pg_network_n1_names)
     save_cosine_matrix_df(cosine_matrix_df, run_parameters)
 
-    property_rank_df = rank_netpath_property(spreadsheet_df, cosine_matrix_df)
+    property_rank_df = rank_netpath_property(new_spreadsheet_df, cosine_matrix_df)
+    prop_result_df = form_netpath_result_df(new_spreadsheet_df, cosine_matrix_df)
+
     save_timestamped_df(property_rank_df, run_parameters['results_directory'], 'net_path_result')
+    save_timestamped_df(prop_result_df, run_parameters['results_directory'], 'netpath_three_col_property_result')
     map_and_save_droplist(spreadsheet_df, unique_gene_names, 'net_path_droplist', run_parameters)
     
     return property_rank_df
@@ -181,23 +184,6 @@ def smooth_final_spreadsheet_matrix(final_rwr_matrix, gene_length):
     smooth_rwr_matrix = np.log(final_rwr_matrix + eps) - np.log(eps)
     return smooth_rwr_matrix
 
-def rank_netpath_property(spreadsheet_df, cosine_matrix_df):
-    """This is to rank property based on cosine values:
-
-    Args:
-        spreadsheet_df: user supplied spreadsheet dataframe.
-        cosine_matrix_df: dataframe with cosine value.
-
-    Returns:
-        property_rank_df: dataframe with ranked property names in each column.
-    """
-    property_rank_df = pd.DataFrame(columns=spreadsheet_df.columns.values)
-    for col_name in spreadsheet_df.columns.values:
-        user_gene_list = spreadsheet_df[spreadsheet_df[col_name] == 1].index.values
-        new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
-        property_rank_df[col_name] = new_spreadsheet_df.sort_values(ascending=False).index.values
-    return property_rank_df
-
 def save_cosine_matrix_df(cosine_matrix_df, run_parameters):
     """This is to save the cosine matrix df to output file
 
@@ -229,6 +215,50 @@ def get_net_path_results(gene_length, smooth_rwr_matrix, run_parameters):
     cosine_matrix = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
 
     return cosine_matrix
+
+def rank_netpath_property(spreadsheet_df, cosine_matrix_df):
+    """This is to rank property based on cosine values:
+
+    Args:
+        spreadsheet_df: user supplied spreadsheet dataframe.
+        cosine_matrix_df: dataframe with cosine value.
+
+    Returns:
+        property_rank_df: dataframe with ranked property names in each column.
+    """
+    property_rank_df = pd.DataFrame(columns=spreadsheet_df.columns.values)
+    for col_name in spreadsheet_df.columns.values:
+        user_gene_list = spreadsheet_df[spreadsheet_df[col_name] == 1].index.values
+        new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
+        property_rank_df[col_name] = new_spreadsheet_df.sort_values(ascending=False).index.values
+    return property_rank_df
+
+def construct_netpath_result_df(spreadsheet_df, cosine_matrix_df):
+    """Construct a three-column netpath result dataframe with header as user_gene_set',
+     'property_gene_set' and 'cosine_sum'
+
+    Args:
+        spreadsheet_df: user supplied spreadsheet dataframe.
+        cosine_matrix_df: dataframe with cosine value.
+    Returns:
+        result_df: result five-column dataframe.
+    """
+    property_rank_df = pd.DataFrame(columns=spreadsheet_df.columns.values,
+     index=cosine_matrix_df.columns.values)
+
+    for col_name in spreadsheet_df.columns.values:
+        user_gene_list = spreadsheet_df[spreadsheet_df[col_name] == 1].index.values
+        new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
+        property_rank_df[col_name] = new_spreadsheet_df.values
+
+    cosine_sum_val = np.ravel(property_rank_df.values)
+    set_name = np.array(list(property_rank_df.columns.values)*(property_rank_df.shape[0]))
+    gene_name = np.repeat(property_rank_df.index.values, property_rank_df.shape[1])
+
+    ret_col = ['user_gene_set', 'property_gene_set', 'cosine_sum']
+    result_val = np.column_stack((set_name, gene_name, cosine_sum_val))
+    result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("cosine_sum", ascending=0) 
+    return result_df
 
 def build_fisher_contingency_table(overlap_count, user_count, gene_count, count):
     """ build contingency table for fisher exact test.
@@ -288,7 +318,7 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
         result_df: the final dataframe of fisher exact test
     """
     df_col = ["user_gene_set", "property_gene_set", "pval", "universe_count",
-     "user_count", "propert_gene", "overlap_count"]
+     "user_count", "property_count", "overlap_count"]
     result_df = pd.DataFrame(fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=0) 
     save_timestamped_df(result_df, results_dir, 'fisher_result')
 
@@ -315,7 +345,7 @@ def rank_drawr_property(final_spreadsheet_df, pg_network_n1_names):
 
     return prop_spreadsheet_df
 
-def form_drawr_result_df(input_df, start_index, end_index):
+def construct_drawr_result_df(input_df, start_index, end_index):
     """Construct a five-column DRaWR result dataframe with 
     selected rows from smoothed spreadsheet dataframe. 
 
