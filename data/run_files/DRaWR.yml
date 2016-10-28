@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------------
-# - Analysis Method: fisher, DRaWR, netpath                                                            -
+# - Analysis Method: fisher, DRaWR, net_path                                                           -
 # ------------------------------------------------------------------------------------------------------
 method: DRaWR                        # Available methods: DRaWR, fisher, net_path
 
