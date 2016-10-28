@@ -1,5 +1,7 @@
-
-method: DRaWR                        # Available methods: DRaWR, fisher, net_path
+# ------------------------------------------------------------------------------------------------------
+# - Analysis Method: fisher, DRaWR, net_path                                                           -
+# ------------------------------------------------------------------------------------------------------
+method: DRaWR                        
 
 gg_network_name_full_path:  ../data/networks/STRING_experimental_gene_gene
 pg_network_name_full_path:  ../data/networks/kegg_pathway_property_gene
