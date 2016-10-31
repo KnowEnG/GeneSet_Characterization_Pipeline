@@ -253,7 +253,7 @@ def construct_netpath_result_df(spreadsheet_df, cosine_matrix_df):
         new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
         property_rank_df[col_name] = new_spreadsheet_df.values
 
-    cosine_sum_val = np.ravel(property_rank_df.values)
+    cosine_sum_val = np.ravel(property_rank_df.values).round(12)
     set_name = np.array(list(property_rank_df.columns.values)*(property_rank_df.shape[0]))
     gene_name = np.repeat(property_rank_df.index.values, property_rank_df.shape[1])
 
@@ -304,8 +304,8 @@ def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df)
             table = build_fisher_contingency_table(
                 overlap_count[i, j], user_count[j], gene_count[0, i], universe_count)
             pvalue = stats.fisher_exact(table, alternative="greater")[1]
-            row_item = [set_list[j], sparse_dict[i], -1.0*np.log(pvalue), int(universe_count),\
-             int(user_count[j]), int(gene_count[0, i]), int(overlap_count[i, j])]
+            row_item = [set_list[j], sparse_dict[i], np.round(-1.0*np.log(pvalue), 12), \
+            int(universe_count), int(user_count[j]), int(gene_count[0, i]), int(overlap_count[i, j])]
             fisher_contingency_pval.append(row_item)
 
     return fisher_contingency_pval
