@@ -93,11 +93,11 @@ def run_DRaWR(run_parameters):
     prop_result_df = construct_drawr_result_df(
         final_spreadsheet_df, unique_genes_length, final_spreadsheet_df.shape[0])
 
-    save_timestamped_df(prop_spreadsheet_df, run_parameters['results_directory'], 'DRaWR_result')
+    save_timestamped_df(prop_spreadsheet_df, run_parameters['results_directory'], 'DRaWR_ranked_by_property')
     save_timestamped_df(
-        gene_result_df, run_parameters['results_directory'], 'DRaWR_five_col_gene_result')
+        gene_result_df, run_parameters['results_directory'], 'DRaWR_sorted_by_gene_score')
     save_timestamped_df(
-        prop_result_df, run_parameters['results_directory'], 'DRaWR_five_col_property_result')
+        prop_result_df, run_parameters['results_directory'], 'DRaWR_sorted_by_property_score')
 
     map_and_save_droplist(spreadsheet_df, unique_gene_names, 'DRaWR_droplist', run_parameters)
 
@@ -127,9 +127,9 @@ def run_net_path(run_parameters):
     property_rank_df = rank_netpath_property(new_spreadsheet_df, cosine_matrix_df)
     prop_result_df = construct_netpath_result_df(new_spreadsheet_df, cosine_matrix_df)
 
-    save_timestamped_df(property_rank_df, run_parameters['results_directory'], 'net_path_result')
+    save_timestamped_df(property_rank_df, run_parameters['results_directory'], 'net_path_ranked_by_property')
     save_timestamped_df(
-        prop_result_df, run_parameters['results_directory'], 'net_path_three_col_property_result')
+        prop_result_df, run_parameters['results_directory'], 'net_path_sorted_by_property_score')
     map_and_save_droplist(spreadsheet_df, unique_gene_names, 'net_path_droplist', run_parameters)
 
     return property_rank_df
@@ -168,7 +168,6 @@ def project_matrix_to_new_space_and_split(U_unitary_matrix, S_full_squared_matri
     L = U_unitary_matrix.dot(S_full_squared_matrix)
     g_newspace_matrix = L[:unique_gene_length]
     p_newspace_matrix = L[unique_gene_length:]
-
     return g_newspace_matrix, p_newspace_matrix
 
 def smooth_final_spreadsheet_matrix(final_rwr_matrix, gene_length):
@@ -324,13 +323,13 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
      "user_count", "property_count", "overlap_count"]
     result_df = pd.DataFrame(
         fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=0)
-    save_timestamped_df(result_df, results_dir, 'fisher_result')
+    save_timestamped_df(result_df, results_dir, 'fisher_sorted_by_property_score')
 
     new_result_df = pd.DataFrame(columns=set_list)
     for gene_set in set_list:
         new_result_df.loc[:, gene_set] = result_df[result_df['user_gene_set'] == gene_set].values[:, 1]
 
-    save_timestamped_df(new_result_df, results_dir, 'fisher_result_geneset_property')
+    save_timestamped_df(new_result_df, results_dir, 'fisher_ranked_by_property')
     return result_df
 
 def rank_drawr_property(final_spreadsheet_df, pg_network_n1_names):
@@ -360,10 +359,10 @@ def construct_drawr_result_df(input_df, start_index, end_index):
         result_df: result five-column dataframe.
     """
     len_set_names = input_df.shape[1] - 1
-    orig_val = np.ravel(input_df.values[start_index:end_index, :-1])
+    orig_val = np.ravel(input_df.values[start_index:end_index, :-1]).round(12)
     set_name = np.array(list(input_df.columns.values[:-1])*(end_index-start_index))
     gene_name = np.repeat(input_df.index.values[start_index:end_index], len_set_names)
-    base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names)
+    base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names).round(12)
     diff_val = orig_val - base_val
 
     ret_col = ['user_gene_set', 'property_gene_set', 'difference_score', 'query_score', 'baseline_score']
@@ -425,6 +424,7 @@ def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_un
 
     # limit the gene set to the intersection of networks (gene_gene and prop_gene) and user gene set
     unique_gene_names = kn.find_unique_node_names(gg_network_n1_names, gg_network_n2_names)
+
     if construct_by_union is True:
         unique_gene_names = kn.find_unique_node_names(unique_gene_names, pg_network_n2_names)
     else:
@@ -452,7 +452,6 @@ def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_un
     # store the network in a csr sparse format
     network_sparse = kn.convert_network_df_to_sparse(
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
-
 
     return network_sparse, unique_gene_names, pg_network_n1_names
 

@@ -8,8 +8,8 @@ import numpy as np
 
 class TestRun_net_path(TestCase):
     def setUp(self):
-        self.run_parameters = {"gg_network_name_full_path":"../../data/networks/test2_gene_gene.edge.txt",
-                            "pg_network_name_full_path":"../../data/networks/test2_property_gene.edge.txt",
+        self.run_parameters = {"gg_network_name_full_path":"../../data/networks/test2_gene_gene.edge",
+                            "pg_network_name_full_path":"../../data/networks/test2_property_gene.edge",
                             "spreadsheet_name_full_path":"../../data/spreadsheets/test2_spreadsheet.tsv",
                             "results_directory":"../../data/verification",
                             "rwr_max_iterations":500,

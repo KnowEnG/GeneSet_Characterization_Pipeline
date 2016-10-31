@@ -3,8 +3,8 @@
 # ------------------------------------------------------------------------------------------------------
 method: fisher                        
 
-pg_network_name_full_path:  ../data/networks/kegg_pathway_property_gene
-spreadsheet_name_full_path: ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rname.gxc
+pg_network_name_full_path:  ../data/networks/test1_property_gene.edge
+spreadsheet_name_full_path: ../data/spreadsheets/test1_spreadsheet.tsv
 
 results_directory:          ./run_dir/results
 
