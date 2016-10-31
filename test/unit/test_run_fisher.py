@@ -7,9 +7,9 @@ import numpy as np
 
 class TestRun_fisher(TestCase):
     def setUp(self):
-        self.run_parameters = {"gg_network_name_full_path":"../../data/networks/test1_gene_gene.edge",
-                               "pg_network_name_full_path":"../../data/networks/test1_property_gene.edge",
-                               "spreadsheet_name_full_path":"../../data/spreadsheets/test1_spreadsheet.tsv",
+        self.run_parameters = {"gg_network_name_full_path":"../../data/networks/TEST_1_gene_gene.edge",
+                               "pg_network_name_full_path":"../../data/networks/TEST_1_property_gene.edge",
+                               "spreadsheet_name_full_path":"../../data/spreadsheets/TEST_1_spreadsheet.tsv",
                                "results_directory":"../../data/verification"}
         # with open("unit_test_run_dir/fisher.yml", 'r') as file_handle:
         #     self.run_parameters = yaml.load(file_handle)
