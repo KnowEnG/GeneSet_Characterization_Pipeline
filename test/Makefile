@@ -3,50 +3,35 @@
 # ----------------------------------------------------------------
 SCRIPT = 		../src/geneset_characterization.py
 RUN_DIR = 		./run_dir
-DATA_DIR = 		../data/networks ../data/spreadsheets
-INPUT_DATA = 		$(foreach dir,$(DATA_DIR),$(wildcard $(dir)/*))
-RESULTS_DIR = 		$(RUN_DIR)/results
-RUN_FILES_DIR = 	../data/run_files
-RUN_FILE_LOCAL = 	$(RUN_FILES_DIR)
-RUN_FILE_DOCKER = 	$(RUN_FILES_DIR)/docker
-INPUT_DATA_SUFFIX = 	$(suffix $(INPUT_DATA)) 
+RUN_FILES = ../data/run_files
+RESULTS_DIR = $(RUN_DIR)/results
+INPUT_DATA_DIR = ../data
+UNIT_TEST_TEMP_DIR = ./unit/tmp
 
 RMR = 			rm -rf
 GZIP = 			gzip
 GZIP_D = 		gzip -df
-MKDIR_P = 		mkdir -p
-
-.PHONY: preparation run_fisher run_drawer decompress_input_data compress_input_data create_run_dir copy_run_files_local clean_dir_recursively final_clean 
+MKDIR_P = 		mkdir -p 
 
 # ----------------------------------------------------------------
 # Benchmarks setup Section                                       -
 # ----------------------------------------------------------------
-env_setup: create_run_dir copy_run_files_local decompress_input_data
+env_setup: create_run_dir copy_run_files decompress_input_data
 
 decompress_input_data:
-	@echo Decompress input data...
-ifeq ($(filter-out .gz, $(INPUT_DATA_SUFFIX)),)
-	$(GZIP_D) $(INPUT_DATA)
-else
-	@echo No gzip file needs to be decompressed.
-endif	
-
+	$(GZIP_D) $(INPUT_DATA_DIR)/networks/* $(INPUT_DATA_DIR)/spreadsheets/*
+ 
 compress_input_data:
-	@echo Compress input data...
-ifeq ($(filter .gz, $(INPUT_DATA_SUFFIX)),)
-	$(GZIP) $(INPUT_DATA)
-else
-	@echo Illegal file format detected. Aborting compressing input data...
-endif
-
-copy_run_files_local:
-	cp $(RUN_FILE_LOCAL)/*.yml $(RUN_DIR)
-
-copy_run_files_docker:
-	cp $(RUN_FILE_DOCKER)/*.yml $(RUN_DIR)
+	$(GZIP) $(INPUT_DATA_DIR)/networks/* $(INPUT_DATA_DIR)/spreadsheets/*
 
 create_run_dir:
 	$(MKDIR_P) $(RESULTS_DIR) 
+
+copy_run_files:
+	cp $(RUN_FILES)/*.yml $(RUN_DIR) 
+
+clean_dir_recursively:
+	$(RMR) $(RUN_DIR)
 	
 # ----------------------------------------------------------------
 # Large Benchmarks RUN Section                                   -
@@ -61,10 +46,17 @@ run_netpath:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file net_path.yml
 
 # ----------------------------------------------------------------
+# - UNIT TESTS RUN SECTION                                       -
+# ----------------------------------------------------------------
+unit_test_setup:
+	$(MKDIR_P) $(UNIT_TEST_TEMP_DIR)
+
+unit_tests:
+	cd unit; make all_unit_tests
+# ----------------------------------------------------------------
 # - CLEAN UP SECTION                                             -
 # ----------------------------------------------------------------	
 final_clean: clean_dir_recursively compress_input_data
 
-clean_dir_recursively:
-	$(RMR) $(RUN_DIR)
-
+unit_test_cleanup:
+	$(RMR) $(UNIT_TEST_TEMP_DIR)

@@ -11,7 +11,7 @@ class TestRun_net_path(TestCase):
         self.run_parameters = {"gg_network_name_full_path":"../../data/networks/TEST_2_gene_gene.edge",
                             "pg_network_name_full_path":"../../data/networks/TEST_2_property_gene.edge",
                             "spreadsheet_name_full_path":"../../data/spreadsheets/TEST_2_spreadsheet.tsv",
-                            "results_directory":"../../data/verification",
+                            "results_directory":"./tmp",
                             "rwr_max_iterations":500,
                             "rwr_convergence_tolerence":1.0e-4,
                             "rwr_restart_probability":0.5,        

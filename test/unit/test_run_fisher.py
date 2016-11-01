@@ -10,7 +10,7 @@ class TestRun_fisher(TestCase):
         self.run_parameters = {"gg_network_name_full_path":"../../data/networks/TEST_1_gene_gene.edge",
                                "pg_network_name_full_path":"../../data/networks/TEST_1_property_gene.edge",
                                "spreadsheet_name_full_path":"../../data/spreadsheets/TEST_1_spreadsheet.tsv",
-                               "results_directory":"../../data/verification"}
+                               "results_directory":"./tmp"}
         # with open("unit_test_run_dir/fisher.yml", 'r') as file_handle:
         #     self.run_parameters = yaml.load(file_handle)
 
