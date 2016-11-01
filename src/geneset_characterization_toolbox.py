@@ -123,7 +123,7 @@ def run_net_path(run_parameters):
     cosine_matrix = get_net_path_results(len(unique_gene_names), smooth_rwr_matrix, run_parameters)
 
     cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, columns=pg_network_n1_names)
-    save_cosine_matrix_df(cosine_matrix_df, run_parameters)
+    # save_cosine_matrix_df(cosine_matrix_df, run_parameters)
 
     property_rank_df = rank_netpath_property(new_spreadsheet_df, cosine_matrix_df)
     prop_result_df = construct_netpath_result_df(new_spreadsheet_df, cosine_matrix_df)

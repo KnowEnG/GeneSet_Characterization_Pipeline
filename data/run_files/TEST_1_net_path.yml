@@ -3,10 +3,10 @@
 # ------------------------------------------------------------------------------------------------------
 method: net_path                        
 
-gg_network_name_full_path:   ../networks/test2_gene_gene.edge
-pg_network_name_full_path:   ../networks/test2_property_gene.edge
-spreadsheet_name_full_path:  ../spreadsheets/test2_spreadsheet.tsv
-gene_names_map: ../data/spreadsheets/TEST_spreadsheet_MAP.tsv
+gg_network_name_full_path:   ../data/networks/TEST_1_gene_gene.edge
+pg_network_name_full_path:   ../data/networks/TEST_1_property_gene.edge
+spreadsheet_name_full_path:  ../data/spreadsheets/TEST_1_spreadsheet.tsv
+gene_names_map: ../data/spreadsheets/TEST_1_spreadsheet_MAP.tsv
 
 results_directory:           ./run_dir/results
 
