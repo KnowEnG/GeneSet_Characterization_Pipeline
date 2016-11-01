@@ -6,7 +6,9 @@ method: net_path
 gg_network_name_full_path:   ../networks/test2_gene_gene.edge
 pg_network_name_full_path:   ../networks/test2_property_gene.edge
 spreadsheet_name_full_path:  ../spreadsheets/test2_spreadsheet.tsv
-results_directory:           ../verification
+gene_names_map: ../data/spreadsheets/TEST_spreadsheet_MAP.tsv
+
+results_directory:           ./run_dir/results
 
 rwr_max_iterations:          500
 rwr_convergence_tolerence:   1.0e-4

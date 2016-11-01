@@ -89,9 +89,10 @@ def run_DRaWR(run_parameters):
 
     prop_spreadsheet_df = rank_drawr_property(final_spreadsheet_df, pg_network_n1_names)
 
-    gene_result_df = construct_drawr_result_df(final_spreadsheet_df, 0, unique_genes_length)
+    gene_result_df = construct_drawr_result_df(
+        final_spreadsheet_df, 0, unique_genes_length, True, run_parameters)
     prop_result_df = construct_drawr_result_df(
-        final_spreadsheet_df, unique_genes_length, final_spreadsheet_df.shape[0])
+        final_spreadsheet_df, unique_genes_length, final_spreadsheet_df.shape[0], False, run_parameters)
 
     save_timestamped_df(prop_spreadsheet_df, run_parameters['results_directory'], 'DRaWR_ranked_by_property')
     save_timestamped_df(
@@ -348,25 +349,31 @@ def rank_drawr_property(final_spreadsheet_df, pg_network_n1_names):
 
     return prop_spreadsheet_df
 
-def construct_drawr_result_df(input_df, start_index, end_index):
+def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_parameters):
     """Construct a five-column DRaWR result dataframe with
     selected rows from smoothed spreadsheet dataframe.
     Args:
         input_df: input spreadsheet dataframe.
         start_index: starting index
         end_index: end index
+        map_back: boolean value to check whether to map gene names to the orignal names
     Returns:
         result_df: result five-column dataframe.
     """
     len_set_names = input_df.shape[1] - 1
     orig_val = np.ravel(input_df.values[start_index:end_index, :-1]).round(12)
     set_name = np.array(list(input_df.columns.values[:-1])*(end_index-start_index))
-    gene_name = np.repeat(input_df.index.values[start_index:end_index], len_set_names)
+    input_gene_name = input_df.index.values[start_index:end_index]
+    if map_back is True:
+        map_df = pd.read_csv(run_parameters["gene_names_map"], index_col=0, header=None, sep='\t')
+        input_gene_name = map_df.loc[input_gene_name].values
+    
+    new_gene_name = np.repeat(input_gene_name, len_set_names)
     base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names).round(12)
     diff_val = orig_val - base_val
 
     ret_col = ['user_gene_set', 'property_gene_set', 'difference_score', 'query_score', 'baseline_score']
-    result_val = np.column_stack((set_name, gene_name, diff_val, orig_val, base_val))
+    result_val = np.column_stack((set_name, new_gene_name, diff_val, orig_val, base_val))
     result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("difference_score", ascending=0)
 
     return result_df
@@ -395,9 +402,10 @@ def map_and_save_droplist(spreadsheet_df, gene_names, droplist_name, run_paramet
         property_rank_df: dataframe with ranked property names in each column.
     """
     droplist = kn.find_dropped_node_names(spreadsheet_df, gene_names)
+    map_df = pd.read_csv(run_parameters["gene_names_map"], index_col=0, header=None, sep='\t')
+    new_droplist_df = pd.DataFrame(map_df.loc[droplist].values, columns=[droplist_name]) 
     file_name = kn.create_timestamped_filename(droplist_name, "tsv")
-    kn.save_df(pd.DataFrame(droplist, columns=[droplist_name]),
-               run_parameters['results_directory'], file_name)
+    kn.save_df(new_droplist_df, run_parameters['results_directory'], file_name)
 
 def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_union):
     """This is to build hybrid sparse matrix with gene gene network and
