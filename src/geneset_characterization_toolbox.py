@@ -75,11 +75,11 @@ def run_DRaWR(run_parameters):
 
     unique_genes_length = len(unique_gene_names)
     property_length = len(set(pg_network_n1_names))
-
     base_col = np.append(np.ones(unique_genes_length, dtype=np.int),
                          np.zeros(property_length, dtype=np.int))
     new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
+
     final_spreadsheet_matrix, step = kn.smooth_matrix_with_rwr(
         normalize(new_spreadsheet_df, norm='l1', axis=0), hetero_network, run_parameters)
 

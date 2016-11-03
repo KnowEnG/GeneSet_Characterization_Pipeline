@@ -8,10 +8,10 @@ import numpy as np
 
 class TestRun_net_path(TestCase):
     def setUp(self):
-        self.run_parameters = {"gg_network_name_full_path":"../../data/networks/TEST_2_gene_gene.edge",
-                            "pg_network_name_full_path":"../../data/networks/TEST_2_property_gene.edge",
-                            "spreadsheet_name_full_path":"../../data/spreadsheets/TEST_2_spreadsheet.tsv",
-                            "gene_names_map": "../../data/spreadsheets/TEST_spreadsheet_MAP.tsv",
+        self.run_parameters = {"gg_network_name_full_path":"../../data/networks/TEST_1_gene_gene.edge",
+                            "pg_network_name_full_path":"../../data/networks/TEST_1_property_gene.edge",
+                            "spreadsheet_name_full_path":"../../data/spreadsheets/TEST_1_spreadsheet.tsv",
+                            "gene_names_map": "../../data/spreadsheets/TEST_1_spreadsheet_MAP.tsv",
                             "results_directory":"./tmp",
                             "rwr_max_iterations":500,
                             "rwr_convergence_tolerence":1.0e-4,
@@ -27,7 +27,7 @@ class TestRun_net_path(TestCase):
     
         ret = tl.run_net_path(self.run_parameters)
         ret.index = np.arange(ret.shape[0])
-        res = pd.DataFrame([['P6', 'P7'],['P7', 'P6']], columns=['user1', 'user2'])
+        res = pd.DataFrame([['P7', 'P6'],['P6', 'P7']], columns=['user_gene_set1', 'user_gene_set2'])
         comp = ret.equals(res)
         self.assertEqual(True, comp)
 

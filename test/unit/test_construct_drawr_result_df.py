@@ -11,7 +11,7 @@ class TestRank_property(TestCase):
          index=['G1', 'p1', 'p2'], columns=['gs1', 'gs2', 'base'])
         self.start_index = 1
         self.end_index = 3
-        self.run_parameters = {"gene_names_map": "../../data/spreadsheets/TEST_spreadsheet_MAP.tsv"}
+        self.run_parameters = {"gene_names_map": "../../data/spreadsheets/TEST_1_spreadsheet_MAP.tsv"}
     def tearDown(self):
         del self.final_spreadsheet_df
         del self.start_index
