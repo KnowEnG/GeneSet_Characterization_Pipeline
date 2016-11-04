@@ -3,6 +3,7 @@ Created on Tue Jun 28 14:39:35 2016
 @author: The Gene Sets Characterization dev team
 """
 import os
+import time
 import numpy as np
 import pandas as pd
 from scipy import linalg
@@ -21,7 +22,7 @@ def run_fisher(run_parameters):
     # -----------------------------------
     spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
     prop_gene_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
-
+    
     spreadsheet_gene_names = kn.extract_spreadsheet_gene_names(spreadsheet_df)
 
     prop_gene_network_n1_names,\
@@ -53,7 +54,6 @@ def run_fisher(run_parameters):
         prop_gene_network_df, universe_count, len(prop_gene_network_n1_names))
     fisher_contingency_pval = get_fisher_exact_test(
         prop_gene_network_sparse, reverse_prop_dict, new_spreadsheet_df)
-
     fisher_final_result = save_fisher_test_result(
         fisher_contingency_pval, run_parameters['results_directory'], spreadsheet_df.columns.values)
     map_and_save_droplist(spreadsheet_df, common_gene_names, 'fisher_droplist', run_parameters)
@@ -77,6 +77,7 @@ def run_DRaWR(run_parameters):
     property_length = len(set(pg_network_n1_names))
     base_col = np.append(np.ones(unique_genes_length, dtype=np.int),
                          np.zeros(property_length, dtype=np.int))
+
     new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
     hetero_network = normalize(network_sparse, norm='l1', axis=0)
 
@@ -89,8 +90,9 @@ def run_DRaWR(run_parameters):
 
     prop_spreadsheet_df = rank_drawr_property(final_spreadsheet_df, pg_network_n1_names)
 
+    spreadsheet_df_mask = final_spreadsheet_df.loc[final_spreadsheet_df.index.isin(spreadsheet_df.index)]
     gene_result_df = construct_drawr_result_df(
-        final_spreadsheet_df, 0, unique_genes_length, True, run_parameters)
+        spreadsheet_df_mask, 0, spreadsheet_df_mask.shape[0], True, run_parameters)
     prop_result_df = construct_drawr_result_df(
         final_spreadsheet_df, unique_genes_length, final_spreadsheet_df.shape[0], False, run_parameters)
 
@@ -361,7 +363,7 @@ def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_pa
         result_df: result five-column dataframe.
     """
     len_set_names = input_df.shape[1] - 1
-    orig_val = np.ravel(input_df.values[start_index:end_index, :-1]).round(12)
+    orig_val = np.ravel(input_df.values[start_index:end_index, :-1])
     set_name = np.array(list(input_df.columns.values[:-1])*(end_index-start_index))
     input_gene_name = input_df.index.values[start_index:end_index]
     if map_back is True:
@@ -369,9 +371,8 @@ def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_pa
         input_gene_name = map_df.loc[input_gene_name].values
     
     new_gene_name = np.repeat(input_gene_name, len_set_names)
-    base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names).round(12)
+    base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names)
     diff_val = orig_val - base_val
-
     ret_col = ['user_gene_set', 'property_gene_set', 'difference_score', 'query_score', 'baseline_score']
     result_val = np.column_stack((set_name, new_gene_name, diff_val, orig_val, base_val))
     result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("difference_score", ascending=0)
@@ -437,6 +438,7 @@ def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_un
         unique_gene_names = kn.find_unique_node_names(unique_gene_names, pg_network_n2_names)
     else:
         pg_network_df = kn.update_network_df(pg_network_df, unique_gene_names, 'node_2')
+
     unique_gene_names_dict = kn.create_node_names_dict(unique_gene_names)
     pg_network_n1_names_dict = kn.create_node_names_dict(
         pg_network_n1_names, len(unique_gene_names))
@@ -462,4 +464,5 @@ def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_un
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
 
     return network_sparse, unique_gene_names, pg_network_n1_names
+
 
