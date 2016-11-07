@@ -1,0 +1,16 @@
+# ------------------------------------------------------------------------------------------------------
+# - Analysis Method: fisher, DRaWR, net_path                                                           -
+# ------------------------------------------------------------------------------------------------------
+method: DRaWR                        
+
+gg_network_name_full_path:  ../data/networks/TEST_1_gene_gene.edge
+pg_network_name_full_path:  ../data/networks/TEST_1_property_gene.edge
+spreadsheet_name_full_path: ../data/spreadsheets/TEST_1_spreadsheet.tsv
+gene_names_map: ../data/spreadsheets/TEST_1_spreadsheet_MAP.tsv
+
+results_directory:           ./run_dir/results
+
+rwr_max_iterations:         500
+rwr_convergence_tolerence:  1.0e-4
+rwr_restart_probability:    0.5       # Vn+1 = alpha * N * Vn + (1-alpha) * Vo
+

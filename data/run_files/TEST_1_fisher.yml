@@ -1,0 +1,11 @@
+# ------------------------------------------------------------------------------------------------------
+# - Analysis Method: fisher, DRaWR, net_path                                                           -
+# ------------------------------------------------------------------------------------------------------
+method: fisher                        
+
+pg_network_name_full_path:  ../data/networks/TEST_1_property_gene.edge
+spreadsheet_name_full_path: ../data/spreadsheets/TEST_1_spreadsheet.tsv
+gene_names_map: ../data/spreadsheets/TEST_1_spreadsheet_MAP.tsv
+
+results_directory:          ./run_dir/results
+

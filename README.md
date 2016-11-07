@@ -9,7 +9,7 @@ There are three gene set characterization methods that one can choose from:
 | ------------------------------------------------ | -------------------------------------| -------------- |
 | Fisher exact test                                | Fisher                               | fisher         |
 | Discriminative Random Walks with Restart         | DRaWR                                | DRaWR          |
-| Net One                                          | Net One                              | net_one        |
+| Net Path                                         | Net Path                             | net_path       |
 
 * * * 
 ## How to run this pipeline with Our data
@@ -66,6 +66,11 @@ make env_setup
   ```
   make run_drawr
   ```
+  
+ * Run DRaWR pipeline</br>
+  ```
+  make run_netpath
+  ```
 
 
 * * * 
@@ -106,7 +111,7 @@ __***Follow steps 1-4 above then do the following:***__
    
   * Run
    ```
-  python3 ./src/geneset_characterization.py -run_directory ./ -run_file template_run_parameters.yml
+  python3 ../src/geneset_characterization.py -run_directory ./ -run_file template_net_path.yml
    ```
 
 * * * 
@@ -119,29 +124,28 @@ __***Follow steps 1-4 above then do the following:***__
 | pg_network_name_full_path | directory+pg_network_name |Path and file name of the 4 col property file |
 | gg_network_name_full_path | directory+gg_network_name |Path and file name of the 4 col network file(only needed in DRaWR) |
 | spreadsheet_name_full_path | directory+spreadsheet_name|  Path and file name of user supplied gene sets |
-| results_directory | ./run_dir/results_dir | Directory to save the output files |
+| results_directory | /results_directory | Directory to save the output files |
 | rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(only needed in DRaWR) |
 | rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(only needed in DRaWR)|
 | rwr_restart_probability | 0.5 | alpha in `V_(n+1) = alpha * N * Vn + (1-alpha) * Vo` (only needed in DRaWR) |
+| k_space| 100| number of the new space dimensions in SVD(only needed in Net Path)
+pg_network_name = kegg_pathway_property_gene.edge</br>
+gg_network_name = STRING_experimental_gene_gene.edge</br>
+spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc.tsv</br>
 
-pg_network_name = kegg_pathway_property_gene</br>
-gg_network_name = STRING_experimental_gene_gene</br>
-spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc</br>
-run_dir = run_directory_name</br>
-results_dir = results_directory_name</br>
 
 * * * 
 ## Description of Output files saved in results directory
 * * * 
 
-* `DRaWR_result` output file saves sorted properties based on the difference between updated user gene vector and baseline.</br>
+* Output files of all three methods save sorted properties for each gene set.</br>
 
- | **user gene set name1** |**user gene set name2**|**...**|**user gene set name n**|**base**|
- | :--------------------: |:--------------------:|---|:--------------------:|:--------------------:|
- | property name (string)</br> (most significant) |property name (string)</br> (most significant)|...|property name (string)</br> (most significant)|property name (string)</br> (most significant)|
- | ... |...|...|...|...|
- | property name (string)</br> (least significant) |property name (string)</br> (least significant)|...|property name (string)</br> (least significant)|property name (string)</br> (least significant)|
-* `fisher_result` output file has seven columns and it is sorted in ascending order based on `pval`.
+ | **user gene set name1** |**user gene set name2**|**...**|**user gene set name n**|
+ | :--------------------: |:--------------------:|---|:--------------------:|
+ | property name (string)</br> (most significant) |property name (string)</br> (most significant)|...|property name (string)</br> (most significant)|
+ | ... |...|...|...|
+ | property name (string)</br> (least significant) |property name (string)</br> (least significant)|...|property name (string)</br> (least significant)|
+* Fisher method also saves one output file with seven columns and it is sorted in ascending order based on `pval`.
 
  | **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
  |:-------------:|:------------:|:---------:|:--------------:|:--------------:|:-----------:|:--------:|

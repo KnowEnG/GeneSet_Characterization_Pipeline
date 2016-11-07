@@ -1,65 +1,74 @@
-# Commands that will be used in targets
-MKDIR_P = mkdir -p
-RMR = rm -rf
-GZIP = gzip
-GZIP_D = gzip -df
-DATA_DIR = ../data/networks ../data/spreadsheets
-INPUT_DATA = $(foreach dir,$(DATA_DIR),$(wildcard $(dir)/*))
-INPUT_DATA_SUFFIX = $(suffix $(INPUT_DATA)) 
-# Directories that will be used in targets
-RUN_DIR = ./run_dir
-RUN_FILES_DIR = ../data/run_files
-RUN_FILE_LOCAL = $(RUN_FILES_DIR)/local
-RUN_FILE_DOCKER = $(RUN_FILES_DIR)/docker
+# ----------------------------------------------------------------
+# Variables setup Section                                        -
+# ----------------------------------------------------------------
+SCRIPT = 		../src/geneset_characterization.py
+RUN_DIR = 		./run_dir
+RUN_FILES = ../data/run_files
 RESULTS_DIR = $(RUN_DIR)/results
-SCRIPT = ../src/geneset_characterization.py
+INPUT_DATA_DIR = ../data
+UNIT_TEST_TEMP_DIR = ./unit/tmp
 
-.PHONY: preparation run_fisher run_drawer decompress_input_data compress_input_data create_run_dir copy_run_files_local clean_dir_recursively final_clean 
+RMR = 			rm -rf
+GZIP = 			gzip
+GZIP_D = 		gzip -df
+MKDIR_P = 		mkdir -p 
 
-# Setup the running environment
-env_setup: create_run_dir copy_run_files_local decompress_input_data
+# ----------------------------------------------------------------
+# Benchmarks setup Section                                       -
+# ----------------------------------------------------------------
+env_setup: create_run_dir copy_run_files decompress_input_data
 
-# Clean the pipeline after running the pipelines you desire
-final_clean: clean_dir_recursively compress_input_data
-
-# Run the fisher pipeline 
-run_fisher:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file fisher_run_file.yml 
-
-# Run the DRaWR pipeline
-run_drawr:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR_run_file.yml
-
-# Decompress input data with .gz suffix
 decompress_input_data:
-	@echo Decompress input data...
-ifeq ($(filter-out .gz, $(INPUT_DATA_SUFFIX)),)
-	$(GZIP_D) $(INPUT_DATA)
-else
-	@echo No gzip file needs to be decompressed.
-endif	
-
-# Compress input data to be gzip file
+	$(GZIP_D) $(INPUT_DATA_DIR)/networks/* $(INPUT_DATA_DIR)/spreadsheets/*
+ 
 compress_input_data:
-	@echo Compress input data...
-ifeq ($(filter .gz, $(INPUT_DATA_SUFFIX)),)
-	$(GZIP) $(INPUT_DATA)
-else
-	@echo Illegal file format detected. Aborting compressing input data...
-endif	
+	$(GZIP) $(INPUT_DATA_DIR)/networks/* $(INPUT_DATA_DIR)/spreadsheets/*
 
-# Greate run directory
 create_run_dir:
 	$(MKDIR_P) $(RESULTS_DIR) 
 
-# Copy run_files
-copy_run_files_local:
-	cp $(RUN_FILE_LOCAL)/*.yml $(RUN_DIR)
+copy_run_files:
+	cp $(RUN_FILES)/*.yml $(RUN_DIR) 
 
-copy_run_files_docker:
-	cp $(RUN_FILE_DOCKER)/*.yml $(RUN_DIR)
-
-# Remove run directory
 clean_dir_recursively:
 	$(RMR) $(RUN_DIR)
+	
+# ----------------------------------------------------------------
+# Large Benchmarks RUN Section                                   -
+# ----------------------------------------------------------------
+run_fisher:
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file fisher.yml 
 
+run_drawr:
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR.yml
+
+run_netpath:
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file net_path.yml
+
+# ----------------------------------------------------------------
+# Small Benchmarks RUN Section                                   -
+# ----------------------------------------------------------------
+run_fisher_small:
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_1_fisher.yml 
+
+run_drawr_small:
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_1_DRaWR.yml
+
+run_netpath_small:
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_1_net_path.yml
+
+# ----------------------------------------------------------------
+# - UNIT TESTS RUN SECTION                                       -
+# ----------------------------------------------------------------
+unit_test_setup:
+	$(MKDIR_P) $(UNIT_TEST_TEMP_DIR)
+
+unit_tests:
+	cd unit; make all_unit_tests
+# ----------------------------------------------------------------
+# - CLEAN UP SECTION                                             -
+# ----------------------------------------------------------------	
+final_clean: clean_dir_recursively compress_input_data
+
+unit_test_cleanup:
+	$(RMR) $(UNIT_TEST_TEMP_DIR)
