@@ -307,7 +307,7 @@ def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df)
             table = build_fisher_contingency_table(
                 overlap_count[i, j], user_count[j], gene_count[0, i], universe_count)
             pvalue = stats.fisher_exact(table, alternative="greater")[1]
-            row_item = [set_list[j], sparse_dict[i], np.round(-1.0*np.log(pvalue), 12), \
+            row_item = [set_list[j], sparse_dict[i], np.round(-1.0*np.log10(pvalue), 12), \
             int(universe_count), int(user_count[j]), int(gene_count[0, i]), int(overlap_count[i, j])]
             fisher_contingency_pval.append(row_item)
 
@@ -369,11 +369,12 @@ def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_pa
     if map_back is True:
         map_df = pd.read_csv(run_parameters["gene_names_map"], index_col=0, header=None, sep='\t')
         input_gene_name = map_df.loc[input_gene_name].values
-    
+        ret_col = ['user_gene_set', 'gene_node_id', 'difference_score', 'query_score', 'baseline_score']
+    else:
+        ret_col = ['user_gene_set', 'property_gene_set', 'difference_score', 'query_score', 'baseline_score']
     new_gene_name = np.repeat(input_gene_name, len_set_names)
     base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names)
     diff_val = orig_val - base_val
-    ret_col = ['user_gene_set', 'property_gene_set', 'difference_score', 'query_score', 'baseline_score']
     result_val = np.column_stack((set_name, new_gene_name, diff_val, orig_val, base_val))
     result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("difference_score", ascending=0)
 

@@ -19,12 +19,12 @@ class TestGet_fisher_exact_test(TestCase):
         del self.spreadsheet_df
 
 
-    def test_perform_fisher_exact_test(self):
+    def test_get_fisher_exact_test(self):
         ret = tl.get_fisher_exact_test(self.prop_gene_network_sparse,
                                            self.sparse_dict, self.spreadsheet_df)
         for i in range(2):
             ret[i][2] = format(ret[i][2], '.4f')
-        data = [['GS1', 'p1', '0.4055', 3, 2, 1, 1], ['GS1', 'p2', '-0.0000', 3, 2, 3, 2]]
+        data = [['GS1', 'p1', '0.1761', 3, 2, 1, 1], ['GS1', 'p2', '-0.0000', 3, 2, 3, 2]]
         self.assertEqual(ret, data)
 
 if __name__ == '__main__':
