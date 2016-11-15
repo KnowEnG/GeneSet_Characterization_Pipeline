@@ -3,7 +3,7 @@ Created on Tue Jun 28 14:39:35 2016
 @author: The Gene Sets Characterization dev team
 """
 import os
-import time
+import sys
 import numpy as np
 import pandas as pd
 from scipy import linalg
@@ -11,6 +11,10 @@ from scipy import stats
 from sklearn.preprocessing import normalize
 from sklearn.metrics.pairwise import cosine_similarity
 import knpackage.toolbox as kn
+import multiprocessing
+import itertools
+import knpackage.distributed_computing_utils as dstutil
+
 
 def run_fisher(run_parameters):
     ''' wrapper: call sequence to perform fisher gene-set characterization
@@ -22,10 +26,10 @@ def run_fisher(run_parameters):
     # -----------------------------------
     spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
     prop_gene_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
-    
+
     spreadsheet_gene_names = kn.extract_spreadsheet_gene_names(spreadsheet_df)
 
-    prop_gene_network_n1_names,\
+    prop_gene_network_n1_names, \
     prop_gene_network_n2_names = kn.extract_network_node_names(prop_gene_network_df)
     # -----------------------------------------------------------------------
     # - limit the gene set to the intersection of network and user gene set -
@@ -60,13 +64,14 @@ def run_fisher(run_parameters):
 
     return fisher_final_result
 
+
 def run_DRaWR(run_parameters):
     ''' wrapper: call sequence to perform random walk with restart
     Args:
         run_parameters: dictionary of run parameters
     '''
 
-    network_sparse, unique_gene_names,\
+    network_sparse, unique_gene_names, \
     pg_network_n1_names = build_hybrid_sparse_matrix(run_parameters, True, True)
 
     unique_all_node_names = unique_gene_names + pg_network_n1_names
@@ -106,6 +111,7 @@ def run_DRaWR(run_parameters):
 
     return prop_spreadsheet_df
 
+
 def run_net_path(run_parameters):
     ''' wrapper: call sequence to perform net path
     Args:
@@ -137,6 +143,7 @@ def run_net_path(run_parameters):
 
     return property_rank_df
 
+
 def calculate_k_SVD(smooth_spreadsheet_matrix, k):
     """Perform SVD on input matrix.
 
@@ -153,6 +160,7 @@ def calculate_k_SVD(smooth_spreadsheet_matrix, k):
     np.fill_diagonal(S_full_squared_matrix, np.sqrt(singular_value[:k]))
     U_unitary_matrix = U_unitary_matrix[:, :k]
     return U_unitary_matrix, S_full_squared_matrix
+
 
 def project_matrix_to_new_space_and_split(U_unitary_matrix, S_full_squared_matrix,
                                           unique_gene_length):
@@ -173,6 +181,7 @@ def project_matrix_to_new_space_and_split(U_unitary_matrix, S_full_squared_matri
     p_newspace_matrix = L[unique_gene_length:]
     return g_newspace_matrix, p_newspace_matrix
 
+
 def smooth_final_spreadsheet_matrix(final_rwr_matrix, gene_length):
     """This is to add pseudo count to the input matrix.
 
@@ -184,9 +193,10 @@ def smooth_final_spreadsheet_matrix(final_rwr_matrix, gene_length):
         smooth_rwr_matrix: the smoothed matrix with pseudo counts.
     """
     assert ((final_rwr_matrix >= 0).all())
-    eps = np.float(1/gene_length)
+    eps = np.float(1 / gene_length)
     smooth_rwr_matrix = np.log(final_rwr_matrix + eps) - np.log(eps)
     return smooth_rwr_matrix
+
 
 def save_cosine_matrix_df(cosine_matrix_df, run_parameters):
     """This is to save the cosine matrix df to output file
@@ -198,6 +208,7 @@ def save_cosine_matrix_df(cosine_matrix_df, run_parameters):
     new_file_name = kn.create_timestamped_filename("cosine_matrix", "df")
     cosine_matrix_df.to_csv(
         os.path.join(run_parameters['results_directory'], new_file_name), header=True, index=True, sep='\t')
+
 
 def get_net_path_results(gene_length, smooth_rwr_matrix, run_parameters):
     """Perform net path method on gene characterization.
@@ -221,6 +232,7 @@ def get_net_path_results(gene_length, smooth_rwr_matrix, run_parameters):
 
     return cosine_matrix
 
+
 def rank_netpath_property(spreadsheet_df, cosine_matrix_df):
     """This is to rank property based on cosine values:
 
@@ -237,6 +249,7 @@ def rank_netpath_property(spreadsheet_df, cosine_matrix_df):
         new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
         property_rank_df[col_name] = new_spreadsheet_df.sort_values(ascending=False).index.values
     return property_rank_df
+
 
 def construct_netpath_result_df(spreadsheet_df, cosine_matrix_df):
     """Construct a three-column netpath result dataframe with header as user_gene_set',
@@ -257,13 +270,14 @@ def construct_netpath_result_df(spreadsheet_df, cosine_matrix_df):
         property_rank_df[col_name] = new_spreadsheet_df.values
 
     cosine_sum_val = np.ravel(property_rank_df.values).round(12)
-    set_name = np.array(list(property_rank_df.columns.values)*(property_rank_df.shape[0]))
+    set_name = np.array(list(property_rank_df.columns.values) * (property_rank_df.shape[0]))
     gene_name = np.repeat(property_rank_df.index.values, property_rank_df.shape[1])
 
     ret_col = ['user_gene_set', 'property_gene_set', 'cosine_sum']
     result_val = np.column_stack((set_name, gene_name, cosine_sum_val))
     result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("cosine_sum", ascending=0)
     return result_df
+
 
 def build_fisher_contingency_table(overlap_count, user_count, gene_count, count):
     """ build contingency table for fisher exact test.
@@ -284,6 +298,11 @@ def build_fisher_contingency_table(overlap_count, user_count, gene_count, count)
 
     return table
 
+
+# A global list used exclusively in get_fisher_exact_test as a callback variable of parallel execution
+fisher_contingency_pval_parallel_insertion = []
+
+
 def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df):
     """ central loop: compute components for fisher exact test.
 
@@ -300,18 +319,63 @@ def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df)
     user_count = np.sum(spreadsheet_df.values, axis=0)
     gene_count = prop_gene_network_sparse.sum(axis=0)
     set_list = spreadsheet_df.columns.values
-    fisher_contingency_pval = []
 
-    for i in range(overlap_count.shape[0]):
-        for j in range(overlap_count.shape[1]):
-            table = build_fisher_contingency_table(
-                overlap_count[i, j], user_count[j], gene_count[0, i], universe_count)
-            pvalue = stats.fisher_exact(table, alternative="greater")[1]
-            row_item = [set_list[j], sparse_dict[i], np.round(-1.0*np.log10(pvalue), 12), \
-            int(universe_count), int(user_count[j]), int(gene_count[0, i]), int(overlap_count[i, j])]
-            fisher_contingency_pval.append(row_item)
+    dimension = [range(overlap_count.shape[0]), range(overlap_count.shape[1])]
+    combinations = list(itertools.product(*dimension))
+    parallelism = dstutil.determine_parallelism_locally(len(combinations))
 
-    return fisher_contingency_pval
+    try:
+        p = multiprocessing.Pool(processes=parallelism)
+        p.starmap_async(fisher_exact_worker, zip(itertools.repeat(sparse_dict),
+                                                 itertools.repeat(overlap_count),
+                                                 itertools.repeat(user_count),
+                                                 itertools.repeat(gene_count),
+                                                 itertools.repeat(universe_count),
+                                                 itertools.repeat(set_list),
+                                                 combinations),
+                        callback=callback_extend_list)
+        p.close()
+        p.join()
+
+        return fisher_contingency_pval_parallel_insertion
+    except:
+        raise OSError("Failed running parallel processing:{}".format(sys.exc_info()))
+
+
+def callback_extend_list(item):
+    """ Callback function called by function get_fisher_exact_test. It extends items to a global list
+
+    Args:
+        item: input to append to global list
+
+    Returns:
+         None
+    """
+    fisher_contingency_pval_parallel_insertion.extend(item)
+
+
+def fisher_exact_worker(sparse_dict, overlap_count, user_count, gene_count, universe_count, set_list, combinations):
+    """ worker of parallel execution called by function get_fisher_exact_test
+
+    Args:
+        sparse_dict:
+        overlap_count:
+        user_count:
+        gene_count:
+        universe_count:
+        set_list:
+        combinations:
+
+    Returns:
+        row_item
+    """
+    i, j = combinations[0], combinations[1]
+    table = build_fisher_contingency_table(overlap_count[i, j], user_count[j], gene_count[0, i], universe_count)
+    pvalue = stats.fisher_exact(table, alternative="greater")[1]
+    row_item = [set_list[j], sparse_dict[i], np.round(-1.0 * np.log(pvalue), 12), int(universe_count),
+                int(user_count[j]), int(gene_count[0, i]), int(overlap_count[i, j])]
+    return row_item
+
 
 def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
     """ Save two output files of fisher exact test results.
@@ -322,8 +386,8 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
     Returns:
         result_df: the final dataframe of fisher exact test
     """
-    df_col = ["user_gene_set", "property_gene_set", "pval", "universe_count",\
-     "user_count", "property_count", "overlap_count"]
+    df_col = ["user_gene_set", "property_gene_set", "pval", "universe_count", \
+              "user_count", "property_count", "overlap_count"]
     result_df = pd.DataFrame(
         fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=0)
     save_timestamped_df(result_df, results_dir, 'fisher_sorted_by_property_score')
@@ -334,6 +398,7 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
 
     save_timestamped_df(new_result_df, results_dir, 'fisher_ranked_by_property')
     return result_df
+
 
 def rank_drawr_property(final_spreadsheet_df, pg_network_n1_names):
     """ This is to rank properties for each user gene set.
@@ -351,6 +416,7 @@ def rank_drawr_property(final_spreadsheet_df, pg_network_n1_names):
 
     return prop_spreadsheet_df
 
+
 def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_parameters):
     """Construct a five-column DRaWR result dataframe with
     selected rows from smoothed spreadsheet dataframe.
@@ -364,7 +430,7 @@ def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_pa
     """
     len_set_names = input_df.shape[1] - 1
     orig_val = np.ravel(input_df.values[start_index:end_index, :-1])
-    set_name = np.array(list(input_df.columns.values[:-1])*(end_index-start_index))
+    set_name = np.array(list(input_df.columns.values[:-1]) * (end_index - start_index))
     input_gene_name = input_df.index.values[start_index:end_index]
     if map_back is True:
         map_df = pd.read_csv(run_parameters["gene_names_map"], index_col=0, header=None, sep='\t')
@@ -380,6 +446,7 @@ def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_pa
 
     return result_df
 
+
 def save_timestamped_df(input_df, results_dir, output_file_name):
     """ Save dataframe to files with timestamped name.
 
@@ -390,6 +457,7 @@ def save_timestamped_df(input_df, results_dir, output_file_name):
     """
     file_name = kn.create_timestamped_filename(output_file_name, "df")
     kn.save_df(input_df, results_dir, file_name)
+
 
 def map_and_save_droplist(spreadsheet_df, gene_names, droplist_name, run_parameters):
     """This is to map and save droplist
@@ -405,9 +473,10 @@ def map_and_save_droplist(spreadsheet_df, gene_names, droplist_name, run_paramet
     """
     droplist = kn.find_dropped_node_names(spreadsheet_df, gene_names)
     map_df = pd.read_csv(run_parameters["gene_names_map"], index_col=0, header=None, sep='\t')
-    new_droplist_df = pd.DataFrame(map_df.loc[droplist].values, columns=[droplist_name]) 
+    new_droplist_df = pd.DataFrame(map_df.loc[droplist].values, columns=[droplist_name])
     file_name = kn.create_timestamped_filename(droplist_name, "tsv")
     kn.save_df(new_droplist_df, run_parameters['results_directory'], file_name)
+
 
 def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_union):
     """This is to build hybrid sparse matrix with gene gene network and
@@ -426,10 +495,10 @@ def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_un
     pg_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
     gg_network_df = kn.get_network_df(run_parameters['gg_network_name_full_path'])
 
-    pg_network_n1_names,\
+    pg_network_n1_names, \
     pg_network_n2_names = kn.extract_network_node_names(pg_network_df)
 
-    gg_network_n1_names,\
+    gg_network_n1_names, \
     gg_network_n2_names = kn.extract_network_node_names(gg_network_df)
 
     # limit the gene set to the intersection of networks (gene_gene and prop_gene) and user gene set
@@ -465,5 +534,3 @@ def build_hybrid_sparse_matrix(run_parameters, normalize_by_sum, construct_by_un
         hybrid_network_df, len(unique_all_node_names), len(unique_all_node_names))
 
     return network_sparse, unique_gene_names, pg_network_n1_names
-
-
