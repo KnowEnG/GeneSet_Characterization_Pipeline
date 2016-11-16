@@ -388,6 +388,7 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
     """
     df_col = ["user_gene_set", "property_gene_set", "pval", "universe_count", \
               "user_count", "property_count", "overlap_count"]
+    
     result_df = pd.DataFrame(
         fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=0)
     save_timestamped_df(result_df, results_dir, 'fisher_sorted_by_property_score')

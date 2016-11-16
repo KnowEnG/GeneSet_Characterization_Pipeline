@@ -1,4 +1,4 @@
-user_gene_set	property_gene_set	difference_score	query_score	baseline_score
+user_gene_set	gene_node_id	difference_score	query_score	baseline_score
 user_gene_set2	orig_G2	0.380978438284	0.569318608813	0.188340170529
 user_gene_set1	orig_G5	0.164776513871	0.280446881007	0.115670367136
 user_gene_set1	orig_G1	0.131392539891	0.313750703799	0.182358163908
