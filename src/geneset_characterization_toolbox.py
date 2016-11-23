@@ -92,8 +92,9 @@ def run_DRaWR(run_parameters):
     final_spreadsheet_df = pd.DataFrame(final_spreadsheet_matrix)
     final_spreadsheet_df.index = new_spreadsheet_df.index.values
     final_spreadsheet_df.columns = new_spreadsheet_df.columns.values
-
     prop_spreadsheet_df = rank_drawr_property(final_spreadsheet_df, pg_network_n1_names)
+
+    print(final_spreadsheet_df)
 
     spreadsheet_df_mask = final_spreadsheet_df.loc[final_spreadsheet_df.index.isin(spreadsheet_df.index)]
     gene_result_df = construct_drawr_result_df(
@@ -399,9 +400,12 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list, thre
         result_df_with_score.loc[:, gene_set] = result_df[result_df['user_gene_set'] == gene_set].values[:, 1]
     save_timestamped_df(result_df_with_score, results_dir, 'fisher_ranked_by_property')
 
-    result_df_with_rank = result_df[result_df['pval'] > threshold]
-    save_timestamped_df(result_df_with_rank, results_dir, 'fisher_sorted_by_property_score')
+    result_df_with_rank = result_df
+    if len(fisher_contingency_pval) > 100:
+        result_df_with_rank = result_df[result_df['pval'] > threshold]
     
+    save_timestamped_df(result_df_with_rank, results_dir, 'fisher_sorted_by_property_score')
+
     return result_df
 
 
@@ -434,9 +438,16 @@ def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_pa
         result_df: result five-column dataframe.
     """
     len_set_names = input_df.shape[1] - 1
+    smooth_base = input_df.values[start_index:end_index, -1]
+    smooth_base = smooth_base[:, np.newaxis]
+    diff_smooth_spreadsheet = input_df.values[start_index:end_index, :-1] - smooth_base
+    diff_smooth_spreadsheet /= np.abs(np.max(diff_smooth_spreadsheet, axis=0))
+
+    diff_val = np.ravel(diff_smooth_spreadsheet)
     orig_val = np.ravel(input_df.values[start_index:end_index, :-1])
     set_name = np.array(list(input_df.columns.values[:-1]) * (end_index - start_index))
     input_gene_name = input_df.index.values[start_index:end_index]
+
     if map_back is True:
         map_df = pd.read_csv(run_parameters["gene_names_map"], index_col=0, header=None, sep='\t')
         input_gene_name = map_df.loc[input_gene_name].values
@@ -445,10 +456,10 @@ def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_pa
         ret_col = ['user_gene_set', 'property_gene_set', 'difference_score', 'query_score', 'baseline_score']
     new_gene_name = np.repeat(input_gene_name, len_set_names)
     base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names)
-    diff_val = orig_val - base_val
+    
     result_val = np.column_stack((set_name, new_gene_name, diff_val, orig_val, base_val))
     result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("difference_score", ascending=0)
-
+    result_df = result_df[result_df['difference_score'] > 0.5]
     return result_df
 
 
