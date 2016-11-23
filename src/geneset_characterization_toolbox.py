@@ -457,7 +457,7 @@ def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_pa
     
     result_val = np.column_stack((set_name, new_gene_name, diff_val, orig_val, base_val))
     result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("difference_score", ascending=0)
-    result_df = result_df[result_df['difference_score'] > 0.5]
+    result_df = result_df[result_df['difference_score'] > 0.2]
     return result_df
 
 
