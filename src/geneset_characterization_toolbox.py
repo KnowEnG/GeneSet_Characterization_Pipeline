@@ -94,8 +94,6 @@ def run_DRaWR(run_parameters):
     final_spreadsheet_df.columns = new_spreadsheet_df.columns.values
     prop_spreadsheet_df = rank_drawr_property(final_spreadsheet_df, pg_network_n1_names)
 
-    print(final_spreadsheet_df)
-
     spreadsheet_df_mask = final_spreadsheet_df.loc[final_spreadsheet_df.index.isin(spreadsheet_df.index)]
     gene_result_df = construct_drawr_result_df(
         spreadsheet_df_mask, 0, spreadsheet_df_mask.shape[0], True, run_parameters)
