@@ -59,7 +59,7 @@ def run_fisher(run_parameters):
     fisher_contingency_pval = get_fisher_exact_test(
         prop_gene_network_sparse, reverse_prop_dict, new_spreadsheet_df)
     fisher_final_result = save_fisher_test_result(
-        fisher_contingency_pval, run_parameters['results_directory'], spreadsheet_df.columns.values)
+        fisher_contingency_pval, run_parameters['results_directory'], spreadsheet_df.columns.values, 2)
     map_and_save_droplist(spreadsheet_df, common_gene_names, 'fisher_droplist', run_parameters)
 
     return fisher_final_result
@@ -336,7 +336,8 @@ def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df)
                         callback=callback_extend_list)
         p.close()
         p.join()
-
+        # print(fisher_contingency_pval_parallel_insertion)
+        # print(type(fisher_contingency_pval_parallel_insertion))
         return fisher_contingency_pval_parallel_insertion
     except:
         raise OSError("Failed running parallel processing:{}".format(sys.exc_info()))
@@ -372,12 +373,13 @@ def fisher_exact_worker(sparse_dict, overlap_count, user_count, gene_count, univ
     i, j = combinations[0], combinations[1]
     table = build_fisher_contingency_table(overlap_count[i, j], user_count[j], gene_count[0, i], universe_count)
     pvalue = stats.fisher_exact(table, alternative="greater")[1]
-    row_item = [set_list[j], sparse_dict[i], np.round(-1.0 * np.log(pvalue), 12), int(universe_count),
-                int(user_count[j]), int(gene_count[0, i]), int(overlap_count[i, j])]
+    new_pval = np.round(-1.0 * np.log10(pvalue), 12)
+    row_item = [set_list[j], sparse_dict[i], new_pval, int(universe_count), 
+    int(user_count[j]), int(gene_count[0, i]), int(overlap_count[i, j])]
     return row_item
 
 
-def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
+def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list, threshold):
     """ Save two output files of fisher exact test results.
 
     Args:
@@ -385,19 +387,21 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
         set_list: column values of spreadsheet.
     Returns:
         result_df: the final dataframe of fisher exact test
+        threshold: only return the pvalues above the threshold
     """
     df_col = ["user_gene_set", "property_gene_set", "pval", "universe_count", \
               "user_count", "property_count", "overlap_count"]
-    
     result_df = pd.DataFrame(
         fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=0)
-    save_timestamped_df(result_df, results_dir, 'fisher_sorted_by_property_score')
 
-    new_result_df = pd.DataFrame(columns=set_list)
+    result_df_with_score = pd.DataFrame(columns=set_list)
     for gene_set in set_list:
-        new_result_df.loc[:, gene_set] = result_df[result_df['user_gene_set'] == gene_set].values[:, 1]
+        result_df_with_score.loc[:, gene_set] = result_df[result_df['user_gene_set'] == gene_set].values[:, 1]
+    save_timestamped_df(result_df_with_score, results_dir, 'fisher_ranked_by_property')
 
-    save_timestamped_df(new_result_df, results_dir, 'fisher_ranked_by_property')
+    result_df_with_rank = result_df[result_df['pval'] > threshold]
+    save_timestamped_df(result_df_with_rank, results_dir, 'fisher_sorted_by_property_score')
+    
     return result_df
 
 
