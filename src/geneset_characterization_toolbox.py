@@ -43,6 +43,7 @@ def run_fisher(run_parameters):
     # ----------------------------------------------------------------------------
     new_spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, common_gene_names)
     prop_gene_network_df = kn.update_network_df(prop_gene_network_df, common_gene_names, "node_2")
+    prop_gene_network_df['wt'] = 1
     # ----------------------------------------------------------------------------
     # - map every gene name to an integer index in sequential order startng at 0 -
     # ----------------------------------------------------------------------------
