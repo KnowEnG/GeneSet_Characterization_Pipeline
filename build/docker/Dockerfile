@@ -7,7 +7,7 @@ ENV SRC_LOC /home
 RUN pip3 install -I knpackage
 
 # Clone from github
-RUN git clone https://username:password@github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git ${SRC_LOC}
+RUN git clone https://github.com/KnowEnG/GeneSet_Characterization_Pipeline.git ${SRC_LOC}
 
 # Set up working directory
 WORKDIR ${SRC_LOC}
