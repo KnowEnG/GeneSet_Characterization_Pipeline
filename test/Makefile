@@ -7,11 +7,15 @@ RUN_FILES = ../data/run_files
 RESULTS_DIR = $(RUN_DIR)/results
 INPUT_DATA_DIR = ../data
 UNIT_TEST_TEMP_DIR = ./unit/tmp
+DATA_DIR = ../data/networks ../data/spreadsheets
+INPUT_DATA = $(foreach dir,$(DATA_DIR),$(wildcard $(dir)/*))
+INPUT_DATA_SUFFIX = $(suffix $(INPUT_DATA))
 
 RMR = 			rm -rf
 GZIP = 			gzip
 GZIP_D = 		gzip -df
 MKDIR_P = 		mkdir -p 
+
 
 # ----------------------------------------------------------------
 # Benchmarks setup Section                                       -
@@ -19,10 +23,20 @@ MKDIR_P = 		mkdir -p
 env_setup: create_run_dir copy_run_files decompress_input_data
 
 decompress_input_data:
-	$(GZIP_D) $(INPUT_DATA_DIR)/networks/* $(INPUT_DATA_DIR)/spreadsheets/*
+	@echo Decompress input data...
+ifeq ($(filter-out .gz, $(INPUT_DATA_SUFFIX)),)
+	$(GZIP_D) $(INPUT_DATA)
+else
+	@echo No gzip file needs to be decompressed.
+endif	
  
 compress_input_data:
-	$(GZIP) $(INPUT_DATA_DIR)/networks/* $(INPUT_DATA_DIR)/spreadsheets/*
+	@echo Compress input data...
+ifeq ($(filter .gz, $(INPUT_DATA_SUFFIX)),)
+	$(GZIP) $(INPUT_DATA)
+else
+	@echo Target file in already in gzip format. Aborting compressing input data...
+endif
 
 create_run_dir:
 	$(MKDIR_P) $(RESULTS_DIR) 
