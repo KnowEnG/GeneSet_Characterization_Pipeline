@@ -51,13 +51,13 @@ clean_dir_recursively:
 # Large Benchmarks RUN Section                                   -
 # ----------------------------------------------------------------
 run_fisher:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file fisher.yml 
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file BENCHMARK_1_fisher.yml 
 
 run_drawr:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file DRaWR.yml
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file BENCHMARK_2_DRaWR.yml
 
 run_netpath:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file net_path.yml
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file BENCHMARK_3_net_path.yml
 
 # ----------------------------------------------------------------
 # Small Benchmarks RUN Section                                   -
@@ -66,10 +66,10 @@ run_fisher_small:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_1_fisher.yml 
 
 run_drawr_small:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_1_DRaWR.yml
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_2_DRaWR.yml
 
 run_netpath_small:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_1_net_path.yml
+	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_3_net_path.yml
 
 # ----------------------------------------------------------------
 # - UNIT TESTS RUN SECTION                                       -
