@@ -134,20 +134,20 @@ gene_names_map = ProGENI_rwr20_STExp_GDSC_500_MAP.rname.gxc.tsv
 ## Description of Output files saved in results directory
 * * * 
 
-* Output files of all three methods save sorted properties for each gene set with name {method}_ranked_by_property.df.</br>
+* Output files of all three methods save sorted properties for each gene set with name {method}_ranked_by_property{timestamp}.df.</br>
 
  | **user gene set name1** |**user gene set name2**|**...**|**user gene set name n**|
  | :--------------------: |:--------------------:|---|:--------------------:|
  | property name (string)</br> (most significant) |property name (string)</br> (most significant)|...|property name (string)</br> (most significant)|
  | ... |...|...|...|
  | property name (string)</br> (least significant) |property name (string)</br> (least significant)|...|property name (string)</br> (least significant)|
-* Fisher method saves one output file with seven columns and it is sorted in ascending order based on `pval`. The name of the file is fisher_sorted_by_property_score.df. 
+* Fisher method saves one output file with seven columns and it is sorted in ascending order based on `pval`. The name of the file is fisher_sorted_by_property_score_{timestamp}.df. 
 
  | **user_gene_set** | **property_gene_set** | **pval** | **universe_count** | **user_count** | **property_count** | **overlap_count** |
  |:-------------:|:------------:|:---------:|:--------------:|:--------------:|:-----------:|:--------:|
  |   string      |   string     |    float    |    int         |   int          |   int       |   int  |
 
-* DRaWR method saves two output file with five columns and it is sorted in ascending order based on `difference_score`. The files are DRaWR_sorted_by_gene_score.df and DRaWR_sorted_by_property_score.df
+* DRaWR method saves two output file with five columns and it is sorted in ascending order based on `difference_score`. The files are DRaWR_sorted_by_gene_score_{timestamp}.df and DRaWR_sorted_by_property_score_{timestamp}.df
 
  | **user_gene_set** | **gene_node_id** | **difference_score** | **query_score** | **baseline_score** |
  |:-------------:|:------------:|:---------:|:--------------:|:--------------:|
@@ -157,7 +157,7 @@ gene_names_map = ProGENI_rwr20_STExp_GDSC_500_MAP.rname.gxc.tsv
  |:-------------:|:------------:|:---------:|:--------------:|:--------------:|
  |   string      |   string     |    float    |    float         |   float          |
  
-* Net Path method saves one output file with three columns and it is sorted in ascending order based on `cosine_sum`. The name of the file is net_path_sorted_by_property_score.df. 
+* Net Path method saves one output file with three columns and it is sorted in ascending order based on `cosine_sum`. The name of the file is net_path_sorted_by_property_score_{timestamp}.df. 
 
  | **user_gene_set** | **property_gene_set** | **cosine_sum** |
  |:-------------:|:------------:|:---------:|
