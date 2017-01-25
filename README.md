@@ -115,34 +115,51 @@ __***Follow steps 1-3 above then do the following:***__
 
 | **Key**                   | **Value** | **Comments** |
 | ------------------------- | --------- | ------------ |
-| method                    | DRaWR or fisher   | Choose DRaWR or fisher as the gene set characterization method |
+| method                    | DRaWR or fisher or net_path   | Choose DRaWR or fisher or Net Path as the gene set characterization method |
 | pg_network_name_full_path | directory+pg_network_name |Path and file name of the 4 col property file |
 | gg_network_name_full_path | directory+gg_network_name |Path and file name of the 4 col network file(only needed in DRaWR) |
 | spreadsheet_name_full_path | directory+spreadsheet_name|  Path and file name of user supplied gene sets |
-| results_directory | /results_directory | Directory to save the output files |
-| rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(only needed in DRaWR) |
-| rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(only needed in DRaWR)|
-| rwr_restart_probability | 0.5 | alpha in `V_(n+1) = alpha * N * Vn + (1-alpha) * Vo` (only needed in DRaWR) |
+| gene_names_map | directory+gene_names_map| Map ENSEMBL names to user specified gene names |
+| results_directory | directory | Directory to save the output files |
+| rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(needed in DRaWR or Net Path) |
+| rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(needed in DRaWR or Net Path)|
+| rwr_restart_probability | 0.5 | alpha in `V_(n+1) = alpha * N * Vn + (1-alpha) * Vo` (needed in DRaWR or Net Path) |
 | k_space| 100| number of the new space dimensions in SVD(only needed in Net Path)
 pg_network_name = kegg_pathway_property_gene.edge</br>
 gg_network_name = STRING_experimental_gene_gene.edge</br>
 spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc.tsv</br>
-
+gene_names_map = ProGENI_rwr20_STExp_GDSC_500_MAP.rname.gxc.tsv
 
 * * * 
 ## Description of Output files saved in results directory
 * * * 
 
-* Output files of all three methods save sorted properties for each gene set.</br>
+* Output files of all three methods save sorted properties for each gene set with name {method}_ranked_by_property.df.</br>
 
  | **user gene set name1** |**user gene set name2**|**...**|**user gene set name n**|
  | :--------------------: |:--------------------:|---|:--------------------:|
  | property name (string)</br> (most significant) |property name (string)</br> (most significant)|...|property name (string)</br> (most significant)|
  | ... |...|...|...|
  | property name (string)</br> (least significant) |property name (string)</br> (least significant)|...|property name (string)</br> (least significant)|
-* Fisher method also saves one output file with seven columns and it is sorted in ascending order based on `pval`.
+* Fisher method saves one output file with seven columns and it is sorted in ascending order based on `pval`. The name of the file is fisher_sorted_by_property_score.df. 
 
- | **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
+ | **user_gene_set** | **property_gene_set** | **pval** | **universe_count** | **user_count** | **property_count** | **overlap_count** |
  |:-------------:|:------------:|:---------:|:--------------:|:--------------:|:-----------:|:--------:|
- |   string      |   string     |    int    |    int         |   int          |   int       |   float  |
+ |   string      |   string     |    float    |    int         |   int          |   int       |   int  |
+
+* DRaWR method saves two output file with five columns and it is sorted in ascending order based on `difference_score`. The files are DRaWR_sorted_by_gene_score.df and DRaWR_sorted_by_property_score.df
+
+ | **user_gene_set** | **gene_node_id** | **difference_score** | **query_score** | **baseline_score** |
+ |:-------------:|:------------:|:---------:|:--------------:|:--------------:|
+ |   string      |   string     |    float    |    float         |   float          |
+
+ | **user_gene_set** | **property_gene_set** | **difference_score** | **query_score** | **baseline_score** |
+ |:-------------:|:------------:|:---------:|:--------------:|:--------------:|
+ |   string      |   string     |    float    |    float         |   float          |
+ 
+* Net Path method saves one output file with three columns and it is sorted in ascending order based on `cosine_sum`. The name of the file is net_path_sorted_by_property_score.df. 
+
+ | **user_gene_set** | **property_gene_set** | **cosine_sum** |
+ |:-------------:|:------------:|:---------:|
+ |   string      |   string     |    float    
 
