@@ -14,17 +14,12 @@ There are three gene set characterization methods that one can choose from:
 * * * 
 ## How to run this pipeline with Our data
 * * * 
-###1. Get Access to KnowEnG-Research Repo:
-Email omarsobh@illinois.edu infrastructure team (IST) lead to:
-
-* __Access__ KnowEnG-Research github repo
-
-###2. Clone the GeneSet_Characterization_Pipeline Repo
+###1. Clone the GeneSet_Characterization_Pipeline Repo
 ```
  git clone https://github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git
 ```
  
-###3. Install the following (Ubuntu or Linux)
+###2. Install the following (Ubuntu or Linux)
   ```
  apt-get install -y python3-pip
  apt-get install -y libblas-dev liblapack-dev libatlas-base-dev gfortran
@@ -38,24 +33,24 @@ Email omarsobh@illinois.edu infrastructure team (IST) lead to:
  pip3 install knpackage
 ```
 
-###4. Change directory to GeneSet_Characterization_Pipeline
+###3. Change directory to GeneSet_Characterization_Pipeline
 
 ```
 cd GeneSet_Characterization_Pipeline
 ```
 
-###5. Change directory to test
+###4. Change directory to test
 
 ```
 cd test
 ```
  
-###6. Create a local directory "run_dir" and place all the run files in it
+###5. Create a local directory "run_dir" and place all the run files in it
 ```
 make env_setup
 ```
 
-###7. Select and run a gene set characterization option:
+###6. Select and run a gene set characterization option:
  
  * Run fisher pipeline</br>
   ```
@@ -67,7 +62,7 @@ make env_setup
   make run_drawr
   ```
   
- * Run DRaWR pipeline</br>
+ * Run Net Path pipeline</br>
   ```
   make run_netpath
   ```
@@ -77,7 +72,7 @@ make env_setup
 ## How to run this pipeline with Your data
 * * * 
 
-__***Follow steps 1-4 above then do the following:***__
+__***Follow steps 1-3 above then do the following:***__
 
 ### * Create your run directory
 
@@ -120,34 +115,62 @@ __***Follow steps 1-4 above then do the following:***__
 
 | **Key**                   | **Value** | **Comments** |
 | ------------------------- | --------- | ------------ |
-| method                    | DRaWR or fisher   | Choose DRaWR or fisher as the gene set characterization method |
+| method                    | DRaWR or fisher or net_path   | Choose DRaWR or fisher or Net Path as the gene set characterization method |
 | pg_network_name_full_path | directory+pg_network_name |Path and file name of the 4 col property file |
-| gg_network_name_full_path | directory+gg_network_name |Path and file name of the 4 col network file(only needed in DRaWR) |
+| gg_network_name_full_path | directory+gg_network_name |Path and file name of the 4 col network file(needed in DRaWR and Net Path) |
 | spreadsheet_name_full_path | directory+spreadsheet_name|  Path and file name of user supplied gene sets |
-| results_directory | /results_directory | Directory to save the output files |
-| rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(only needed in DRaWR) |
-| rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(only needed in DRaWR)|
-| rwr_restart_probability | 0.5 | alpha in `V_(n+1) = alpha * N * Vn + (1-alpha) * Vo` (only needed in DRaWR) |
+| gene_names_map | directory+gene_names_map| Map ENSEMBL names to user specified gene names |
+| results_directory | directory | Directory to save the output files |
+| rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(needed in DRaWR and Net Path) |
+| rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(needed in DRaWR and Net Path)|
+| rwr_restart_probability | 0.5 | alpha in `V_(n+1) = alpha * N * Vn + (1-alpha) * Vo` (needed in DRaWR and Net Path) |
 | k_space| 100| number of the new space dimensions in SVD(only needed in Net Path)
 pg_network_name = kegg_pathway_property_gene.edge</br>
 gg_network_name = STRING_experimental_gene_gene.edge</br>
 spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc.tsv</br>
-
+gene_names_map = ProGENI_rwr20_STExp_GDSC_500_MAP.rname.gxc.tsv
 
 * * * 
 ## Description of Output files saved in results directory
 * * * 
 
-* Output files of all three methods save sorted properties for each gene set.</br>
+* Output files of all three methods save sorted properties for each gene set with name {method}\_ranked\_by\_property\_{timestamp}.df.</br>
 
  | **user gene set name1** |**user gene set name2**|**...**|**user gene set name n**|
  | :--------------------: |:--------------------:|---|:--------------------:|
- | property name (string)</br> (most significant) |property name (string)</br> (most significant)|...|property name (string)</br> (most significant)|
+ | property </br> (most significant) |property </br> (most significant)|...|property </br> (most significant)|
  | ... |...|...|...|
- | property name (string)</br> (least significant) |property name (string)</br> (least significant)|...|property name (string)</br> (least significant)|
-* Fisher method also saves one output file with seven columns and it is sorted in ascending order based on `pval`.
+ | property</br> (least significant) |property </br> (least significant)|...|property</br> (least significant)|
+* Fisher method saves one output file with seven columns and it is sorted in descending order based on `pval`. The name of the file is fisher_sorted_by_property_score\_{timestamp}.df. 
 
- | **user gene** | **property** | **count** | **user count** | **gene count** | **overlap** | **pval** |
+ | **user_gene_set** | **property_gene_set** | **pval** | **universe_count** | **user_count** | **property_count** | **overlap_count** |
  |:-------------:|:------------:|:---------:|:--------------:|:--------------:|:-----------:|:--------:|
- |   string      |   string     |    int    |    int         |   int          |   int       |   float  |
+ |   user gene 1      |   property 1    |    float    |    int         |   int          |   int       |   int  |
+ |    ...             |   ...           |    ...      |    ...         |   ...          |  ...        |   ...  | 
+ |   user gene n      |   property m    |    float    |    int         |   int          |   int       |   int  |
+ 
+* DRaWR method saves two output files with five columns and they are sorted in descending order based on `difference_score`. The files are DRaWR_sorted_by_gene_score\_{timestamp}.df and DRaWR_sorted_by_property_score\_{timestamp}.df
 
+ | **user_gene_set** | **gene_node_id** | **difference_score** | **query_score** | **baseline_score** |
+ |:-------------:|:------------:|:---------:|:--------------:|:--------------:|
+ |   user gene 1      |   gene node 1     |    float    |    float         |   float          | 
+ |    ...      |   ...     |    ...    |    ...         |   ...          | 
+ |   user gene n      |   gene node m     |    float    |    float         |   float          | 
+ 
+ | **user_gene_set** | **property_gene_set** | **difference_score** | **query_score** | **baseline_score** |
+ |:-------------:|:------------:|:---------:|:--------------:|:--------------:|
+ |   user gene 1      |   property 1     |    float    |    float         |   float          | 
+ |    ...      |   ...     |    ...    |    ...         |   ...          | 
+ |   user gene n      |   property m     |    float    |    float         |   float          | 
+ 
+ 
+* Net Path method saves one output file with three columns and it is sorted in descending order based on `cosine_sum`. The name of the file is net_path_sorted_by_property_score\_{timestamp}.df. 
+
+ | **user_gene_set** | **property_gene_set** | **cosine_sum** |
+ |:-------------:|:------------:|:---------:| 
+ |   user gene 1      |   property 1     |    float    | 
+ |...|...|...|
+ |user gene n| property m| float|
+ 
+ 
+ 
