@@ -124,7 +124,8 @@ __***Follow steps 1-3 above then do the following:***__
 | rwr_max_iterations | 500| Maximum number of iterations without convergence in random walk with restart(needed in DRaWR and Net Path) |
 | rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(needed in DRaWR and Net Path)|
 | rwr_restart_probability | 0.5 | alpha in `V_(n+1) = alpha * N * Vn + (1-alpha) * Vo` (needed in DRaWR and Net Path) |
-| k_space| 100| number of the new space dimensions in SVD(only needed in Net Path)
+| k_space| 100| number of the new space dimensions in SVD(only needed in Net Path)|
+
 pg_network_name = kegg_pathway_property_gene.edge</br>
 gg_network_name = STRING_experimental_gene_gene.edge</br>
 spreadsheet_name = ProGENI_rwr20_STExp_GDSC_500.rname.gxc.tsv</br>
