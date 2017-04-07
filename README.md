@@ -14,12 +14,8 @@ There are three gene set characterization methods that one can choose from:
 * * * 
 ## How to run this pipeline with Our data
 * * * 
-###1. Clone the GeneSet_Characterization_Pipeline Repo
-```
- git clone https://github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git
-```
  
-###2. Install the following (Ubuntu or Linux)
+### 1. Install the following (Ubuntu or Linux)
   ```
  apt-get install -y python3-pip
  apt-get install -y libblas-dev liblapack-dev libatlas-base-dev gfortran
@@ -33,24 +29,24 @@ There are three gene set characterization methods that one can choose from:
  pip3 install knpackage
 ```
 
-###3. Change directory to GeneSet_Characterization_Pipeline
+### 2. Change directory to GeneSet_Characterization_Pipeline
 
 ```
 cd GeneSet_Characterization_Pipeline
 ```
 
-###4. Change directory to test
+### 3. Change directory to test
 
 ```
 cd test
 ```
  
-###5. Create a local directory "run_dir" and place all the run files in it
+### 4. Create a local directory "run_dir" and place all the run files in it
 ```
 make env_setup
 ```
 
-###6. Select and run a gene set characterization option:
+### 5. Select and run a gene set characterization option:
  
  * Run fisher pipeline</br>
   ```
