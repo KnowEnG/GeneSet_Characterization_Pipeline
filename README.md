@@ -94,7 +94,7 @@ __***Follow steps 1-3 above then do the following:***__
  
 ### * Create run_paramters file (YAML Format)
  ``` 
- Look for examples of run_parameters in the GeneSet_Characterization_Pipeline/data/run_files template_run_parameters.yml
+ Look for examples of run_parameters in the GeneSet_Characterization_Pipeline/data/run_files BENCHMARK_1_fisher.yml
  ```
 
 ### * Run the GeneSet Characterization Pipeline:
@@ -106,7 +106,7 @@ __***Follow steps 1-3 above then do the following:***__
    
   * Run
    ```
-  python3 ../src/geneset_characterization.py -run_directory ./ -run_file template_net_path.yml
+  python3 ../src/geneset_characterization.py -run_directory ./run_dir -run_file BENCHMARK_1_fisher.yml
    ```
 
 * * * 
