@@ -392,7 +392,8 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list, thre
     df_col = ["user_gene_set", "property_gene_set", "pval", "universe_count", \
               "user_count", "property_count", "overlap_count"]
     result_df = pd.DataFrame(
-        fisher_contingency_pval, columns=df_col).sort_values("pval", ascending=0)
+        fisher_contingency_pval, columns=df_col)
+    result_df = result_df.sort_values(['pval', 'user_gene_set', 'property_gene_set'], ascending=[0, 1, 1])
 
     result_df_with_score = pd.DataFrame(columns=set_list)
     for gene_set in set_list:
