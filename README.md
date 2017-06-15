@@ -17,7 +17,7 @@ There are three gene set characterization methods that one can choose from:
  
 ### 1. Clone the GeneSet_Characterization_Pipeline Repo
 ```
- git clone https://github.com/KnowEnG-Research/GeneSet_Characterization_Pipeline.git
+ git clone https://github.com/KnowEnG/GeneSet_Characterization_Pipeline.git
 ```
 ### 2. Install the following (Ubuntu or Linux)
   ```
