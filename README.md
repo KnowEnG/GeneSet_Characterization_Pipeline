@@ -1,5 +1,5 @@
 # KnowEnG's Gene Set Characterization Pipeline
-test
+
 This is the Knowledge Engine for Genomics (KnowEnG), an NIH BD2K Center of Excellence, Gene Set Characterization Pipeline.
 
 This pipeline **ranks** a user supplied gene set **against** a KnowEnG's gene sets collection.
