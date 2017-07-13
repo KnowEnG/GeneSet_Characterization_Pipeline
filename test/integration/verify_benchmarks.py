@@ -29,13 +29,16 @@ def run_all_BENCHMARKs_and_TESTs():
         os.system(verification_method)
         mismatch_list = python_dir_compare(verification_directory, results_dir)
         if len(mismatch_list) > 0:
+            print('\t\t\t\t Files Not Verified \t\t FAIL')
             for missed_file in mismatch_list:
                 print('\n\t\t FILES NOT VERIFIED:\n', missed_file, '\n')
         else:
             print('\t\t\t\t All Files Verified \t\t PASS')
 
         print('removing result files:')
-        os.system("make clean_dir_recursively create_run_dir copy_run_files")
+        for tmp_file_name in os.listdir(results_dir):
+            if os.path.isfile(os.path.join(results_dir, tmp_file_name)):
+                os.remove(os.path.join(results_dir, tmp_file_name))
 
     print('\n\nFinished Verification Testing:\t\t', time.strftime("%a, %b %d, %Y at %H:%M:%S", time.localtime()))
 
@@ -61,6 +64,7 @@ def main():
         print('environment setup:')
         os.system('make env_setup')
     except:
+        print('environment setup: FAIL')
         pass
 
     run_all_BENCHMARKs_and_TESTs()
