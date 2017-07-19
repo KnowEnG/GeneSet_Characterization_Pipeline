@@ -72,6 +72,12 @@ run_netpath_small:
 	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_3_net_path.yml
 
 # ----------------------------------------------------------------
+# - VERIFICATION TESTS RUN SECTION                               -
+# ----------------------------------------------------------------
+verification_tests:
+	python3 ./integration/verify_benchmarks.py
+
+# ----------------------------------------------------------------
 # - UNIT TESTS RUN SECTION                                       -
 # ----------------------------------------------------------------
 unit_test_setup:
