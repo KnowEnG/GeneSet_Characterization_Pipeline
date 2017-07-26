@@ -23,7 +23,7 @@ The Dockefile in this directory contains all the commands, in order, needed to b
 
 ### * Run the following command with the specified docker image:
 ```
-docker run -v \`pwd\`:/home/test/run_dir/ -it knowengdev/geneset_characterization_pipeline:09_12_2016 
+docker run -v \`pwd\`:/home/test/run_dir/ -it knowengdev/geneset_characterization_pipeline:07_19_2017 
 ```
 
 ### * Change directory to the "test" directory
