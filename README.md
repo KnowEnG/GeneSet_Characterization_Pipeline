@@ -100,7 +100,7 @@ __***Follow steps 1-3 above then do the following:***__
 
 ### * Run the GeneSet Characterization Pipeline:
 
-  * Update PYTHONPATH enviroment variable
+  * Update PYTHONPATH environment variable
    ``` 
    export PYTHONPATH='./src':$PYTHONPATH    
    ```
