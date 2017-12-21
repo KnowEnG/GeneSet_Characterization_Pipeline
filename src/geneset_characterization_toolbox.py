@@ -15,6 +15,9 @@ import multiprocessing
 import itertools
 import knpackage.distributed_computing_utils as dstutil
 
+from scipy.sparse        import csc_matrix
+from scipy.sparse.linalg import svds
+
 
 def run_fisher(run_parameters):
     ''' wrapper: call sequence to perform fisher gene-set characterization
@@ -161,6 +164,24 @@ def calculate_k_SVD(smooth_spreadsheet_matrix, k):
     U_unitary_matrix = U_unitary_matrix[:, :k]
     return U_unitary_matrix, S_full_squared_matrix
 
+def calculate_k_SVDS(smooth_spreadsheet_matrix, k):
+    """Perform SVD on input matrix.
+    Args:
+        smooth_spreadsheet_matrix: Input matrix to perform SVD on.
+        k: Number of singular values and vectors to compute.
+    Returns:
+        U_unitary_matrix: Unitary matrix having left singular vectors as column.
+        S_full_squared_matrix: Matrix with diagonal to be k singular values.
+    """
+
+    #scipy.sparse.linalg.svds(A, k=6, ncv=None, tol=0, which='LM', v0=None, maxiter=None, return_singular_vectors=True)
+    sparse_smooth_spreadsheet_matrix                   = csc_matrix(smooth_spreadsheet_matrix)
+    U_unitary_matrix, singular_value, V_unitary_matrix = svds(sparse_smooth_spreadsheet_matrix,k)
+    U_unitary_matrix                                   = U_unitary_matrix[:, :k]
+    S_full_squared_matrix                              = np.zeros((k, k))
+    np.fill_diagonal(S_full_squared_matrix, np.sqrt(singular_value[:k]))
+
+    return U_unitary_matrix, S_full_squared_matrix
 
 def project_matrix_to_new_space_and_split(U_unitary_matrix, S_full_squared_matrix,
                                           unique_gene_length):
@@ -222,8 +243,12 @@ def get_net_path_results(gene_length, smooth_rwr_matrix, run_parameters):
         cosine_matrix: matrix with property and gene cosine similarity values.
     """
 
-    U_unitary_matrix, S_full_squared_matrix = calculate_k_SVD(
-        smooth_rwr_matrix, int(run_parameters['k_space']))
+    # U_unitary_matrix, S_full_squared_matrix = calculate_k_SVD(
+    #     smooth_rwr_matrix, int(run_parameters['k_space']))
+
+    np.random.seed(0)
+    U_unitary_matrix, S_full_squared_matrix = \
+    calculate_k_SVDS(smooth_rwr_matrix, int(run_parameters['k_space']))
 
     g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
         U_unitary_matrix, S_full_squared_matrix, gene_length)
