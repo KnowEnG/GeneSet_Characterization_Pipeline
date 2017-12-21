@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------------------------------
-# - Analysis Method: fisher, DRaWR, net_path                                                           -
+# - Analysis Method: fisher, DRaWR, net_svds                                                           -
 # ------------------------------------------------------------------------------------------------------
-method: net_path                        
+method: net_svds                        
 
 gg_network_name_full_path:   ../data/networks/TEST_1_gene_gene.edge
 pg_network_name_full_path:   ../data/networks/TEST_1_property_gene.edge
