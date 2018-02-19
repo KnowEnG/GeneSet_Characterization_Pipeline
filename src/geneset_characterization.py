@@ -21,7 +21,7 @@ def net_path(run_parameters):
 SELECT = {
     "fisher":fisher,
     "DRaWR":DRaWR,
-    "net_path":net_path}
+    "net_svds":net_path}
 
 def main():
     """
