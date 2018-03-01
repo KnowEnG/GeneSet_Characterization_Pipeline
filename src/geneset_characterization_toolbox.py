@@ -60,7 +60,7 @@ def run_fisher(run_parameters):
     fisher_contingency_pval = get_fisher_exact_test(
         prop_gene_network_sparse, reverse_prop_dict, new_spreadsheet_df)
     fisher_final_result = save_fisher_test_result(
-        fisher_contingency_pval, run_parameters['results_directory'], spreadsheet_df.columns.values, 2)
+        fisher_contingency_pval, run_parameters['results_directory'], spreadsheet_df.columns.values)
     map_and_save_droplist(spreadsheet_df, common_gene_names, 'fisher_droplist', run_parameters)
 
     return fisher_final_result
@@ -380,7 +380,7 @@ def fisher_exact_worker(sparse_dict, overlap_count, user_count, gene_count, univ
     return row_item
 
 
-def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list, threshold):
+def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
     """ Save two output files of fisher exact test results.
 
     Args:
@@ -388,7 +388,6 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list, thre
         set_list: column values of spreadsheet.
     Returns:
         result_df: the final dataframe of fisher exact test
-        threshold: only return the pvalues above the threshold
     """
     df_col = ["user_gene_set", "property_gene_set", "pval", "universe_count", \
               "user_count", "property_count", "overlap_count"]
@@ -400,12 +399,7 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list, thre
     for gene_set in set_list:
         result_df_with_score.loc[:, gene_set] = result_df[result_df['user_gene_set'] == gene_set].values[:, 1]
     save_timestamped_df(result_df_with_score, results_dir, 'fisher_ranked_by_property')
-
-    result_df_with_rank = result_df
-    if len(fisher_contingency_pval) > 100:
-        result_df_with_rank = result_df[result_df['pval'] > threshold]
-    
-    save_timestamped_df(result_df_with_rank, results_dir, 'fisher_sorted_by_property_score')
+    save_timestamped_df(result_df, results_dir, 'fisher_sorted_by_property_score')
 
     return result_df
 
