@@ -276,7 +276,7 @@ def construct_netpath_result_df(spreadsheet_df, cosine_matrix_df):
 
     ret_col = ['user_gene_set', 'property_gene_set', 'cosine_sum']
     result_val = np.column_stack((set_name, gene_name, cosine_sum_val))
-    result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("cosine_sum", ascending=0)
+    result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("cosine_sum", ascending=False)
     return result_df
 
 
@@ -415,7 +415,7 @@ def rank_drawr_property(final_spreadsheet_df, pg_network_n1_names):
     """
     prop_spreadsheet_df = final_spreadsheet_df.loc[pg_network_n1_names]
     prop_spreadsheet_df.iloc[:, :-1] = prop_spreadsheet_df.iloc[:, :-1].apply(
-        lambda x: (x - prop_spreadsheet_df['base']).sort_values(ascending=0).index.values)
+        lambda x: (x - prop_spreadsheet_df['base']).sort_values(ascending=False).index.values)
     prop_spreadsheet_df = prop_spreadsheet_df.drop('base', 1)
 
     return prop_spreadsheet_df
@@ -453,7 +453,7 @@ def construct_drawr_result_df(input_df, start_index, end_index, map_back, run_pa
     base_val = np.repeat(input_df['base'].values[start_index:end_index], len_set_names)
     
     result_val = np.column_stack((set_name, new_gene_name, diff_val, orig_val, base_val))
-    result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("difference_score", ascending=0)
+    result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("difference_score", ascending=False)
     
     return result_df
 
