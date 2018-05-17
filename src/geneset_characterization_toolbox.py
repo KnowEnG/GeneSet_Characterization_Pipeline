@@ -157,29 +157,36 @@ def run_net_path(run_parameters):
     Args:
         run_parameters: dictionary of run parameters
     '''
-    network_sparse, unique_gene_names, \
-    pg_network_n1_names = build_hybrid_sparse_matrix(run_parameters, False, False)
+    spreadsheet_name_full_path = run_parameters['spreadsheet_name_full_path']
+    results_directory          = run_parameters['results_directory'         ]
 
-    spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
-    new_spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_gene_names)
+    network_sparse,            \
+    unique_gene_names,         \
+    pg_network_n1_names        = build_hybrid_sparse_matrix(run_parameters, False, False)
 
-    hetero_network = normalize(network_sparse, norm='l1', axis=0)
-    final_rwr_matrix, step = kn.smooth_matrix_with_rwr(
-        np.eye(hetero_network.shape[0]), hetero_network, run_parameters)
-    smooth_rwr_matrix = smooth_final_spreadsheet_matrix(final_rwr_matrix, len(unique_gene_names))
+    spreadsheet_df             = kn.get_spreadsheet_df(spreadsheet_name_full_path)
+    new_spreadsheet_df         = kn.update_spreadsheet_df(spreadsheet_df, unique_gene_names)
 
-    cosine_matrix = get_net_path_results(len(unique_gene_names), smooth_rwr_matrix, run_parameters)
+    hetero_network             = normalize(network_sparse, norm='l1', axis=0)
+
+    identity_mat               = np.eye(hetero_network.shape[0])
+
+    final_rwr_matrix,          \
+    step                       = kn.smooth_matrix_with_rwr( identity_mat, hetero_network, run_parameters)
+    smooth_rwr_matrix          = smooth_final_spreadsheet_matrix(final_rwr_matrix, len(unique_gene_names))
+
+    cosine_matrix              = get_net_path_results(len(unique_gene_names), smooth_rwr_matrix, run_parameters)
 
     cosine_matrix_df = pd.DataFrame(cosine_matrix, index=unique_gene_names, columns=pg_network_n1_names)
+    #----------------------
     # save_cosine_matrix_df(cosine_matrix_df, run_parameters)
+    #----------------------
+    property_rank_df = rank_netpath_property      (new_spreadsheet_df, cosine_matrix_df)
+    prop_result_df   = construct_netpath_result_df(new_spreadsheet_df, cosine_matrix_df)
 
-    property_rank_df = rank_netpath_property(new_spreadsheet_df, cosine_matrix_df)
-    prop_result_df = construct_netpath_result_df(new_spreadsheet_df, cosine_matrix_df)
-
-    save_timestamped_df(property_rank_df, run_parameters['results_directory'], 'net_path_ranked_by_property')
-    save_timestamped_df(
-        prop_result_df, run_parameters['results_directory'], 'net_path_sorted_by_property_score')
-    map_and_save_droplist(spreadsheet_df, unique_gene_names, 'net_path_droplist', run_parameters)
+    save_timestamped_df  (property_rank_df, results_directory, 'net_path_ranked_by_property')
+    save_timestamped_df  (prop_result_df,   results_directory, 'net_path_sorted_by_property_score')
+    map_and_save_droplist(spreadsheet_df,   unique_gene_names, 'net_path_droplist', run_parameters)
 
     return property_rank_df
 
@@ -202,6 +209,7 @@ def calculate_k_SVDS(smooth_spreadsheet_matrix, k):
 
     return U_unitary_matrix, S_full_squared_matrix
 
+
 def project_matrix_to_new_space_and_split(U_unitary_matrix, S_full_squared_matrix,
                                           unique_gene_length):
     """This to project matrix to the new space and split into gene and
@@ -216,9 +224,10 @@ def project_matrix_to_new_space_and_split(U_unitary_matrix, S_full_squared_matri
         g_newspace_matrix: gene matrix projected to the new space.
         p_newspace_matrix: property matrix projected to new space.
     """
-    L = U_unitary_matrix.dot(S_full_squared_matrix)
-    g_newspace_matrix = L[:unique_gene_length]
-    p_newspace_matrix = L[unique_gene_length:]
+    L                 = U_unitary_matrix.dot(S_full_squared_matrix)
+    g_newspace_matrix = L[ : unique_gene_length   ]
+    p_newspace_matrix = L[   unique_gene_length : ]
+
     return g_newspace_matrix, p_newspace_matrix
 
 
@@ -233,8 +242,10 @@ def smooth_final_spreadsheet_matrix(final_rwr_matrix, gene_length):
         smooth_rwr_matrix: the smoothed matrix with pseudo counts.
     """
     assert ((final_rwr_matrix >= 0).all())
-    eps = np.float(1 / gene_length)
+
+    eps               = np.float(1 / gene_length)
     smooth_rwr_matrix = np.log(final_rwr_matrix + eps) - np.log(eps)
+
     return smooth_rwr_matrix
 
 
@@ -245,9 +256,14 @@ def save_cosine_matrix_df(cosine_matrix_df, run_parameters):
         cosine_matrix_df: dataframe with cosine value.
         run_parameters: parameters dictionary.
     """
-    new_file_name = kn.create_timestamped_filename("cosine_matrix", "df")
-    cosine_matrix_df.to_csv(
-        os.path.join(run_parameters['results_directory'], new_file_name), header=True, index=True, sep='\t')
+    results_directory   = run_parameters['results_directory']
+    new_file_name       = kn.create_timestamped_filename("cosine_matrix", "df")
+    file_full_path_name = os.path.join(results_directory,new_file_name)
+
+    cosine_matrix_df.to_csv( file_full_path_name
+                           , header =True
+                           , index  =True
+                           , sep  ='\t')
 
 
 def get_net_path_results(gene_length, smooth_rwr_matrix, run_parameters):
