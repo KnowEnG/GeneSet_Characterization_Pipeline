@@ -478,7 +478,7 @@ def save_fisher_test_result(fisher_contingency_pval, results_dir, set_list):
     result_df_with_score = pd.DataFrame(columns=set_list)
     for gene_set in set_list:
         result_df_with_score.loc[:, gene_set] = result_df[result_df['user_gene_set'] == gene_set].values[:, 1]
-`
+
     save_timestamped_df(result_df_with_score, results_dir, 'fisher_ranked_by_property'      )
     save_timestamped_df(result_df,            results_dir, 'fisher_sorted_by_property_score')
 
