@@ -21,47 +21,69 @@ def run_fisher(run_parameters):
     Args:
         run_parameters: dictionary of run parameters
     '''
+
+    spreadsheet_name_full_path = run_parameters['spreadsheet_name_full_path']
+    pg_network_name_full_path  = run_parameters['pg_network_name_full_path' ]
+
     # -----------------------------------
     # - Data read and extraction Section -
     # -----------------------------------
-    spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
-    prop_gene_network_df = kn.get_network_df(run_parameters['pg_network_name_full_path'])
+    spreadsheet_df       = kn.get_spreadsheet_df(spreadsheet_name_full_path)
+    prop_gene_network_df = kn.get_network_df    ( pg_network_name_full_path)
 
-    spreadsheet_gene_names = kn.extract_spreadsheet_gene_names(spreadsheet_df)
-
+    spreadsheet_gene_names      = kn.extract_spreadsheet_gene_names(spreadsheet_df)
     prop_gene_network_n1_names, \
-    prop_gene_network_n2_names = kn.extract_network_node_names(prop_gene_network_df)
+    prop_gene_network_n2_names = kn.extract_network_node_names     (prop_gene_network_df)
+
     # -----------------------------------------------------------------------
     # - limit the gene set to the intersection of network and user gene set -
     # -----------------------------------------------------------------------
-    common_gene_names = kn.find_common_node_names(prop_gene_network_n2_names, spreadsheet_gene_names)
-    common_gene_names_dict = kn.create_node_names_dict(common_gene_names)
-    prop_gene_network_n1_names_dict = kn.create_node_names_dict(prop_gene_network_n1_names)
-    reverse_prop_dict = kn.create_reverse_node_names_dict(prop_gene_network_n1_names_dict)
+    common_gene_names      = kn.find_common_node_names( prop_gene_network_n2_names
+                                                      , spreadsheet_gene_names )
+    common_gene_names_dict = kn.create_node_names_dict( common_gene_names )
+
+    prop_gene_network_n1_names_dict = kn.create_node_names_dict        (prop_gene_network_n1_names     )
+    reverse_prop_dict               = kn.create_reverse_node_names_dict(prop_gene_network_n1_names_dict)
+
     # ----------------------------------------------------------------------------
     # - restrict spreadsheet and network to common genes and drop everthing else -
     # ----------------------------------------------------------------------------
-    new_spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, common_gene_names)
-    prop_gene_network_df = kn.update_network_df(prop_gene_network_df, common_gene_names, "node_2")
+    new_spreadsheet_df         = kn.update_spreadsheet_df(spreadsheet_df,       common_gene_names          )
+    prop_gene_network_df       = kn.update_network_df    (prop_gene_network_df, common_gene_names, "node_2")
     prop_gene_network_df['wt'] = 1
+
     # ----------------------------------------------------------------------------
     # - map every gene name to an integer index in sequential order startng at 0 -
     # ----------------------------------------------------------------------------
-    prop_gene_network_df = kn.map_node_names_to_index(
-        prop_gene_network_df, prop_gene_network_n1_names_dict, "node_1")
-    prop_gene_network_df = kn.map_node_names_to_index(
-        prop_gene_network_df, common_gene_names_dict, "node_2")
+    prop_gene_network_df = kn.map_node_names_to_index( prop_gene_network_df
+                                                     , prop_gene_network_n1_names_dict
+                                                     , "node_1")
+
+    prop_gene_network_df = kn.map_node_names_to_index( prop_gene_network_df
+                                                     , common_gene_names_dict
+                                                     , "node_2")
+
     # --------------------------------------------
     # - store the network in a csr sparse format -
     # --------------------------------------------
-    universe_count = len(common_gene_names)
-    prop_gene_network_sparse = kn.convert_network_df_to_sparse(
-        prop_gene_network_df, universe_count, len(prop_gene_network_n1_names))
-    fisher_contingency_pval = get_fisher_exact_test(
-        prop_gene_network_sparse, reverse_prop_dict, new_spreadsheet_df)
-    fisher_final_result = save_fisher_test_result(
-        fisher_contingency_pval, run_parameters['results_directory'], spreadsheet_df.columns.values)
-    map_and_save_droplist(spreadsheet_df, common_gene_names, 'fisher_droplist', run_parameters)
+    universe_count           = len(common_gene_names)
+
+    prop_gene_network_sparse = kn.convert_network_df_to_sparse( prop_gene_network_df
+                                                              , universe_count
+                                                              , len(prop_gene_network_n1_names))
+
+    fisher_contingency_pval = get_fisher_exact_test           ( prop_gene_network_sparse
+                                                              , reverse_prop_dict
+                                                              , new_spreadsheet_df  )
+
+    fisher_final_result     = save_fisher_test_result         ( fisher_contingency_pval
+                                                              , run_parameters['results_directory']
+                                                              , spreadsheet_df.columns.values  )
+
+    map_and_save_droplist   ( spreadsheet_df
+                            , common_gene_names
+                            , 'fisher_droplist'
+                            , run_parameters  )
 
     return fisher_final_result
 
