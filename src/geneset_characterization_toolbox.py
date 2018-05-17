@@ -94,42 +94,60 @@ def run_DRaWR(run_parameters):
         run_parameters: dictionary of run parameters
     '''
 
-    network_sparse, unique_gene_names, \
-    pg_network_n1_names = build_hybrid_sparse_matrix(run_parameters, True, True)
+    spreadsheet_name_full_path = run_parameters['spreadsheet_name_full_path']
+    results_directory          = run_parameters['results_directory'         ]
 
-    unique_all_node_names = unique_gene_names + pg_network_n1_names
-    spreadsheet_df = kn.get_spreadsheet_df(run_parameters['spreadsheet_name_full_path'])
-    new_spreadsheet_df = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
+    network_sparse,            \
+    unique_gene_names,         \
+    pg_network_n1_names        = build_hybrid_sparse_matrix(run_parameters, True, True)
 
-    unique_genes_length = len(unique_gene_names)
-    property_length = len(set(pg_network_n1_names))
-    base_col = np.append(np.ones(unique_genes_length, dtype=np.int),
-                         np.zeros(property_length, dtype=np.int))
+    unique_all_node_names      = unique_gene_names + pg_network_n1_names
 
-    new_spreadsheet_df = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
-    hetero_network = normalize(network_sparse, norm='l1', axis=0)
+    spreadsheet_df             = kn.get_spreadsheet_df  (spreadsheet_name_full_path)
+    new_spreadsheet_df         = kn.update_spreadsheet_df(spreadsheet_df, unique_all_node_names)
 
-    final_spreadsheet_matrix, step = kn.smooth_matrix_with_rwr(
-        normalize(new_spreadsheet_df, norm='l1', axis=0), hetero_network, run_parameters)
+    unique_genes_length        = len( unique_gene_names        )
+    property_length            = len( set(pg_network_n1_names) )
 
-    final_spreadsheet_df = pd.DataFrame(final_spreadsheet_matrix)
-    final_spreadsheet_df.index = new_spreadsheet_df.index.values
+    base_col                   = np.append( np.ones(unique_genes_length, dtype=np.int),
+                                           np.zeros(property_length,     dtype=np.int)  )
+
+    new_spreadsheet_df         = kn.append_column_to_spreadsheet(new_spreadsheet_df, base_col, 'base')
+
+    hetero_network             = normalize(network_sparse, norm='l1', axis=0)
+
+    normalize_new_spreadsheet  = normalize(new_spreadsheet_df, norm='l1', axis=0)
+
+    final_spreadsheet_matrix,  \
+    step                       = kn.smooth_matrix_with_rwr( normalize_new_spreadsheet
+                                                          , hetero_network
+                                                          , run_parameters     )
+
+    final_spreadsheet_df         = pd.DataFrame(final_spreadsheet_matrix)
+    final_spreadsheet_df.index   = new_spreadsheet_df.index.values
     final_spreadsheet_df.columns = new_spreadsheet_df.columns.values
-    prop_spreadsheet_df = rank_drawr_property(final_spreadsheet_df, pg_network_n1_names)
+    prop_spreadsheet_df          = rank_drawr_property( final_spreadsheet_df
+                                                      , pg_network_n1_names  )
 
-    spreadsheet_df_mask = final_spreadsheet_df.loc[final_spreadsheet_df.index.isin(spreadsheet_df.index)]
-    gene_result_df = construct_drawr_result_df(
-        spreadsheet_df_mask, 0, spreadsheet_df_mask.shape[0], True, run_parameters)
-    prop_result_df = construct_drawr_result_df(
-        final_spreadsheet_df, unique_genes_length, final_spreadsheet_df.shape[0], False, run_parameters)
+    tmp_index                    = final_spreadsheet_df.index.isin(spreadsheet_df.index)
+    spreadsheet_df_mask          = final_spreadsheet_df.loc[tmp_index]
 
-    save_timestamped_df(prop_spreadsheet_df, run_parameters['results_directory'], 'DRaWR_ranked_by_property')
-    save_timestamped_df(
-        gene_result_df, run_parameters['results_directory'], 'DRaWR_sorted_by_gene_score')
-    save_timestamped_df(
-        prop_result_df, run_parameters['results_directory'], 'DRaWR_sorted_by_property_score')
+    gene_result_df = construct_drawr_result_df( spreadsheet_df_mask
+                                              , 0
+                                              , spreadsheet_df_mask.shape[0]
+                                              , True
+                                              , run_parameters  )
 
-    map_and_save_droplist(spreadsheet_df, unique_gene_names, 'DRaWR_droplist', run_parameters)
+    prop_result_df = construct_drawr_result_df( final_spreadsheet_df
+                                              , unique_genes_length
+                                              , final_spreadsheet_df.shape[0]
+                                              , False
+                                              , run_parameters  )
+
+    save_timestamped_df  ( prop_spreadsheet_df, results_directory, 'DRaWR_ranked_by_property'      )
+    save_timestamped_df  ( gene_result_df,      results_directory, 'DRaWR_sorted_by_gene_score'    )
+    save_timestamped_df  ( prop_result_df,      results_directory, 'DRaWR_sorted_by_property_score')
+    map_and_save_droplist( spreadsheet_df,      unique_gene_names, 'DRaWR_droplist', run_parameters)
 
     return prop_spreadsheet_df
 
