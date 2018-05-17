@@ -279,13 +279,16 @@ def get_net_path_results(gene_length, smooth_rwr_matrix, run_parameters):
     """
 
     np.random.seed(0)
-    U_unitary_matrix, S_full_squared_matrix = \
-    calculate_k_SVDS(smooth_rwr_matrix, int(run_parameters['k_space']))
+    k_space               = run_parameters['k_space']
+    U_unitary_matrix,     \
+    S_full_squared_matrix = calculate_k_SVDS(smooth_rwr_matrix, int(k_space))
 
-    g_newspace_matrix, p_newspace_matrix = project_matrix_to_new_space_and_split(
-        U_unitary_matrix, S_full_squared_matrix, gene_length)
+    g_newspace_matrix,    \
+    p_newspace_matrix     = project_matrix_to_new_space_and_split( U_unitary_matrix
+                                                                 , S_full_squared_matrix
+                                                                 , gene_length  )
 
-    cosine_matrix = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
+    cosine_matrix         = cosine_similarity(g_newspace_matrix, p_newspace_matrix)
 
     return cosine_matrix
 
@@ -300,11 +303,13 @@ def rank_netpath_property(spreadsheet_df, cosine_matrix_df):
     Returns:
         property_rank_df: dataframe with ranked property names in each column.
     """
-    property_rank_df = pd.DataFrame(columns=spreadsheet_df.columns.values)
+    property_rank_df = pd.DataFrame( columns = spreadsheet_df.columns.values )
+
     for col_name in spreadsheet_df.columns.values:
-        user_gene_list = spreadsheet_df[spreadsheet_df[col_name] == 1].index.values
-        new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
+        user_gene_list             = spreadsheet_df[spreadsheet_df[col_name] == 1].index.values
+        new_spreadsheet_df         = cosine_matrix_df.loc[user_gene_list].sum()
         property_rank_df[col_name] = new_spreadsheet_df.sort_values(ascending=False).index.values
+
     return property_rank_df
 
 
@@ -318,21 +323,22 @@ def construct_netpath_result_df(spreadsheet_df, cosine_matrix_df):
     Returns:
         result_df: result five-column dataframe.
     """
-    property_rank_df = pd.DataFrame(
-        columns=spreadsheet_df.columns.values, index=cosine_matrix_df.columns.values)
+    property_rank_df = pd.DataFrame( columns = spreadsheet_df.columns.values
+                                   , index   = cosine_matrix_df.columns.values )
 
     for col_name in spreadsheet_df.columns.values:
-        user_gene_list = spreadsheet_df[spreadsheet_df[col_name] == 1].index.values
-        new_spreadsheet_df = cosine_matrix_df.loc[user_gene_list].sum()
+        user_gene_list             = spreadsheet_df[spreadsheet_df[col_name] == 1].index.values
+        new_spreadsheet_df         = cosine_matrix_df.loc[user_gene_list].sum()
         property_rank_df[col_name] = new_spreadsheet_df.values
 
     cosine_sum_val = np.ravel(property_rank_df.values).round(12)
-    set_name = np.array(list(property_rank_df.columns.values) * (property_rank_df.shape[0]))
-    gene_name = np.repeat(property_rank_df.index.values, property_rank_df.shape[1])
+    set_name       = np.array(list(property_rank_df.columns.values) * (property_rank_df.shape[0]))
+    gene_name      = np.repeat(property_rank_df.index.values, property_rank_df.shape[1])
 
-    ret_col = ['user_gene_set', 'property_gene_set', 'cosine_sum']
+    ret_col    = ['user_gene_set', 'property_gene_set', 'cosine_sum']
     result_val = np.column_stack((set_name, gene_name, cosine_sum_val))
-    result_df = pd.DataFrame(result_val, columns=ret_col).sort_values("cosine_sum", ascending=False)
+    result_df  = pd.DataFrame(result_val, columns=ret_col).sort_values("cosine_sum", ascending=False)
+
     return result_df
 
 
@@ -372,31 +378,38 @@ def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df)
         fisher_contingency_pval: list of seven items lists.
     """
     universe_count = spreadsheet_df.shape[0]
-    overlap_count = prop_gene_network_sparse.T.dot(spreadsheet_df.values)
-    user_count = np.sum(spreadsheet_df.values, axis=0)
-    gene_count = prop_gene_network_sparse.sum(axis=0)
-    set_list = spreadsheet_df.columns.values
+    overlap_count  = prop_gene_network_sparse.T.dot(spreadsheet_df.values)
+    user_count     = np.sum(spreadsheet_df.values, axis=0)
+    gene_count     = prop_gene_network_sparse.sum(axis=0)
+    set_list       = spreadsheet_df.columns.values
 
-    dimension = [range(overlap_count.shape[0]), range(overlap_count.shape[1])]
-    combinations = list(itertools.product(*dimension))
-    parallelism = dstutil.determine_parallelism_locally(len(combinations))
+    dimension      = [range(overlap_count.shape[0]), range(overlap_count.shape[1])]
+    combinations   = list(itertools.product(*dimension))
+    parallelism    = dstutil.determine_parallelism_locally(len(combinations))
 
+   #----
     try:
+   #----
         p = multiprocessing.Pool(processes=parallelism)
-        p.starmap_async(fisher_exact_worker, zip(itertools.repeat(sparse_dict),
-                                                 itertools.repeat(overlap_count),
-                                                 itertools.repeat(user_count),
-                                                 itertools.repeat(gene_count),
-                                                 itertools.repeat(universe_count),
-                                                 itertools.repeat(set_list),
-                                                 combinations),
-                        callback=callback_extend_list)
+        p.starmap_async(fisher_exact_worker
+                       , zip( itertools.repeat(sparse_dict)
+                            , itertools.repeat(overlap_count)
+                            , itertools.repeat(user_count)
+                            , itertools.repeat(gene_count)
+                            , itertools.repeat(universe_count)
+                            , itertools.repeat(set_list)
+                            , combinations
+                            )
+                       , callback=callback_extend_list  )
         p.close()
         p.join()
         # print(fisher_contingency_pval_parallel_insertion)
         # print(type(fisher_contingency_pval_parallel_insertion))
+
         return fisher_contingency_pval_parallel_insertion
+   #-------
     except:
+   #-------
         raise OSError("Failed running parallel processing:{}".format(sys.exc_info()))
 
 
@@ -427,12 +440,18 @@ def fisher_exact_worker(sparse_dict, overlap_count, user_count, gene_count, univ
     Returns:
         row_item
     """
-    i, j = combinations[0], combinations[1]
-    table = build_fisher_contingency_table(overlap_count[i, j], user_count[j], gene_count[0, i], universe_count)
-    pvalue = stats.fisher_exact(table, alternative="greater")[1]
+    i, j     = combinations[0], combinations[1]
+    table    = build_fisher_contingency_table(overlap_count[i, j], user_count[j], gene_count[0, i], universe_count)
+    pvalue   = stats.fisher_exact(table, alternative="greater")[1]
     new_pval = np.round(-1.0 * np.log10(pvalue), 12)
-    row_item = [set_list[j], sparse_dict[i], new_pval, int(universe_count), 
-    int(user_count[j]), int(gene_count[0, i]), int(overlap_count[i, j])]
+    row_item = [ set_list[j]
+               , sparse_dict[i]
+               , new_pval
+               , int( universe_count      )
+               , int( user_count[j]       )
+               , int( gene_count[0, i]    )
+               , int( overlap_count[i, j] )
+               ]
     return row_item
 
 
