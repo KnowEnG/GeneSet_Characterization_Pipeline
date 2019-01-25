@@ -74,7 +74,8 @@ def run_fisher(run_parameters):
 
     fisher_contingency_pval = get_fisher_exact_test           ( prop_gene_network_sparse
                                                               , reverse_prop_dict
-                                                              , new_spreadsheet_df  )
+                                                              , new_spreadsheet_df
+                                                              , run_parameters['max_cpu']  )
 
     fisher_final_result     = save_fisher_test_result         ( fisher_contingency_pval
                                                               , run_parameters['results_directory']
@@ -366,13 +367,14 @@ def build_fisher_contingency_table(overlap_count, user_count, gene_count, count)
 fisher_contingency_pval_parallel_insertion = []
 
 
-def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df):
+def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df, max_cpu):
     """ central loop: compute components for fisher exact test.
 
     Args:
         prop_gene_network_sparse: sparse matrix of network gene set.
         sparse_dict: look up table of sparse matrix.
         spreadsheet_df: the dataframe of user gene set.
+        max_cpu: the maximum number of processors to use.
 
     Returns:
         fisher_contingency_pval: list of seven items lists.
@@ -385,7 +387,7 @@ def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df)
 
     dimension      = [range(overlap_count.shape[0]), range(overlap_count.shape[1])]
     combinations   = list(itertools.product(*dimension))
-    parallelism    = dstutil.determine_parallelism_locally(len(combinations))
+    parallelism    = dstutil.determine_parallelism_locally(min(max_cpu, len(combinations)))
 
    #----
     try:

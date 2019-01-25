@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------------------------------
 # - Analysis Method: fisher, DRaWR, net_path                                                           -
 # ------------------------------------------------------------------------------------------------------
-method: net_path
+method:                     net_path
 
 # --------------------------------------------------------------------
 # - 4 col edge adjacency dataframe in .tsv format                    -
@@ -11,7 +11,7 @@ method: net_path
 gg_network_name_full_path:  ../data/networks/STRING_experimental_gene_gene.edge
 pg_network_name_full_path:  ../data/networks/kegg_pathway_property_gene.edge
 spreadsheet_name_full_path: ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500.rname.gxc.tsv
-gene_names_map: ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500_MAP.rname.gxc.tsv
+gene_names_map:             ../data/spreadsheets/ProGENI_rwr20_STExp_GDSC_500_MAP.rname.gxc.tsv
 
 # --------------------------------------------------------------------
 # - directory where the result files will be written                 -
@@ -30,5 +30,5 @@ rwr_restart_probability:    0.5
 # --------------------------------------------------------------------
 # - number of dimensions of the new space in SVD                     -
 # --------------------------------------------------------------------
-k_space: 100                            
-
+k_space:                    100                            
+max_cpu:                    4
