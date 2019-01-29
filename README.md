@@ -126,6 +126,7 @@ __***Follow steps 1-3 above then do the following:***__
 | rwr_convergence_tolerence | 0.0001 | Frobenius norm tolerence of spreadsheet vector in random walk(needed in DRaWR and Net Path)|
 | rwr_restart_probability | 0.5 | alpha in `V_(n+1) = alpha * N * Vn + (1-alpha) * Vo` (needed in DRaWR and Net Path) |
 | k_space| 100| number of the new space dimensions in SVD(only needed in Net Path)|
+| max_cpu | 4| Maximum number of processors to use |
 
 pg_network_name = kegg_pathway_property_gene.edge</br>
 gg_network_name = STRING_experimental_gene_gene.edge</br>
