@@ -4,7 +4,7 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
-import geneset_characterization_toolbox as tl
+import kngenesetcharacterization.geneset_characterization_toolbox as tl
 import numpy as np
 
 class TestPerform_net_path(TestCase):

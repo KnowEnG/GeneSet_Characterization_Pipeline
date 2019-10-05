@@ -5,17 +5,17 @@ Created on Wed Jul 20 14:47:45 2016
 
 def fisher(run_parameters):
     '''fisher geneset characterization'''
-    from geneset_characterization_toolbox import run_fisher
+    from .geneset_characterization_toolbox import run_fisher
     run_fisher(run_parameters)
     
 def DRaWR(run_parameters):
     '''Discriminative Random Walk with Restart'''
-    from geneset_characterization_toolbox import run_DRaWR
+    from .geneset_characterization_toolbox import run_DRaWR
     run_DRaWR(run_parameters)
 
 def net_path(run_parameters):
     '''net_path geneset characterization method'''
-    from geneset_characterization_toolbox import run_net_path
+    from .geneset_characterization_toolbox import run_net_path
     run_net_path(run_parameters)
 
 SELECT = {

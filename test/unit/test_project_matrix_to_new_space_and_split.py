@@ -1,6 +1,6 @@
 import unittest
 from unittest import TestCase
-import geneset_characterization_toolbox as tl
+import kngenesetcharacterization.geneset_characterization_toolbox as tl
 import numpy as np
 
 

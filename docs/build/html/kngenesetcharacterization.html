@@ -1,0 +1,415 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>kngenesetcharacterization package &#8212; geneset_characterization_pipeline 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="kngenesetcharacterization-package">
+<h1>kngenesetcharacterization package<a class="headerlink" href="#kngenesetcharacterization-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-kngenesetcharacterization.geneset_characterization">
+<span id="kngenesetcharacterization-geneset-characterization-module"></span><h2>kngenesetcharacterization.geneset_characterization module<a class="headerlink" href="#module-kngenesetcharacterization.geneset_characterization" title="Permalink to this headline">¶</a></h2>
+<p>Created on Wed Jul 20 14:47:45 2016
+&#64;author: The Gene Sets Characterization dev team</p>
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization.DRaWR">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization.</code><code class="descname">DRaWR</code><span class="sig-paren">(</span><em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization.html#DRaWR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization.DRaWR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Discriminative Random Walk with Restart</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization.fisher">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization.</code><code class="descname">fisher</code><span class="sig-paren">(</span><em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization.html#fisher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization.fisher" title="Permalink to this definition">¶</a></dt>
+<dd><p>fisher geneset characterization</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization.main">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>This the main function to characterize gene
+set from three methods: fisher, DRaWR, net path.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization.net_path">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization.</code><code class="descname">net_path</code><span class="sig-paren">(</span><em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization.html#net_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization.net_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>net_path geneset characterization method</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kngenesetcharacterization.geneset_characterization_toolbox">
+<span id="kngenesetcharacterization-geneset-characterization-toolbox-module"></span><h2>kngenesetcharacterization.geneset_characterization_toolbox module<a class="headerlink" href="#module-kngenesetcharacterization.geneset_characterization_toolbox" title="Permalink to this headline">¶</a></h2>
+<p>Created on Tue Jun 28 14:39:35 2016
+&#64;author: The Gene Sets Characterization dev team</p>
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.build_fisher_contingency_table">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">build_fisher_contingency_table</code><span class="sig-paren">(</span><em>overlap_count</em>, <em>user_count</em>, <em>gene_count</em>, <em>count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#build_fisher_contingency_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.build_fisher_contingency_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>build contingency table for fisher exact test.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>overlap_count: count of overlaps in user gene set and network gene set.
+user_count: count of ones in user gene set.
+gene_count: count of ones in network gene set
+count: number of universe genes.</dd>
+<dt>Returns:</dt>
+<dd>table: the contigency table used in fisher test.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.build_hybrid_sparse_matrix">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">build_hybrid_sparse_matrix</code><span class="sig-paren">(</span><em>run_parameters</em>, <em>normalize_by_sum</em>, <em>construct_by_union</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#build_hybrid_sparse_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.build_hybrid_sparse_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is to build hybrid sparse matrix with gene gene network and
+gene property network.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>run_parameters: dictionary of run parameters.
+normalize_by_sum: boolean value to check normalization.
+construct_by_union: boolean value to check construct by union.</dd>
+<dt>Returns:</dt>
+<dd>network_sparse: output sparse matrix.
+unique_gene_names: gene names of the hybrid matrix
+pg_network_n1_names: property names of hybrid matrix.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.calculate_k_SVDS">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">calculate_k_SVDS</code><span class="sig-paren">(</span><em>smooth_spreadsheet_matrix</em>, <em>k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#calculate_k_SVDS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.calculate_k_SVDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform SVDs on input matrix.
+Args:</p>
+<blockquote>
+<div>smooth_spreadsheet_matrix: Input matrix to perform SVDs on.
+k: Number of singular values and vectors to compute.</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>U_unitary_matrix: Unitary matrix having left singular vectors as column.
+S_full_squared_matrix: Matrix with diagonal to be k singular values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.callback_extend_list">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">callback_extend_list</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#callback_extend_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.callback_extend_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function called by function get_fisher_exact_test. It extends items to a global list</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>item: input to append to global list</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.construct_drawr_result_df">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">construct_drawr_result_df</code><span class="sig-paren">(</span><em>input_df</em>, <em>start_index</em>, <em>end_index</em>, <em>map_back</em>, <em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#construct_drawr_result_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.construct_drawr_result_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a five-column DRaWR result dataframe with
+selected rows from smoothed spreadsheet dataframe.
+Args:</p>
+<blockquote>
+<div>input_df: input spreadsheet dataframe.
+start_index: starting index
+end_index: end index
+map_back: boolean value to check whether to map gene names to the orignal names</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>result_df: result five-column dataframe.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.construct_netpath_result_df">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">construct_netpath_result_df</code><span class="sig-paren">(</span><em>spreadsheet_df</em>, <em>cosine_matrix_df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#construct_netpath_result_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.construct_netpath_result_df" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Construct a three-column netpath result dataframe with header as user_gene_set’,</dt>
+<dd>‘property_gene_set’ and ‘cosine_sum’</dd>
+<dt>Args:</dt>
+<dd>spreadsheet_df: user supplied spreadsheet dataframe.
+cosine_matrix_df: dataframe with cosine value.</dd>
+<dt>Returns:</dt>
+<dd>result_df: result five-column dataframe.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.fisher_exact_worker">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">fisher_exact_worker</code><span class="sig-paren">(</span><em>sparse_dict</em>, <em>overlap_count</em>, <em>user_count</em>, <em>gene_count</em>, <em>universe_count</em>, <em>set_list</em>, <em>combinations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#fisher_exact_worker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.fisher_exact_worker" title="Permalink to this definition">¶</a></dt>
+<dd><p>worker of parallel execution called by function get_fisher_exact_test</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>sparse_dict:
+overlap_count:
+user_count:
+gene_count:
+universe_count:
+set_list:
+combinations:</dd>
+<dt>Returns:</dt>
+<dd>row_item</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.get_fisher_exact_test">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">get_fisher_exact_test</code><span class="sig-paren">(</span><em>prop_gene_network_sparse</em>, <em>sparse_dict</em>, <em>spreadsheet_df</em>, <em>max_cpu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#get_fisher_exact_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.get_fisher_exact_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>central loop: compute components for fisher exact test.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>prop_gene_network_sparse: sparse matrix of network gene set.
+sparse_dict: look up table of sparse matrix.
+spreadsheet_df: the dataframe of user gene set.
+max_cpu: the maximum number of processors to use.</dd>
+<dt>Returns:</dt>
+<dd>fisher_contingency_pval: list of seven items lists.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.get_net_path_results">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">get_net_path_results</code><span class="sig-paren">(</span><em>gene_length</em>, <em>smooth_rwr_matrix</em>, <em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#get_net_path_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.get_net_path_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform net path method on gene characterization.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>gene_length: length of gene list.
+smooth_rwr_matrix: smoothed matrix need to perform SVD on
+run_parameters: parameters dictionary.</dd>
+<dt>Returns:</dt>
+<dd>cosine_matrix: matrix with property and gene cosine similarity values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.map_and_save_droplist">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">map_and_save_droplist</code><span class="sig-paren">(</span><em>spreadsheet_df</em>, <em>gene_names</em>, <em>droplist_name</em>, <em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#map_and_save_droplist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.map_and_save_droplist" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is to map and save droplist</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>spreadsheet_df: user supplied spreadsheet dataframe.
+gene_names: list of genes.
+droplist_name: name of droplist file.
+run_parameters: dictionary of run parameters.</dd>
+<dt>Returns:</dt>
+<dd>property_rank_df: dataframe with ranked property names in each column.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.project_matrix_to_new_space_and_split">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">project_matrix_to_new_space_and_split</code><span class="sig-paren">(</span><em>U_unitary_matrix</em>, <em>S_full_squared_matrix</em>, <em>unique_gene_length</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#project_matrix_to_new_space_and_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.project_matrix_to_new_space_and_split" title="Permalink to this definition">¶</a></dt>
+<dd><p>This to project matrix to the new space and split into gene and
+property two parts.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>U_unitary_matrix: Unitary matrix having left singular vectors as column.
+S_full_squared_matrix: Matrix with diagonal to be k singular values.
+unique_gene_length: Length of unique genes.</dd>
+<dt>Returns:</dt>
+<dd>g_newspace_matrix: gene matrix projected to the new space.
+p_newspace_matrix: property matrix projected to new space.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.rank_drawr_property">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">rank_drawr_property</code><span class="sig-paren">(</span><em>final_spreadsheet_df</em>, <em>pg_network_n1_names</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#rank_drawr_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.rank_drawr_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is to rank properties for each user gene set.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>final_spreadsheet_df: final smoothed dataframe.
+pg_network_n1_names: list of property names.</dd>
+<dt>Returns:</dt>
+<dd>prop_spreadsheet_df: a new spreadsheet with user gene set as header and properties as values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.rank_netpath_property">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">rank_netpath_property</code><span class="sig-paren">(</span><em>spreadsheet_df</em>, <em>cosine_matrix_df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#rank_netpath_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.rank_netpath_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is to rank property based on cosine values:</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>spreadsheet_df: user supplied spreadsheet dataframe.
+cosine_matrix_df: dataframe with cosine value.</dd>
+<dt>Returns:</dt>
+<dd>property_rank_df: dataframe with ranked property names in each column.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.run_DRaWR">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">run_DRaWR</code><span class="sig-paren">(</span><em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#run_DRaWR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.run_DRaWR" title="Permalink to this definition">¶</a></dt>
+<dd><p>wrapper: call sequence to perform random walk with restart
+Args:</p>
+<blockquote>
+<div>run_parameters: dictionary of run parameters</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.run_fisher">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">run_fisher</code><span class="sig-paren">(</span><em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#run_fisher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.run_fisher" title="Permalink to this definition">¶</a></dt>
+<dd><p>wrapper: call sequence to perform fisher gene-set characterization
+Args:</p>
+<blockquote>
+<div>run_parameters: dictionary of run parameters</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.run_net_path">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">run_net_path</code><span class="sig-paren">(</span><em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#run_net_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.run_net_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>wrapper: call sequence to perform net path
+Args:</p>
+<blockquote>
+<div>run_parameters: dictionary of run parameters</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.save_cosine_matrix_df">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">save_cosine_matrix_df</code><span class="sig-paren">(</span><em>cosine_matrix_df</em>, <em>run_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#save_cosine_matrix_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.save_cosine_matrix_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is to save the cosine matrix df to output file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cosine_matrix_df: dataframe with cosine value.
+run_parameters: parameters dictionary.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.save_fisher_test_result">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">save_fisher_test_result</code><span class="sig-paren">(</span><em>fisher_contingency_pval</em>, <em>results_dir</em>, <em>set_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#save_fisher_test_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.save_fisher_test_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save two output files of fisher exact test results.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>fisher_contingency_pval: list of seven items lists.
+set_list: column values of spreadsheet.</dd>
+<dt>Returns:</dt>
+<dd>result_df: the final dataframe of fisher exact test</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.save_timestamped_df">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">save_timestamped_df</code><span class="sig-paren">(</span><em>input_df</em>, <em>results_dir</em>, <em>output_file_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#save_timestamped_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.save_timestamped_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save dataframe to files with timestamped name.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>fisher_contingency_pval: list of seven items lists.
+results_dir: directory to save outputs.
+output_file_name: file name.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kngenesetcharacterization.geneset_characterization_toolbox.smooth_final_spreadsheet_matrix">
+<code class="descclassname">kngenesetcharacterization.geneset_characterization_toolbox.</code><code class="descname">smooth_final_spreadsheet_matrix</code><span class="sig-paren">(</span><em>final_rwr_matrix</em>, <em>gene_length</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kngenesetcharacterization/geneset_characterization_toolbox.html#smooth_final_spreadsheet_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kngenesetcharacterization.geneset_characterization_toolbox.smooth_final_spreadsheet_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is to add pseudo count to the input matrix.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>final_rwr_matrix: input matrix.
+gene_length: length of genes.</dd>
+<dt>Returns:</dt>
+<dd>smooth_rwr_matrix: the smoothed matrix with pseudo counts.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kngenesetcharacterization">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-kngenesetcharacterization" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">geneset_characterization_pipeline</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, KnowEnG_Team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/kngenesetcharacterization.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

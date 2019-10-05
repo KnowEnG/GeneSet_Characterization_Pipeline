@@ -102,12 +102,12 @@ __***Follow steps 1-3 above then do the following:***__
 
   * Update PYTHONPATH environment variable
    ``` 
-   export PYTHONPATH='./src':$PYTHONPATH    
+   export PYTHONPATH='../':$PYTHONPATH    
    ```
    
   * Run
    ```
-  python3 ../src/geneset_characterization.py -run_directory ./run_dir -run_file BENCHMARK_1_fisher.yml
+  python3 -m kngenesetcharacterization.geneset_characterization -run_directory ./run_dir -run_file BENCHMARK_1_fisher.yml
    ```
 
 * * * 

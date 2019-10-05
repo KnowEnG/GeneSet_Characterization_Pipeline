@@ -1,8 +1,8 @@
 # ----------------------------------------------------------------
 # Variables setup Section                                        -
 # ----------------------------------------------------------------
-SCRIPT = 		../src/geneset_characterization.py
-RUN_DIR = 		./run_dir
+SCRIPT = -m kngenesetcharacterization.geneset_characterization
+RUN_DIR = ./run_dir
 RUN_FILES = ../data/run_files
 RESULTS_DIR = $(RUN_DIR)/results
 INPUT_DATA_DIR = ../data
@@ -10,6 +10,7 @@ UNIT_TEST_TEMP_DIR = ./unit/tmp
 DATA_DIR = ../data/networks ../data/spreadsheets
 INPUT_DATA = $(foreach dir,$(DATA_DIR),$(wildcard $(dir)/*))
 INPUT_DATA_SUFFIX = $(suffix $(INPUT_DATA))
+PYTHONPATH=../
 
 RMR = 			rm -rf
 GZIP = 			gzip
@@ -51,25 +52,25 @@ clean_dir_recursively:
 # Large Benchmarks RUN Section                                   -
 # ----------------------------------------------------------------
 run_fisher:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file BENCHMARK_1_fisher.yml 
+	PYTHONPATH=${PYTHONPATH} python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file BENCHMARK_1_fisher.yml 
 
 run_drawr:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file BENCHMARK_2_DRaWR.yml
+	PYTHONPATH=${PYTHONPATH} python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file BENCHMARK_2_DRaWR.yml
 
 run_netpath:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file BENCHMARK_3_net_path.yml
+	PYTHONPATH=${PYTHONPATH} python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file BENCHMARK_3_net_path.yml
 
 # ----------------------------------------------------------------
 # Small Benchmarks RUN Section                                   -
 # ----------------------------------------------------------------
 run_fisher_small:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_1_fisher.yml 
+	PYTHONPATH=${PYTHONPATH} python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_1_fisher.yml 
 
 run_drawr_small:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_2_DRaWR.yml
+	PYTHONPATH=${PYTHONPATH} python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_2_DRaWR.yml
 
 run_netpath_small:
-	python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_3_net_path.yml
+	PYTHONPATH=${PYTHONPATH} python3 $(SCRIPT) -run_directory $(RUN_DIR) -run_file TEST_3_net_path.yml
 
 # ----------------------------------------------------------------
 # - VERIFICATION TESTS RUN SECTION                               -

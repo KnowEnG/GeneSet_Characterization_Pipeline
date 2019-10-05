@@ -5,9 +5,9 @@
     
 * Change to the GeneSet_Characterization_Pipeline/docs directory in your cloned code.
 * Generate the intermediate (.rst) files at the command prompt:
-    * >> sphinx-apidoc -f -o source/ ../src/
+    * >> sphinx-apidoc -f -o source/ ../kngenesetcharacterization/
     
 * Use the ./docs/Makefile to generate the _html_ code:
-    * >> make html
+    * >> PYTHONPATH=../ make html
 
 * In your browser bookmark the ./docs/build/html/index.html documentation homepage.

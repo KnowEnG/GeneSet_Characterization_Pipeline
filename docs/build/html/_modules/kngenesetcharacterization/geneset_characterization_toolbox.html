@@ -1,0 +1,750 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>kngenesetcharacterization.geneset_characterization_toolbox &#8212; geneset_characterization_pipeline 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for kngenesetcharacterization.geneset_characterization_toolbox</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Tue Jun 28 14:39:35 2016</span>
+<span class="sd">@author: The Gene Sets Characterization dev team</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span>        <span class="k">import</span> <span class="n">csc_matrix</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse.linalg</span> <span class="k">import</span> <span class="n">svds</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">normalize</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="k">import</span> <span class="n">cosine_similarity</span>
+<span class="kn">import</span> <span class="nn">knpackage.toolbox</span> <span class="k">as</span> <span class="nn">kn</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">knpackage.distributed_computing_utils</span> <span class="k">as</span> <span class="nn">dstutil</span>
+
+<div class="viewcode-block" id="run_fisher"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.run_fisher">[docs]</a><span class="k">def</span> <span class="nf">run_fisher</span><span class="p">(</span><span class="n">run_parameters</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; wrapper: call sequence to perform fisher gene-set characterization</span>
+<span class="sd">    Args:</span>
+<span class="sd">        run_parameters: dictionary of run parameters</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">spreadsheet_name_full_path</span> <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;spreadsheet_name_full_path&#39;</span><span class="p">]</span>
+    <span class="n">pg_network_name_full_path</span>  <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;pg_network_name_full_path&#39;</span> <span class="p">]</span>
+
+    <span class="c1"># -----------------------------------</span>
+    <span class="c1"># - Data read and extraction Section -</span>
+    <span class="c1"># -----------------------------------</span>
+    <span class="n">spreadsheet_df</span>       <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">get_spreadsheet_df</span><span class="p">(</span><span class="n">spreadsheet_name_full_path</span><span class="p">)</span>
+    <span class="n">prop_gene_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">get_network_df</span>    <span class="p">(</span> <span class="n">pg_network_name_full_path</span><span class="p">)</span>
+
+    <span class="n">spreadsheet_gene_names</span>      <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">extract_spreadsheet_gene_names</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="p">)</span>
+    <span class="n">prop_gene_network_n1_names</span><span class="p">,</span> \
+    <span class="n">prop_gene_network_n2_names</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">extract_network_node_names</span>     <span class="p">(</span><span class="n">prop_gene_network_df</span><span class="p">)</span>
+
+    <span class="c1"># -----------------------------------------------------------------------</span>
+    <span class="c1"># - limit the gene set to the intersection of network and user gene set -</span>
+    <span class="c1"># -----------------------------------------------------------------------</span>
+    <span class="n">common_gene_names</span>      <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">find_common_node_names</span><span class="p">(</span> <span class="n">prop_gene_network_n2_names</span>
+                                                      <span class="p">,</span> <span class="n">spreadsheet_gene_names</span> <span class="p">)</span>
+    <span class="n">common_gene_names_dict</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">create_node_names_dict</span><span class="p">(</span> <span class="n">common_gene_names</span> <span class="p">)</span>
+
+    <span class="n">prop_gene_network_n1_names_dict</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">create_node_names_dict</span>        <span class="p">(</span><span class="n">prop_gene_network_n1_names</span>     <span class="p">)</span>
+    <span class="n">reverse_prop_dict</span>               <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">create_reverse_node_names_dict</span><span class="p">(</span><span class="n">prop_gene_network_n1_names_dict</span><span class="p">)</span>
+
+    <span class="c1"># ----------------------------------------------------------------------------</span>
+    <span class="c1"># - restrict spreadsheet and network to common genes and drop everthing else -</span>
+    <span class="c1"># ----------------------------------------------------------------------------</span>
+    <span class="n">new_spreadsheet_df</span>         <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">update_spreadsheet_df</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="p">,</span>       <span class="n">common_gene_names</span>          <span class="p">)</span>
+    <span class="n">prop_gene_network_df</span>       <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">update_network_df</span>    <span class="p">(</span><span class="n">prop_gene_network_df</span><span class="p">,</span> <span class="n">common_gene_names</span><span class="p">,</span> <span class="s2">&quot;node_2&quot;</span><span class="p">)</span>
+    <span class="n">prop_gene_network_df</span><span class="p">[</span><span class="s1">&#39;wt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># ----------------------------------------------------------------------------</span>
+    <span class="c1"># - map every gene name to an integer index in sequential order startng at 0 -</span>
+    <span class="c1"># ----------------------------------------------------------------------------</span>
+    <span class="n">prop_gene_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">map_node_names_to_index</span><span class="p">(</span> <span class="n">prop_gene_network_df</span>
+                                                     <span class="p">,</span> <span class="n">prop_gene_network_n1_names_dict</span>
+                                                     <span class="p">,</span> <span class="s2">&quot;node_1&quot;</span><span class="p">)</span>
+
+    <span class="n">prop_gene_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">map_node_names_to_index</span><span class="p">(</span> <span class="n">prop_gene_network_df</span>
+                                                     <span class="p">,</span> <span class="n">common_gene_names_dict</span>
+                                                     <span class="p">,</span> <span class="s2">&quot;node_2&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --------------------------------------------</span>
+    <span class="c1"># - store the network in a csr sparse format -</span>
+    <span class="c1"># --------------------------------------------</span>
+    <span class="n">universe_count</span>           <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">common_gene_names</span><span class="p">)</span>
+
+    <span class="n">prop_gene_network_sparse</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">convert_network_df_to_sparse</span><span class="p">(</span> <span class="n">prop_gene_network_df</span>
+                                                              <span class="p">,</span> <span class="n">universe_count</span>
+                                                              <span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prop_gene_network_n1_names</span><span class="p">))</span>
+
+    <span class="n">fisher_contingency_pval</span> <span class="o">=</span> <span class="n">get_fisher_exact_test</span>           <span class="p">(</span> <span class="n">prop_gene_network_sparse</span>
+                                                              <span class="p">,</span> <span class="n">reverse_prop_dict</span>
+                                                              <span class="p">,</span> <span class="n">new_spreadsheet_df</span>
+                                                              <span class="p">,</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;max_cpu&#39;</span><span class="p">]</span>  <span class="p">)</span>
+
+    <span class="n">fisher_final_result</span>     <span class="o">=</span> <span class="n">save_fisher_test_result</span>         <span class="p">(</span> <span class="n">fisher_contingency_pval</span>
+                                                              <span class="p">,</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;results_directory&#39;</span><span class="p">]</span>
+                                                              <span class="p">,</span> <span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span>  <span class="p">)</span>
+
+    <span class="n">map_and_save_droplist</span>   <span class="p">(</span> <span class="n">spreadsheet_df</span>
+                            <span class="p">,</span> <span class="n">common_gene_names</span>
+                            <span class="p">,</span> <span class="s1">&#39;fisher_droplist&#39;</span>
+                            <span class="p">,</span> <span class="n">run_parameters</span>  <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fisher_final_result</span></div>
+
+
+<div class="viewcode-block" id="run_DRaWR"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.run_DRaWR">[docs]</a><span class="k">def</span> <span class="nf">run_DRaWR</span><span class="p">(</span><span class="n">run_parameters</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; wrapper: call sequence to perform random walk with restart</span>
+<span class="sd">    Args:</span>
+<span class="sd">        run_parameters: dictionary of run parameters</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">spreadsheet_name_full_path</span> <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;spreadsheet_name_full_path&#39;</span><span class="p">]</span>
+    <span class="n">results_directory</span>          <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;results_directory&#39;</span>         <span class="p">]</span>
+
+    <span class="n">network_sparse</span><span class="p">,</span>            \
+    <span class="n">unique_gene_names</span><span class="p">,</span>         \
+    <span class="n">pg_network_n1_names</span>        <span class="o">=</span> <span class="n">build_hybrid_sparse_matrix</span><span class="p">(</span><span class="n">run_parameters</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">unique_all_node_names</span>      <span class="o">=</span> <span class="n">unique_gene_names</span> <span class="o">+</span> <span class="n">pg_network_n1_names</span>
+
+    <span class="n">spreadsheet_df</span>             <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">get_spreadsheet_df</span>  <span class="p">(</span><span class="n">spreadsheet_name_full_path</span><span class="p">)</span>
+    <span class="n">new_spreadsheet_df</span>         <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">update_spreadsheet_df</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="p">,</span> <span class="n">unique_all_node_names</span><span class="p">)</span>
+
+    <span class="n">unique_genes_length</span>        <span class="o">=</span> <span class="nb">len</span><span class="p">(</span> <span class="n">unique_gene_names</span>        <span class="p">)</span>
+    <span class="n">property_length</span>            <span class="o">=</span> <span class="nb">len</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span><span class="n">pg_network_n1_names</span><span class="p">)</span> <span class="p">)</span>
+
+    <span class="n">base_col</span>                   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">unique_genes_length</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span>
+                                           <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">property_length</span><span class="p">,</span>     <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>  <span class="p">)</span>
+
+    <span class="n">new_spreadsheet_df</span>         <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">append_column_to_spreadsheet</span><span class="p">(</span><span class="n">new_spreadsheet_df</span><span class="p">,</span> <span class="n">base_col</span><span class="p">,</span> <span class="s1">&#39;base&#39;</span><span class="p">)</span>
+
+    <span class="n">hetero_network</span>             <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">network_sparse</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">normalize_new_spreadsheet</span>  <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">new_spreadsheet_df</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">final_spreadsheet_matrix</span><span class="p">,</span>  \
+    <span class="n">step</span>                       <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">smooth_matrix_with_rwr</span><span class="p">(</span> <span class="n">normalize_new_spreadsheet</span>
+                                                          <span class="p">,</span> <span class="n">hetero_network</span>
+                                                          <span class="p">,</span> <span class="n">run_parameters</span>     <span class="p">)</span>
+
+    <span class="n">final_spreadsheet_df</span>         <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">final_spreadsheet_matrix</span><span class="p">)</span>
+    <span class="n">final_spreadsheet_df</span><span class="o">.</span><span class="n">index</span>   <span class="o">=</span> <span class="n">new_spreadsheet_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">final_spreadsheet_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">new_spreadsheet_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">prop_spreadsheet_df</span>          <span class="o">=</span> <span class="n">rank_drawr_property</span><span class="p">(</span> <span class="n">final_spreadsheet_df</span>
+                                                      <span class="p">,</span> <span class="n">pg_network_n1_names</span>  <span class="p">)</span>
+
+    <span class="n">tmp_index</span>                    <span class="o">=</span> <span class="n">final_spreadsheet_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">spreadsheet_df_mask</span>          <span class="o">=</span> <span class="n">final_spreadsheet_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">tmp_index</span><span class="p">]</span>
+
+    <span class="n">gene_result_df</span> <span class="o">=</span> <span class="n">construct_drawr_result_df</span><span class="p">(</span> <span class="n">spreadsheet_df_mask</span>
+                                              <span class="p">,</span> <span class="mi">0</span>
+                                              <span class="p">,</span> <span class="n">spreadsheet_df_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                              <span class="p">,</span> <span class="kc">True</span>
+                                              <span class="p">,</span> <span class="n">run_parameters</span>  <span class="p">)</span>
+
+    <span class="n">prop_result_df</span> <span class="o">=</span> <span class="n">construct_drawr_result_df</span><span class="p">(</span> <span class="n">final_spreadsheet_df</span>
+                                              <span class="p">,</span> <span class="n">unique_genes_length</span>
+                                              <span class="p">,</span> <span class="n">final_spreadsheet_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                              <span class="p">,</span> <span class="kc">False</span>
+                                              <span class="p">,</span> <span class="n">run_parameters</span>  <span class="p">)</span>
+
+    <span class="n">save_timestamped_df</span>  <span class="p">(</span> <span class="n">prop_spreadsheet_df</span><span class="p">,</span> <span class="n">results_directory</span><span class="p">,</span> <span class="s1">&#39;DRaWR_ranked_by_property&#39;</span>      <span class="p">)</span>
+    <span class="n">save_timestamped_df</span>  <span class="p">(</span> <span class="n">gene_result_df</span><span class="p">,</span>      <span class="n">results_directory</span><span class="p">,</span> <span class="s1">&#39;DRaWR_sorted_by_gene_score&#39;</span>    <span class="p">)</span>
+    <span class="n">save_timestamped_df</span>  <span class="p">(</span> <span class="n">prop_result_df</span><span class="p">,</span>      <span class="n">results_directory</span><span class="p">,</span> <span class="s1">&#39;DRaWR_sorted_by_property_score&#39;</span><span class="p">)</span>
+    <span class="n">map_and_save_droplist</span><span class="p">(</span> <span class="n">spreadsheet_df</span><span class="p">,</span>      <span class="n">unique_gene_names</span><span class="p">,</span> <span class="s1">&#39;DRaWR_droplist&#39;</span><span class="p">,</span> <span class="n">run_parameters</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">prop_spreadsheet_df</span></div>
+
+
+<div class="viewcode-block" id="run_net_path"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.run_net_path">[docs]</a><span class="k">def</span> <span class="nf">run_net_path</span><span class="p">(</span><span class="n">run_parameters</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; wrapper: call sequence to perform net path</span>
+<span class="sd">    Args:</span>
+<span class="sd">        run_parameters: dictionary of run parameters</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">spreadsheet_name_full_path</span> <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;spreadsheet_name_full_path&#39;</span><span class="p">]</span>
+    <span class="n">results_directory</span>          <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;results_directory&#39;</span>         <span class="p">]</span>
+
+    <span class="n">network_sparse</span><span class="p">,</span>            \
+    <span class="n">unique_gene_names</span><span class="p">,</span>         \
+    <span class="n">pg_network_n1_names</span>        <span class="o">=</span> <span class="n">build_hybrid_sparse_matrix</span><span class="p">(</span><span class="n">run_parameters</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">spreadsheet_df</span>             <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">get_spreadsheet_df</span><span class="p">(</span><span class="n">spreadsheet_name_full_path</span><span class="p">)</span>
+    <span class="n">new_spreadsheet_df</span>         <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">update_spreadsheet_df</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="p">,</span> <span class="n">unique_gene_names</span><span class="p">)</span>
+
+    <span class="n">hetero_network</span>             <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">network_sparse</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">identity_mat</span>               <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">hetero_network</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">final_rwr_matrix</span><span class="p">,</span>          \
+    <span class="n">step</span>                       <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">smooth_matrix_with_rwr</span><span class="p">(</span> <span class="n">identity_mat</span><span class="p">,</span> <span class="n">hetero_network</span><span class="p">,</span> <span class="n">run_parameters</span><span class="p">)</span>
+    <span class="n">smooth_rwr_matrix</span>          <span class="o">=</span> <span class="n">smooth_final_spreadsheet_matrix</span><span class="p">(</span><span class="n">final_rwr_matrix</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_gene_names</span><span class="p">))</span>
+
+    <span class="n">cosine_matrix</span>              <span class="o">=</span> <span class="n">get_net_path_results</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_gene_names</span><span class="p">),</span> <span class="n">smooth_rwr_matrix</span><span class="p">,</span> <span class="n">run_parameters</span><span class="p">)</span>
+
+    <span class="n">cosine_matrix_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">cosine_matrix</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">unique_gene_names</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">pg_network_n1_names</span><span class="p">)</span>
+    <span class="c1">#----------------------</span>
+    <span class="c1"># save_cosine_matrix_df(cosine_matrix_df, run_parameters)</span>
+    <span class="c1">#----------------------</span>
+    <span class="n">property_rank_df</span> <span class="o">=</span> <span class="n">rank_netpath_property</span>      <span class="p">(</span><span class="n">new_spreadsheet_df</span><span class="p">,</span> <span class="n">cosine_matrix_df</span><span class="p">)</span>
+    <span class="n">prop_result_df</span>   <span class="o">=</span> <span class="n">construct_netpath_result_df</span><span class="p">(</span><span class="n">new_spreadsheet_df</span><span class="p">,</span> <span class="n">cosine_matrix_df</span><span class="p">)</span>
+
+    <span class="n">save_timestamped_df</span>  <span class="p">(</span><span class="n">property_rank_df</span><span class="p">,</span> <span class="n">results_directory</span><span class="p">,</span> <span class="s1">&#39;net_path_ranked_by_property&#39;</span><span class="p">)</span>
+    <span class="n">save_timestamped_df</span>  <span class="p">(</span><span class="n">prop_result_df</span><span class="p">,</span>   <span class="n">results_directory</span><span class="p">,</span> <span class="s1">&#39;net_path_sorted_by_property_score&#39;</span><span class="p">)</span>
+    <span class="n">map_and_save_droplist</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="p">,</span>   <span class="n">unique_gene_names</span><span class="p">,</span> <span class="s1">&#39;net_path_droplist&#39;</span><span class="p">,</span> <span class="n">run_parameters</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">property_rank_df</span></div>
+
+
+<div class="viewcode-block" id="calculate_k_SVDS"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.calculate_k_SVDS">[docs]</a><span class="k">def</span> <span class="nf">calculate_k_SVDS</span><span class="p">(</span><span class="n">smooth_spreadsheet_matrix</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform SVDs on input matrix.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        smooth_spreadsheet_matrix: Input matrix to perform SVDs on.</span>
+<span class="sd">        k: Number of singular values and vectors to compute.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        U_unitary_matrix: Unitary matrix having left singular vectors as column.</span>
+<span class="sd">        S_full_squared_matrix: Matrix with diagonal to be k singular values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sparse_smooth_spreadsheet_matrix</span>                   <span class="o">=</span> <span class="n">csc_matrix</span><span class="p">(</span><span class="n">smooth_spreadsheet_matrix</span><span class="p">)</span>
+    <span class="n">U_unitary_matrix</span><span class="p">,</span> <span class="n">singular_value</span><span class="p">,</span> <span class="n">V_unitary_matrix</span> <span class="o">=</span> <span class="n">svds</span><span class="p">(</span><span class="n">sparse_smooth_spreadsheet_matrix</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">U_unitary_matrix</span>                                   <span class="o">=</span> <span class="n">U_unitary_matrix</span><span class="p">[:,</span> <span class="p">:</span><span class="n">k</span><span class="p">]</span>
+    <span class="n">S_full_squared_matrix</span>                              <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">S_full_squared_matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">singular_value</span><span class="p">[:</span><span class="n">k</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">U_unitary_matrix</span><span class="p">,</span> <span class="n">S_full_squared_matrix</span></div>
+
+
+<div class="viewcode-block" id="project_matrix_to_new_space_and_split"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.project_matrix_to_new_space_and_split">[docs]</a><span class="k">def</span> <span class="nf">project_matrix_to_new_space_and_split</span><span class="p">(</span><span class="n">U_unitary_matrix</span><span class="p">,</span> <span class="n">S_full_squared_matrix</span><span class="p">,</span>
+                                          <span class="n">unique_gene_length</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This to project matrix to the new space and split into gene and</span>
+<span class="sd">    property two parts.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        U_unitary_matrix: Unitary matrix having left singular vectors as column.</span>
+<span class="sd">        S_full_squared_matrix: Matrix with diagonal to be k singular values.</span>
+<span class="sd">        unique_gene_length: Length of unique genes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        g_newspace_matrix: gene matrix projected to the new space.</span>
+<span class="sd">        p_newspace_matrix: property matrix projected to new space.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">L</span>                 <span class="o">=</span> <span class="n">U_unitary_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">S_full_squared_matrix</span><span class="p">)</span>
+    <span class="n">g_newspace_matrix</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span> <span class="p">:</span> <span class="n">unique_gene_length</span>   <span class="p">]</span>
+    <span class="n">p_newspace_matrix</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span>   <span class="n">unique_gene_length</span> <span class="p">:</span> <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">g_newspace_matrix</span><span class="p">,</span> <span class="n">p_newspace_matrix</span></div>
+
+
+<div class="viewcode-block" id="smooth_final_spreadsheet_matrix"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.smooth_final_spreadsheet_matrix">[docs]</a><span class="k">def</span> <span class="nf">smooth_final_spreadsheet_matrix</span><span class="p">(</span><span class="n">final_rwr_matrix</span><span class="p">,</span> <span class="n">gene_length</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is to add pseudo count to the input matrix.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        final_rwr_matrix: input matrix.</span>
+<span class="sd">        gene_length: length of genes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        smooth_rwr_matrix: the smoothed matrix with pseudo counts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="p">((</span><span class="n">final_rwr_matrix</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+
+    <span class="n">eps</span>               <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">gene_length</span><span class="p">)</span>
+    <span class="n">smooth_rwr_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">final_rwr_matrix</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">smooth_rwr_matrix</span></div>
+
+
+<div class="viewcode-block" id="save_cosine_matrix_df"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.save_cosine_matrix_df">[docs]</a><span class="k">def</span> <span class="nf">save_cosine_matrix_df</span><span class="p">(</span><span class="n">cosine_matrix_df</span><span class="p">,</span> <span class="n">run_parameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is to save the cosine matrix df to output file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cosine_matrix_df: dataframe with cosine value.</span>
+<span class="sd">        run_parameters: parameters dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results_directory</span>   <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;results_directory&#39;</span><span class="p">]</span>
+    <span class="n">new_file_name</span>       <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">create_timestamped_filename</span><span class="p">(</span><span class="s2">&quot;cosine_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;df&quot;</span><span class="p">)</span>
+    <span class="n">file_full_path_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results_directory</span><span class="p">,</span><span class="n">new_file_name</span><span class="p">)</span>
+
+    <span class="n">cosine_matrix_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span> <span class="n">file_full_path_name</span>
+                           <span class="p">,</span> <span class="n">header</span> <span class="o">=</span><span class="kc">True</span>
+                           <span class="p">,</span> <span class="n">index</span>  <span class="o">=</span><span class="kc">True</span>
+                           <span class="p">,</span> <span class="n">sep</span>  <span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_net_path_results"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.get_net_path_results">[docs]</a><span class="k">def</span> <span class="nf">get_net_path_results</span><span class="p">(</span><span class="n">gene_length</span><span class="p">,</span> <span class="n">smooth_rwr_matrix</span><span class="p">,</span> <span class="n">run_parameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform net path method on gene characterization.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gene_length: length of gene list.</span>
+<span class="sd">        smooth_rwr_matrix: smoothed matrix need to perform SVD on</span>
+<span class="sd">        run_parameters: parameters dictionary.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        cosine_matrix: matrix with property and gene cosine similarity values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">k_space</span>               <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;k_space&#39;</span><span class="p">]</span>
+    <span class="n">U_unitary_matrix</span><span class="p">,</span>     \
+    <span class="n">S_full_squared_matrix</span> <span class="o">=</span> <span class="n">calculate_k_SVDS</span><span class="p">(</span><span class="n">smooth_rwr_matrix</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">k_space</span><span class="p">))</span>
+
+    <span class="n">g_newspace_matrix</span><span class="p">,</span>    \
+    <span class="n">p_newspace_matrix</span>     <span class="o">=</span> <span class="n">project_matrix_to_new_space_and_split</span><span class="p">(</span> <span class="n">U_unitary_matrix</span>
+                                                                 <span class="p">,</span> <span class="n">S_full_squared_matrix</span>
+                                                                 <span class="p">,</span> <span class="n">gene_length</span>  <span class="p">)</span>
+
+    <span class="n">cosine_matrix</span>         <span class="o">=</span> <span class="n">cosine_similarity</span><span class="p">(</span><span class="n">g_newspace_matrix</span><span class="p">,</span> <span class="n">p_newspace_matrix</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cosine_matrix</span></div>
+
+
+<div class="viewcode-block" id="rank_netpath_property"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.rank_netpath_property">[docs]</a><span class="k">def</span> <span class="nf">rank_netpath_property</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="p">,</span> <span class="n">cosine_matrix_df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is to rank property based on cosine values:</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spreadsheet_df: user supplied spreadsheet dataframe.</span>
+<span class="sd">        cosine_matrix_df: dataframe with cosine value.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        property_rank_df: dataframe with ranked property names in each column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">property_rank_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span> <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+        <span class="n">user_gene_list</span>             <span class="o">=</span> <span class="n">spreadsheet_df</span><span class="p">[</span><span class="n">spreadsheet_df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">new_spreadsheet_df</span>         <span class="o">=</span> <span class="n">cosine_matrix_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">user_gene_list</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">property_rank_df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_spreadsheet_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">return</span> <span class="n">property_rank_df</span></div>
+
+
+<div class="viewcode-block" id="construct_netpath_result_df"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.construct_netpath_result_df">[docs]</a><span class="k">def</span> <span class="nf">construct_netpath_result_df</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="p">,</span> <span class="n">cosine_matrix_df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Construct a three-column netpath result dataframe with header as user_gene_set&#39;,</span>
+<span class="sd">     &#39;property_gene_set&#39; and &#39;cosine_sum&#39;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spreadsheet_df: user supplied spreadsheet dataframe.</span>
+<span class="sd">        cosine_matrix_df: dataframe with cosine value.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        result_df: result five-column dataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">property_rank_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span>
+                                   <span class="p">,</span> <span class="n">index</span>   <span class="o">=</span> <span class="n">cosine_matrix_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span> <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+        <span class="n">user_gene_list</span>             <span class="o">=</span> <span class="n">spreadsheet_df</span><span class="p">[</span><span class="n">spreadsheet_df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">new_spreadsheet_df</span>         <span class="o">=</span> <span class="n">cosine_matrix_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">user_gene_list</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">property_rank_df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_spreadsheet_df</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">cosine_sum_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">property_rank_df</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">set_name</span>       <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">property_rank_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">property_rank_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">gene_name</span>      <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">property_rank_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">property_rank_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">ret_col</span>    <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user_gene_set&#39;</span><span class="p">,</span> <span class="s1">&#39;property_gene_set&#39;</span><span class="p">,</span> <span class="s1">&#39;cosine_sum&#39;</span><span class="p">]</span>
+    <span class="n">result_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">set_name</span><span class="p">,</span> <span class="n">gene_name</span><span class="p">,</span> <span class="n">cosine_sum_val</span><span class="p">))</span>
+    <span class="n">result_df</span>  <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result_val</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">ret_col</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;cosine_sum&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result_df</span></div>
+
+
+<div class="viewcode-block" id="build_fisher_contingency_table"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.build_fisher_contingency_table">[docs]</a><span class="k">def</span> <span class="nf">build_fisher_contingency_table</span><span class="p">(</span><span class="n">overlap_count</span><span class="p">,</span> <span class="n">user_count</span><span class="p">,</span> <span class="n">gene_count</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; build contingency table for fisher exact test.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        overlap_count: count of overlaps in user gene set and network gene set.</span>
+<span class="sd">        user_count: count of ones in user gene set.</span>
+<span class="sd">        gene_count: count of ones in network gene set</span>
+<span class="sd">        count: number of universe genes.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        table: the contigency table used in fisher test.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">overlap_count</span>
+    <span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_count</span> <span class="o">-</span> <span class="n">overlap_count</span>
+    <span class="n">table</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">gene_count</span> <span class="o">-</span> <span class="n">overlap_count</span>
+    <span class="n">table</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span> <span class="o">-</span> <span class="n">user_count</span> <span class="o">-</span> <span class="n">gene_count</span> <span class="o">+</span> <span class="n">overlap_count</span>
+
+    <span class="k">return</span> <span class="n">table</span></div>
+
+
+<span class="c1"># A global list used exclusively in get_fisher_exact_test as a callback variable of parallel execution</span>
+<span class="n">fisher_contingency_pval_parallel_insertion</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<div class="viewcode-block" id="get_fisher_exact_test"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.get_fisher_exact_test">[docs]</a><span class="k">def</span> <span class="nf">get_fisher_exact_test</span><span class="p">(</span><span class="n">prop_gene_network_sparse</span><span class="p">,</span> <span class="n">sparse_dict</span><span class="p">,</span> <span class="n">spreadsheet_df</span><span class="p">,</span> <span class="n">max_cpu</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; central loop: compute components for fisher exact test.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        prop_gene_network_sparse: sparse matrix of network gene set.</span>
+<span class="sd">        sparse_dict: look up table of sparse matrix.</span>
+<span class="sd">        spreadsheet_df: the dataframe of user gene set.</span>
+<span class="sd">        max_cpu: the maximum number of processors to use.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        fisher_contingency_pval: list of seven items lists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">universe_count</span> <span class="o">=</span> <span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">overlap_count</span>  <span class="o">=</span> <span class="n">prop_gene_network_sparse</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">user_count</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">gene_count</span>     <span class="o">=</span> <span class="n">prop_gene_network_sparse</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">set_list</span>       <span class="o">=</span> <span class="n">spreadsheet_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">dimension</span>      <span class="o">=</span> <span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">overlap_count</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">range</span><span class="p">(</span><span class="n">overlap_count</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+    <span class="n">combinations</span>   <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">dimension</span><span class="p">))</span>
+    <span class="n">parallelism</span>    <span class="o">=</span> <span class="n">dstutil</span><span class="o">.</span><span class="n">determine_parallelism_locally</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">max_cpu</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">combinations</span><span class="p">)))</span>
+
+   <span class="c1">#----</span>
+    <span class="k">try</span><span class="p">:</span>
+   <span class="c1">#----</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">parallelism</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">starmap_async</span><span class="p">(</span><span class="n">fisher_exact_worker</span>
+                       <span class="p">,</span> <span class="nb">zip</span><span class="p">(</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">sparse_dict</span><span class="p">)</span>
+                            <span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">overlap_count</span><span class="p">)</span>
+                            <span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">user_count</span><span class="p">)</span>
+                            <span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">gene_count</span><span class="p">)</span>
+                            <span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">universe_count</span><span class="p">)</span>
+                            <span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">set_list</span><span class="p">)</span>
+                            <span class="p">,</span> <span class="n">combinations</span>
+                            <span class="p">)</span>
+                       <span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback_extend_list</span>  <span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="c1"># print(fisher_contingency_pval_parallel_insertion)</span>
+        <span class="c1"># print(type(fisher_contingency_pval_parallel_insertion))</span>
+
+        <span class="k">return</span> <span class="n">fisher_contingency_pval_parallel_insertion</span>
+   <span class="c1">#-------</span>
+    <span class="k">except</span><span class="p">:</span>
+   <span class="c1">#-------</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;Failed running parallel processing:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="callback_extend_list"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.callback_extend_list">[docs]</a><span class="k">def</span> <span class="nf">callback_extend_list</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Callback function called by function get_fisher_exact_test. It extends items to a global list</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        item: input to append to global list</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fisher_contingency_pval_parallel_insertion</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="fisher_exact_worker"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.fisher_exact_worker">[docs]</a><span class="k">def</span> <span class="nf">fisher_exact_worker</span><span class="p">(</span><span class="n">sparse_dict</span><span class="p">,</span> <span class="n">overlap_count</span><span class="p">,</span> <span class="n">user_count</span><span class="p">,</span> <span class="n">gene_count</span><span class="p">,</span> <span class="n">universe_count</span><span class="p">,</span> <span class="n">set_list</span><span class="p">,</span> <span class="n">combinations</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; worker of parallel execution called by function get_fisher_exact_test</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sparse_dict:</span>
+<span class="sd">        overlap_count:</span>
+<span class="sd">        user_count:</span>
+<span class="sd">        gene_count:</span>
+<span class="sd">        universe_count:</span>
+<span class="sd">        set_list:</span>
+<span class="sd">        combinations:</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        row_item</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">j</span>     <span class="o">=</span> <span class="n">combinations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">combinations</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">table</span>    <span class="o">=</span> <span class="n">build_fisher_contingency_table</span><span class="p">(</span><span class="n">overlap_count</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">user_count</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">gene_count</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="n">universe_count</span><span class="p">)</span>
+    <span class="n">pvalue</span>   <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">fisher_exact</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;greater&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">new_pval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">pvalue</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
+    <span class="n">row_item</span> <span class="o">=</span> <span class="p">[</span> <span class="n">set_list</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+               <span class="p">,</span> <span class="n">sparse_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+               <span class="p">,</span> <span class="n">new_pval</span>
+               <span class="p">,</span> <span class="nb">int</span><span class="p">(</span> <span class="n">universe_count</span>      <span class="p">)</span>
+               <span class="p">,</span> <span class="nb">int</span><span class="p">(</span> <span class="n">user_count</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>       <span class="p">)</span>
+               <span class="p">,</span> <span class="nb">int</span><span class="p">(</span> <span class="n">gene_count</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>    <span class="p">)</span>
+               <span class="p">,</span> <span class="nb">int</span><span class="p">(</span> <span class="n">overlap_count</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="p">)</span>
+               <span class="p">]</span>
+    <span class="k">return</span> <span class="n">row_item</span></div>
+
+
+<div class="viewcode-block" id="save_fisher_test_result"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.save_fisher_test_result">[docs]</a><span class="k">def</span> <span class="nf">save_fisher_test_result</span><span class="p">(</span><span class="n">fisher_contingency_pval</span><span class="p">,</span> <span class="n">results_dir</span><span class="p">,</span> <span class="n">set_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Save two output files of fisher exact test results.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fisher_contingency_pval: list of seven items lists.</span>
+<span class="sd">        set_list: column values of spreadsheet.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        result_df: the final dataframe of fisher exact test</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_col</span>    <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;user_gene_set&quot;</span>
+                <span class="p">,</span> <span class="s2">&quot;property_gene_set&quot;</span>
+                <span class="p">,</span> <span class="s2">&quot;pval&quot;</span>
+                <span class="p">,</span> <span class="s2">&quot;universe_count&quot;</span>
+                <span class="p">,</span> <span class="s2">&quot;user_count&quot;</span>
+                <span class="p">,</span> <span class="s2">&quot;property_count&quot;</span>
+                <span class="p">,</span> <span class="s2">&quot;overlap_count&quot;</span>  <span class="p">]</span>
+
+    <span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">fisher_contingency_pval</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">df_col</span><span class="p">)</span>
+    <span class="n">result_df</span> <span class="o">=</span> <span class="n">result_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s1">&#39;pval&#39;</span><span class="p">,</span> <span class="s1">&#39;user_gene_set&#39;</span><span class="p">,</span> <span class="s1">&#39;property_gene_set&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">result_df_with_score</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">set_list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">gene_set</span> <span class="ow">in</span> <span class="n">set_list</span><span class="p">:</span>
+        <span class="n">result_df_with_score</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">gene_set</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;user_gene_set&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">gene_set</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">save_timestamped_df</span><span class="p">(</span><span class="n">result_df_with_score</span><span class="p">,</span> <span class="n">results_dir</span><span class="p">,</span> <span class="s1">&#39;fisher_ranked_by_property&#39;</span>      <span class="p">)</span>
+    <span class="n">save_timestamped_df</span><span class="p">(</span><span class="n">result_df</span><span class="p">,</span>            <span class="n">results_dir</span><span class="p">,</span> <span class="s1">&#39;fisher_sorted_by_property_score&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result_df</span></div>
+
+
+<div class="viewcode-block" id="rank_drawr_property"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.rank_drawr_property">[docs]</a><span class="k">def</span> <span class="nf">rank_drawr_property</span><span class="p">(</span><span class="n">final_spreadsheet_df</span><span class="p">,</span> <span class="n">pg_network_n1_names</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This is to rank properties for each user gene set.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        final_spreadsheet_df: final smoothed dataframe.</span>
+<span class="sd">        pg_network_n1_names: list of property names.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        prop_spreadsheet_df: a new spreadsheet with user gene set as header and properties as values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prop_spreadsheet_df</span>              <span class="o">=</span> <span class="n">final_spreadsheet_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pg_network_n1_names</span><span class="p">]</span>
+
+    <span class="n">prop_spreadsheet_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop_spreadsheet_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">prop_spreadsheet_df</span><span class="p">[</span><span class="s1">&#39;base&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="n">prop_spreadsheet_df</span>              <span class="o">=</span> <span class="n">prop_spreadsheet_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;base&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">prop_spreadsheet_df</span></div>
+
+
+<div class="viewcode-block" id="construct_drawr_result_df"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.construct_drawr_result_df">[docs]</a><span class="k">def</span> <span class="nf">construct_drawr_result_df</span><span class="p">(</span><span class="n">input_df</span><span class="p">,</span> <span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span><span class="p">,</span> <span class="n">map_back</span><span class="p">,</span> <span class="n">run_parameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Construct a five-column DRaWR result dataframe with</span>
+<span class="sd">    selected rows from smoothed spreadsheet dataframe.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        input_df: input spreadsheet dataframe.</span>
+<span class="sd">        start_index: starting index</span>
+<span class="sd">        end_index: end index</span>
+<span class="sd">        map_back: boolean value to check whether to map gene names to the orignal names</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        result_df: result five-column dataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">gene_names_map</span>          <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s2">&quot;gene_names_map&quot;</span><span class="p">]</span>
+
+    <span class="n">len_set_names</span>           <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">smooth_base</span>             <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">smooth_base</span>             <span class="o">=</span> <span class="n">smooth_base</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">diff_smooth_spreadsheet</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">smooth_base</span>
+    <span class="n">diff_smooth_spreadsheet</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">diff_smooth_spreadsheet</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">diff_val</span>        <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">diff_smooth_spreadsheet</span><span class="p">)</span>
+    <span class="n">orig_val</span>        <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">input_df</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">set_name</span>        <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">input_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">end_index</span> <span class="o">-</span> <span class="n">start_index</span><span class="p">))</span>
+    <span class="n">input_gene_name</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">map_back</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">map_df</span>          <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">gene_names_map</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">input_gene_name</span> <span class="o">=</span> <span class="n">map_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">input_gene_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">ret_col</span>         <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user_gene_set&#39;</span><span class="p">,</span> <span class="s1">&#39;gene_node_id&#39;</span><span class="p">,</span>      <span class="s1">&#39;difference_score&#39;</span><span class="p">,</span> <span class="s1">&#39;query_score&#39;</span><span class="p">,</span> <span class="s1">&#39;baseline_score&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ret_col</span>         <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user_gene_set&#39;</span><span class="p">,</span> <span class="s1">&#39;property_gene_set&#39;</span><span class="p">,</span> <span class="s1">&#39;difference_score&#39;</span><span class="p">,</span> <span class="s1">&#39;query_score&#39;</span><span class="p">,</span> <span class="s1">&#39;baseline_score&#39;</span><span class="p">]</span>
+
+    <span class="n">new_gene_name</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">input_gene_name</span><span class="p">,</span>                                <span class="n">len_set_names</span><span class="p">)</span>
+    <span class="n">base_val</span>      <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">input_df</span><span class="p">[</span><span class="s1">&#39;base&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">],</span> <span class="n">len_set_names</span><span class="p">)</span>
+    
+    <span class="n">result_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">set_name</span><span class="p">,</span> <span class="n">new_gene_name</span><span class="p">,</span> <span class="n">diff_val</span><span class="p">,</span> <span class="n">orig_val</span><span class="p">,</span> <span class="n">base_val</span><span class="p">))</span>
+    <span class="n">result_df</span>  <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result_val</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">ret_col</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;difference_score&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">result_df</span></div>
+
+
+<div class="viewcode-block" id="save_timestamped_df"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.save_timestamped_df">[docs]</a><span class="k">def</span> <span class="nf">save_timestamped_df</span><span class="p">(</span><span class="n">input_df</span><span class="p">,</span> <span class="n">results_dir</span><span class="p">,</span> <span class="n">output_file_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Save dataframe to files with timestamped name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fisher_contingency_pval: list of seven items lists.</span>
+<span class="sd">        results_dir: directory to save outputs.</span>
+<span class="sd">        output_file_name: file name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">create_timestamped_filename</span><span class="p">(</span><span class="n">output_file_name</span><span class="p">,</span> <span class="s2">&quot;df&quot;</span><span class="p">)</span>
+    <span class="n">kn</span><span class="o">.</span><span class="n">save_df</span><span class="p">(</span><span class="n">input_df</span><span class="p">,</span> <span class="n">results_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="map_and_save_droplist"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.map_and_save_droplist">[docs]</a><span class="k">def</span> <span class="nf">map_and_save_droplist</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="p">,</span> <span class="n">gene_names</span><span class="p">,</span> <span class="n">droplist_name</span><span class="p">,</span> <span class="n">run_parameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is to map and save droplist</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spreadsheet_df: user supplied spreadsheet dataframe.</span>
+<span class="sd">        gene_names: list of genes.</span>
+<span class="sd">        droplist_name: name of droplist file.</span>
+<span class="sd">        run_parameters: dictionary of run parameters.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        property_rank_df: dataframe with ranked property names in each column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">gene_names_map</span>    <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s2">&quot;gene_names_map&quot;</span><span class="p">]</span>
+    <span class="n">results_directory</span> <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;results_directory&#39;</span><span class="p">]</span>
+
+    <span class="n">droplist</span>        <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">find_dropped_node_names</span><span class="p">(</span><span class="n">spreadsheet_df</span><span class="p">,</span> <span class="n">gene_names</span><span class="p">)</span>
+    <span class="n">map_df</span>          <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">gene_names_map</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">new_droplist_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">map_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">droplist</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">droplist_name</span><span class="p">])</span>
+    <span class="n">file_name</span>       <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">create_timestamped_filename</span><span class="p">(</span><span class="n">droplist_name</span><span class="p">,</span> <span class="s2">&quot;tsv&quot;</span><span class="p">)</span>
+
+    <span class="n">kn</span><span class="o">.</span><span class="n">save_df</span><span class="p">(</span><span class="n">new_droplist_df</span><span class="p">,</span> <span class="n">results_directory</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="build_hybrid_sparse_matrix"><a class="viewcode-back" href="../../kngenesetcharacterization.html#kngenesetcharacterization.geneset_characterization_toolbox.build_hybrid_sparse_matrix">[docs]</a><span class="k">def</span> <span class="nf">build_hybrid_sparse_matrix</span><span class="p">(</span><span class="n">run_parameters</span><span class="p">,</span> <span class="n">normalize_by_sum</span><span class="p">,</span> <span class="n">construct_by_union</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is to build hybrid sparse matrix with gene gene network and</span>
+<span class="sd">    gene property network.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        run_parameters: dictionary of run parameters.</span>
+<span class="sd">        normalize_by_sum: boolean value to check normalization.</span>
+<span class="sd">        construct_by_union: boolean value to check construct by union.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        network_sparse: output sparse matrix.</span>
+<span class="sd">        unique_gene_names: gene names of the hybrid matrix</span>
+<span class="sd">        pg_network_n1_names: property names of hybrid matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pg_network_name_full_path</span> <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;pg_network_name_full_path&#39;</span><span class="p">]</span>
+    <span class="n">gg_network_name_full_path</span> <span class="o">=</span> <span class="n">run_parameters</span><span class="p">[</span><span class="s1">&#39;gg_network_name_full_path&#39;</span><span class="p">]</span>
+
+    <span class="n">pg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">get_network_df</span><span class="p">(</span><span class="n">pg_network_name_full_path</span><span class="p">)</span>
+    <span class="n">gg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">get_network_df</span><span class="p">(</span><span class="n">gg_network_name_full_path</span><span class="p">)</span>
+
+    <span class="n">pg_network_n1_names</span><span class="p">,</span>\
+    <span class="n">pg_network_n2_names</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">extract_network_node_names</span><span class="p">(</span><span class="n">pg_network_df</span><span class="p">)</span>
+
+    <span class="n">gg_network_n1_names</span><span class="p">,</span>\
+    <span class="n">gg_network_n2_names</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">extract_network_node_names</span><span class="p">(</span><span class="n">gg_network_df</span><span class="p">)</span>
+
+    <span class="c1">#-------------------</span>
+    <span class="c1"># limit the gene set to the intersection of networks (gene_gene and prop_gene) and user gene set</span>
+    <span class="c1">#-------------------</span>
+    <span class="n">unique_gene_names</span>     <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">find_unique_node_names</span><span class="p">(</span><span class="n">gg_network_n1_names</span><span class="p">,</span> <span class="n">gg_network_n2_names</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">construct_by_union</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">unique_gene_names</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">find_unique_node_names</span><span class="p">(</span><span class="n">unique_gene_names</span><span class="p">,</span> <span class="n">pg_network_n2_names</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pg_network_df</span>     <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">update_network_df</span><span class="p">(</span><span class="n">pg_network_df</span><span class="p">,</span> <span class="n">unique_gene_names</span><span class="p">,</span> <span class="s1">&#39;node_2&#39;</span><span class="p">)</span>
+
+    <span class="n">unique_gene_names_dict</span>   <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">create_node_names_dict</span><span class="p">(</span><span class="n">unique_gene_names</span>                          <span class="p">)</span>
+    <span class="n">pg_network_n1_names_dict</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">create_node_names_dict</span><span class="p">(</span><span class="n">pg_network_n1_names</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_gene_names</span><span class="p">))</span>
+
+    <span class="n">unique_all_node_names</span> <span class="o">=</span> <span class="n">unique_gene_names</span> <span class="o">+</span> <span class="n">pg_network_n1_names</span>
+    <span class="c1">#---------------</span>
+    <span class="c1"># map every gene name to a sequential integer index</span>
+    <span class="c1">#---------------</span>
+    <span class="n">gg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">map_node_names_to_index</span><span class="p">(</span><span class="n">gg_network_df</span><span class="p">,</span> <span class="n">unique_gene_names_dict</span><span class="p">,</span>   <span class="s2">&quot;node_1&quot;</span><span class="p">)</span>
+    <span class="n">gg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">map_node_names_to_index</span><span class="p">(</span><span class="n">gg_network_df</span><span class="p">,</span> <span class="n">unique_gene_names_dict</span><span class="p">,</span>   <span class="s2">&quot;node_2&quot;</span><span class="p">)</span>
+    <span class="n">pg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">map_node_names_to_index</span><span class="p">(</span><span class="n">pg_network_df</span><span class="p">,</span> <span class="n">pg_network_n1_names_dict</span><span class="p">,</span> <span class="s2">&quot;node_1&quot;</span><span class="p">)</span>
+    <span class="n">pg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">map_node_names_to_index</span><span class="p">(</span><span class="n">pg_network_df</span><span class="p">,</span> <span class="n">unique_gene_names_dict</span><span class="p">,</span>   <span class="s2">&quot;node_2&quot;</span><span class="p">)</span>
+
+    <span class="n">gg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">symmetrize_df</span><span class="p">(</span><span class="n">gg_network_df</span><span class="p">)</span>
+    <span class="n">pg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">symmetrize_df</span><span class="p">(</span><span class="n">pg_network_df</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">normalize_by_sum</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">gg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">normalize_network_df_by_sum</span><span class="p">(</span><span class="n">gg_network_df</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span>
+        <span class="n">pg_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">normalize_network_df_by_sum</span><span class="p">(</span><span class="n">pg_network_df</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span>
+
+    <span class="n">hybrid_network_df</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">form_hybrid_network_df</span><span class="p">([</span><span class="n">gg_network_df</span><span class="p">,</span> <span class="n">pg_network_df</span><span class="p">])</span>
+
+    <span class="c1">#------------------</span>
+    <span class="c1"># store the network in a csr sparse format</span>
+    <span class="c1">#------------------</span>
+    <span class="n">network_sparse</span> <span class="o">=</span> <span class="n">kn</span><span class="o">.</span><span class="n">convert_network_df_to_sparse</span><span class="p">(</span>
+        <span class="n">hybrid_network_df</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_all_node_names</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_all_node_names</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">network_sparse</span><span class="p">,</span> <span class="n">unique_gene_names</span><span class="p">,</span> <span class="n">pg_network_n1_names</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">geneset_characterization_pipeline</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, KnowEnG_Team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
