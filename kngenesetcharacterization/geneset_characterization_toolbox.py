@@ -364,7 +364,7 @@ def build_fisher_contingency_table(overlap_count, user_count, gene_count, count)
 
 
 # A global list used exclusively in get_fisher_exact_test as a callback variable of parallel execution
-fisher_contingency_pval_parallel_insertion = []
+fisher_contingency_pval_parallel_insertion = None
 
 
 def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df, max_cpu):
@@ -379,6 +379,11 @@ def get_fisher_exact_test(prop_gene_network_sparse, sparse_dict, spreadsheet_df,
     Returns:
         fisher_contingency_pval: list of seven items lists.
     """
+
+    # reset the global list in case this method has already been called in this process
+    global fisher_contingency_pval_parallel_insertion
+    fisher_contingency_pval_parallel_insertion = []
+
     universe_count = spreadsheet_df.shape[0]
     overlap_count  = prop_gene_network_sparse.T.dot(spreadsheet_df.values)
     user_count     = np.sum(spreadsheet_df.values, axis=0)
